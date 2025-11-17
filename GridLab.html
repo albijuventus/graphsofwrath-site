@@ -8434,8 +8434,13 @@ function createVertexSphere(grid, vertexKey, color) {
 function addVertexDecoration(grid, vertexKey, decorationColor) {
   // Auto-create vertex sphere if it doesn't exist
   if (!grid.vertexSpheres.has(vertexKey)) {
+    // First ensure vertex exists in the graph
     const [x, y, z] = vertexKey.split(',').map(Number);
-    addVertex(grid, x, y, z);
+    if (!grid.vertices.has(vertexKey)) {
+      addVertex(grid, x, y, z);
+    }
+    // Create the visible sphere
+    createVertexSphere(grid, vertexKey, 0xcccccc);
   }
 
   const sphereData = grid.vertexSpheres.get(vertexKey);
@@ -13279,8 +13284,13 @@ function handleVertexSphereClick(vertexKey) {
 function handleDecorationClick(vertexKey) {
   // Create vertex sphere if it doesn't exist
   if (!currentGrid.vertexSpheres.has(vertexKey)) {
+    // First ensure vertex exists in the graph
     const [x, y, z] = vertexKey.split(',').map(Number);
-    addVertex(currentGrid, x, y, z);
+    if (!currentGrid.vertices.has(vertexKey)) {
+      addVertex(currentGrid, x, y, z);
+    }
+    // Create the visible sphere
+    createVertexSphere(currentGrid, vertexKey, 0xcccccc);
   }
 
   const beforeState = captureVertexSphereState(vertexKey);
