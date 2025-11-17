@@ -8432,8 +8432,12 @@ function createVertexSphere(grid, vertexKey, color) {
 
 
 function addVertexDecoration(grid, vertexKey, decorationColor) {
-  if (!grid.vertexSpheres.has(vertexKey)) return;
-  
+  // Auto-create vertex sphere if it doesn't exist
+  if (!grid.vertexSpheres.has(vertexKey)) {
+    const [x, y, z] = vertexKey.split(',').map(Number);
+    addVertex(grid, x, y, z);
+  }
+
   const sphereData = grid.vertexSpheres.get(vertexKey);
   if (sphereData.decoration) return; // Already has decoration
   
@@ -13246,12 +13250,12 @@ function handleVertexSphereClick(vertexKey) {
 
 // Handle decoration addition/removal only
 function handleDecorationClick(vertexKey) {
-  // Can only add decoration to existing vertex spheres
+  // Create vertex sphere if it doesn't exist
   if (!currentGrid.vertexSpheres.has(vertexKey)) {
-    console.log("No vertex sphere to decorate - create a vertex sphere first");
-    return;
+    const [x, y, z] = vertexKey.split(',').map(Number);
+    addVertex(currentGrid, x, y, z);
   }
-  
+
   const beforeState = captureVertexSphereState(vertexKey);
   const sphereData = currentGrid.vertexSpheres.get(vertexKey);
   
