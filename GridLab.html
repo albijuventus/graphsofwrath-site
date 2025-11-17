@@ -3346,6 +3346,7 @@ function createEmptyGridData() {
     cameraTarget: null,
     highlightOverlay: null,
     vertexSpheres: new Map(),
+    standaloneDecorations: new Map(),  // Decorations independent of vertices
     vertexHighlight: null,
     notes: "",
     customPlanes: [],  // <-- Changed from customPlane to customPlanes array
@@ -8432,28 +8433,24 @@ function createVertexSphere(grid, vertexKey, color) {
 
 
 function addVertexDecoration(grid, vertexKey, decorationColor) {
-  // Auto-create vertex sphere if it doesn't exist
-  if (!grid.vertexSpheres.has(vertexKey)) {
-    // First ensure vertex exists in the graph
-    const [x, y, z] = vertexKey.split(',').map(Number);
-    if (!grid.vertices.has(vertexKey)) {
-      addVertex(grid, x, y, z);
-    }
-    // Create the visible sphere
-    createVertexSphere(grid, vertexKey, 0xcccccc);
+  // Check if decoration already exists (on vertex sphere or standalone)
+  if (grid.vertexSpheres.has(vertexKey)) {
+    const sphereData = grid.vertexSpheres.get(vertexKey);
+    if (sphereData.decoration) return; // Already has decoration on this vertex
   }
 
-  const sphereData = grid.vertexSpheres.get(vertexKey);
-  if (sphereData.decoration) return; // Already has decoration
-  
+  if (grid.standaloneDecorations.has(vertexKey)) {
+    return; // Already has standalone decoration at this coordinate
+  }
+
   const [x, y, z] = vertexKey.split(',').map(Number);
   const sphereRadius = 0.12;
-  
+
   const decorationGroup = new THREE.Group();
   decorationGroup.position.set(x, y, z);
-  
+
   const segments = 32;
-  
+
   // === Equatorial band (unchanged) ===
   const equatorGeometry = new THREE.SphereGeometry(
     sphereRadius * 1.01,
@@ -8471,7 +8468,7 @@ function addVertexDecoration(grid, vertexKey, decorationColor) {
   const equatorBand = new THREE.Mesh(equatorGeometry, equatorMaterial);
   equatorBand.renderOrder = 10;
   decorationGroup.add(equatorBand);
-  
+
   // === Second band (rotated around Z-axis) ===
   const band2Geometry = new THREE.SphereGeometry(
     sphereRadius * 1.01,
@@ -8490,7 +8487,7 @@ function addVertexDecoration(grid, vertexKey, decorationColor) {
   band2.rotation.z = Math.PI / 2;  // Rotate 90 degrees around Z-axis
   band2.renderOrder = 10;
   decorationGroup.add(band2);
-  
+
   // === Third band (rotated around X-axis) ===
   const band3Geometry = new THREE.SphereGeometry(
     sphereRadius * 1.01,
@@ -8509,9 +8506,18 @@ function addVertexDecoration(grid, vertexKey, decorationColor) {
   band3.rotation.x = Math.PI / 2;  // Rotate 90 degrees around X-axis
   band3.renderOrder = 10;
   decorationGroup.add(band3);
-  
+
   grid.group.add(decorationGroup);
-  sphereData.decoration = decorationGroup;
+
+  // If vertex sphere exists, attach to it; otherwise store as standalone
+  if (grid.vertexSpheres.has(vertexKey)) {
+    grid.vertexSpheres.get(vertexKey).decoration = decorationGroup;
+  } else {
+    grid.standaloneDecorations.set(vertexKey, {
+      decorationGroup: decorationGroup,
+      color: decorationColor
+    });
+  }
 }
 
 function removeVertexSphere(grid, vertexKey) {
@@ -13282,35 +13288,41 @@ function handleVertexSphereClick(vertexKey) {
 
 // Handle decoration addition/removal only
 function handleDecorationClick(vertexKey) {
-  // Create vertex sphere if it doesn't exist
-  if (!currentGrid.vertexSpheres.has(vertexKey)) {
-    // First ensure vertex exists in the graph
-    const [x, y, z] = vertexKey.split(',').map(Number);
-    if (!currentGrid.vertices.has(vertexKey)) {
-      addVertex(currentGrid, x, y, z);
-    }
-    // Create the visible sphere
-    createVertexSphere(currentGrid, vertexKey, 0xcccccc);
-  }
-
   const beforeState = captureVertexSphereState(vertexKey);
-  const sphereData = currentGrid.vertexSpheres.get(vertexKey);
-  
-  if (sphereData.decoration) {
-    // Remove decoration
-    currentGrid.group.remove(sphereData.decoration);
-    if (sphereData.decoration.children) {
-      sphereData.decoration.children.forEach(child => {
+
+  // Check if there's a vertex sphere with decoration
+  if (currentGrid.vertexSpheres.has(vertexKey)) {
+    const sphereData = currentGrid.vertexSpheres.get(vertexKey);
+    if (sphereData.decoration) {
+      // Remove decoration from vertex sphere
+      currentGrid.group.remove(sphereData.decoration);
+      if (sphereData.decoration.children) {
+        sphereData.decoration.children.forEach(child => {
+          if (child.geometry) child.geometry.dispose();
+          if (child.material) child.material.dispose();
+        });
+      }
+      sphereData.decoration = null;
+    } else {
+      // Add decoration to vertex sphere
+      addVertexDecoration(currentGrid, vertexKey, selectedColor2);
+    }
+  } else if (currentGrid.standaloneDecorations.has(vertexKey)) {
+    // Remove standalone decoration
+    const standaloneDec = currentGrid.standaloneDecorations.get(vertexKey);
+    currentGrid.group.remove(standaloneDec.decorationGroup);
+    if (standaloneDec.decorationGroup.children) {
+      standaloneDec.decorationGroup.children.forEach(child => {
         if (child.geometry) child.geometry.dispose();
         if (child.material) child.material.dispose();
       });
     }
-    sphereData.decoration = null;
+    currentGrid.standaloneDecorations.delete(vertexKey);
   } else {
-    // Add decoration
+    // Add new standalone decoration
     addVertexDecoration(currentGrid, vertexKey, selectedColor2);
   }
-  
+
   const afterState = captureVertexSphereState(vertexKey);
   recordAction('VERTEX_DECORATION', { vertexKey, beforeState, afterState });
 }
