@@ -13104,46 +13104,73 @@ function handleBackbiteClick() {
 
 function handleVerticesClick() {
   console.log(`Vertices mode clicked: ${mode}`);
-  
+
   // Calculate 3D world position from mouse click
   const vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
   vector.unproject(camera);
   const dir = vector.sub(camera.position).normalize();
-  
-  // Find closest vertex to the ray
-  let closestVertex = null;
+
+  // For addDecoration mode: find nearest grid coordinate (existing or not)
+  // For addVertex mode: find nearest existing vertex
+  let closestTarget = null;
   let closestDistance = Infinity;
-  
-  for (const [vKey, vertexData] of currentGrid.vertices.entries()) {
-    const vertexPos = new THREE.Vector3(...vertexData.coords);
-    
-    const rayOrigin = camera.position.clone();
-    const toVertex = vertexPos.clone().sub(rayOrigin);
-    const projectionLength = toVertex.dot(dir);
-    
-    if (projectionLength > 0) {
-      const projection = dir.clone().multiplyScalar(projectionLength);
-      const rejection = toVertex.clone().sub(projection);
-      const distanceToRay = rejection.length();
-      
-      if (distanceToRay < 0.3 && projectionLength < closestDistance) {
-        closestDistance = projectionLength;
-        closestVertex = vKey;
+
+  if (mode === "addDecoration") {
+    // Search all possible grid coordinates, not just existing vertices
+    for (let x = 0; x < currentGrid.width; x++) {
+      for (let y = 0; y < currentGrid.height; y++) {
+        for (let z = 0; z < currentGrid.depth; z++) {
+          const gridPos = new THREE.Vector3(x, y, z);
+          const rayOrigin = camera.position.clone();
+          const toPoint = gridPos.clone().sub(rayOrigin);
+          const projectionLength = toPoint.dot(dir);
+
+          if (projectionLength > 0) {
+            const projection = dir.clone().multiplyScalar(projectionLength);
+            const rejection = toPoint.clone().sub(projection);
+            const distanceToRay = rejection.length();
+
+            if (distanceToRay < 0.3 && projectionLength < closestDistance) {
+              closestDistance = projectionLength;
+              closestTarget = `${x},${y},${z}`;
+            }
+          }
+        }
+      }
+    }
+  } else {
+    // Original behavior for addVertex: only existing vertices
+    for (const [vKey, vertexData] of currentGrid.vertices.entries()) {
+      const vertexPos = new THREE.Vector3(...vertexData.coords);
+
+      const rayOrigin = camera.position.clone();
+      const toVertex = vertexPos.clone().sub(rayOrigin);
+      const projectionLength = toVertex.dot(dir);
+
+      if (projectionLength > 0) {
+        const projection = dir.clone().multiplyScalar(projectionLength);
+        const rejection = toVertex.clone().sub(projection);
+        const distanceToRay = rejection.length();
+
+        if (distanceToRay < 0.3 && projectionLength < closestDistance) {
+          closestDistance = projectionLength;
+          closestTarget = vKey;
+        }
       }
     }
   }
-  
-  if (closestVertex) {
-    console.log("Clicked vertex:", closestVertex);
-    
+
+  if (closestTarget) {
+    console.log("Clicked target:", closestTarget);
+
     // Behavior based on current mode
     if (mode === "addDecoration") {
-      handleDecorationClick(closestVertex);
+      handleDecorationClick(closestTarget);
     } else if (mode === "addVertex") {
-      handleVertexSphereClick(closestVertex);
+      handleVertexSphereClick(closestTarget);
     }
   } else {
-    console.log("No vertex close enough to click");
+    console.log("No target close enough to click");
   }
 }
 
