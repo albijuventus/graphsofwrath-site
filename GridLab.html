@@ -12418,8 +12418,10 @@ function openReadmeInNewTab() {
     <h3>Undo/Redo</h3>
     <p>Complete undo/redo system (Ctrl+Z / Ctrl+Y) tracking backbite moves, switch moves, edge coloring, and more.</p>
 
+
     <h2>Performance & Complexity</h2>
-    <p>GridLab can handle grids of varying sizes. Generation time scales roughly with the number of backbite operations performed. The runtime is approximately 20N, where N is the number of vertices in the grid.</p>
+    <p>GridLab can handle grids of varying sizes. Generation time scales roughly with the number of backbite operations performed. The runtime per backbite is approximately N/2, where N is the number of vertices in the grid. Generation uses at least 10N backbite moves, so the total run time is approximately of the order N<sup>2</sup></p>
+    
 
     <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
       <thead>
