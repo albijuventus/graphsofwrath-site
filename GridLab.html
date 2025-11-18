@@ -5,7 +5,7 @@
   
   Copyright © 2025 Albi. All rights reserved.
   
-  Version: 1.0.0
+  Version: 2.0.0
   Build: GL-2025-11A7B91F3E-YORK
   Author: Albi (York University)
   Contact: albijuventus@yahoo.com
@@ -151,6 +151,7 @@
 <head>
 <meta charset="UTF-8" />
 <title>GridLab - 3D Grid Graph Visualization</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='0' y='0' width='100' height='100' rx='16' fill='%23050814'/%3E%3Cg stroke='%23888888' stroke-width='3' fill='none'%3E%3Cline x1='20' y1='20' x2='20' y2='80'/%3E%3Cline x1='50' y1='20' x2='50' y2='80'/%3E%3Cline x1='80' y1='20' x2='80' y2='80'/%3E%3Cline x1='20' y1='20' x2='80' y2='20'/%3E%3Cline x1='20' y1='50' x2='80' y2='50'/%3E%3Cline x1='20' y1='80' x2='80' y2='80'/%3E%3C/g%3E%3Cg fill='%23dfe4ff'%3E%3Ccircle cx='20' cy='80' r='1.8'/%3E%3Ccircle cx='50' cy='80' r='1.8'/%3E%3Ccircle cx='80' cy='80' r='1.8'/%3E%3Ccircle cx='20' cy='50' r='1.8'/%3E%3Ccircle cx='50' cy='50' r='1.8'/%3E%3Ccircle cx='80' cy='50' r='1.8'/%3E%3Ccircle cx='20' cy='20' r='1.8'/%3E%3Ccircle cx='50' cy='20' r='1.8'/%3E%3Ccircle cx='80' cy='20' r='1.8'/%3E%3C/g%3E%3Cpath d='M 50 50 L 80 50 L 80 80 L 20 80 L 20 20 L 80 20' stroke='%2300d9ff' stroke-width='6' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Crect x='44.5' y='44.5' width='11' height='11' rx='2' fill='%2300d9ff'/%3E%3Crect x='74.5' y='14.5' width='11' height='11' rx='2' fill='%2300d9ff'/%3E%3C/svg%3E" />
 <style>
   /* === THEME VARIABLES === */
   :root {
@@ -309,6 +310,245 @@
     background: #ffffff !important;
     color: #000000 !important;
     border-color: #d1d5db !important;
+  }
+
+  /* === THEME-SPECIFIC COLOR OVERRIDES === */
+
+  /* Light theme (Paper White): Blue for toggles, buttons, switches */
+  :root.paper-white-theme .sidebar-toggle::after {
+    background: #3498db;
+    border-color: rgba(52, 152, 219, 0.3);
+  }
+
+  :root.paper-white-theme .sidebar-toggle:hover::after {
+    background: #2980b9;
+  }
+
+  :root.paper-white-theme .pill-switch.active .pill-switch-toggle {
+    background: #3498db;
+  }
+
+  :root.paper-white-theme .gen-btn.active {
+    background: #3498db;
+  }
+
+  :root.paper-white-theme .gen-pill.active .gen-switch {
+    background: #3498db;
+  }
+
+  /* Sync View flash animation for light theme - blue */
+  @keyframes syncViewFlashLight {
+    0% { background: linear-gradient(145deg, #f8f8f8, #e8e8e8); }
+    50% { background: #3498db; color: white; }
+    100% { background: linear-gradient(145deg, #f8f8f8, #e8e8e8); }
+  }
+
+  :root.paper-white-theme #syncViewBtn.flashing {
+    animation: syncViewFlashLight 0.6s ease-in-out;
+  }
+
+  /* Sync View flash animation for dark theme - green */
+  @keyframes syncViewFlashDark {
+    0% { background: linear-gradient(145deg, rgba(50, 50, 60, 0.9), rgba(40, 40, 50, 0.9)); }
+    50% { background: #4CAF50; color: white; }
+    100% { background: linear-gradient(145deg, rgba(50, 50, 60, 0.9), rgba(40, 40, 50, 0.9)); }
+  }
+
+  :root.dark-theme #syncViewBtn.flashing {
+    animation: syncViewFlashDark 0.6s ease-in-out;
+  }
+
+  /* Dark theme: Green for toggles, buttons, switches, checkboxes, grid tab */
+  :root.dark-theme .sidebar-toggle::after {
+    background: #4CAF50;
+  }
+
+  :root.dark-theme .pill-switch.active .pill-switch-toggle {
+    background: #4CAF50;
+  }
+
+  :root.dark-theme .gen-btn {
+    background: linear-gradient(145deg, rgba(60, 70, 80, 0.9), rgba(50, 60, 70, 0.9));
+    color: #f9fafb;
+    border: 1px solid rgba(76, 175, 80, 0.2);
+  }
+
+  :root.dark-theme .gen-btn:hover {
+    background: linear-gradient(145deg, rgba(70, 80, 90, 0.95), rgba(60, 70, 80, 0.95));
+  }
+
+  :root.dark-theme .gen-btn.active {
+    background: #4CAF50;
+  }
+
+  :root.dark-theme .gen-pill {
+    background: linear-gradient(145deg, rgba(60, 70, 80, 0.9), rgba(50, 60, 70, 0.9));
+    color: #f9fafb;
+    border: 1px solid rgba(76, 175, 80, 0.2);
+  }
+
+  :root.dark-theme .gen-pill:hover {
+    background: linear-gradient(145deg, rgba(70, 80, 90, 0.95), rgba(60, 70, 80, 0.95));
+  }
+
+  :root.dark-theme .gen-pill.active .gen-switch {
+    background: #4CAF50;
+  }
+
+  /* Undo/Redo buttons - dark theme */
+  :root.dark-theme .undo-btn, :root.dark-theme .redo-btn {
+    background: linear-gradient(145deg, rgba(60, 70, 80, 0.9), rgba(50, 60, 70, 0.9));
+    color: #f9fafb;
+    border: 1px solid rgba(76, 175, 80, 0.2);
+  }
+
+  :root.dark-theme .undo-btn:hover, :root.dark-theme .redo-btn:hover {
+    background: linear-gradient(145deg, rgba(70, 80, 90, 0.95), rgba(60, 70, 80, 0.95));
+  }
+
+  /* Layer buttons - dark theme */
+  :root.dark-theme .layer-btn {
+    background: linear-gradient(145deg, rgba(60, 70, 80, 0.9), rgba(50, 60, 70, 0.9));
+    color: #f9fafb;
+    border: 1px solid rgba(76, 175, 80, 0.2);
+  }
+
+  :root.dark-theme .layer-btn:hover {
+    background: linear-gradient(145deg, rgba(70, 80, 90, 0.95), rgba(60, 70, 80, 0.95));
+  }
+
+  /* BB Panel header button - dark theme */
+  :root.dark-theme .bb-header-btn {
+    background: linear-gradient(145deg, rgba(60, 70, 80, 0.9), rgba(50, 60, 70, 0.9));
+    color: #f9fafb;
+    border: 1px solid rgba(76, 175, 80, 0.2);
+  }
+
+  :root.dark-theme .bb-header-btn:hover {
+    background: linear-gradient(145deg, rgba(70, 80, 90, 0.95), rgba(60, 70, 80, 0.95));
+  }
+
+  /* BB Panel body - dark theme */
+  :root.dark-theme .bb-body {
+    background: linear-gradient(145deg, rgba(60, 70, 80, 0.9), rgba(50, 60, 70, 0.9));
+    border: 1px solid rgba(76, 175, 80, 0.2);
+  }
+
+  /* BB Add Vertices button - dark theme */
+  :root.dark-theme .bb-add-btn {
+    background: #4CAF50;
+    color: white;
+  }
+
+  :root.dark-theme .bb-add-btn:hover {
+    background: #45a049;
+  }
+
+  :root.dark-theme .grid-btn.active {
+    background: linear-gradient(145deg, #4CAF50, #45a049);
+    border-color: #45a049;
+    box-shadow: 0 6px 12px rgba(76, 175, 80, 0.3), 0 3px 6px rgba(76, 175, 80, 0.2);
+  }
+
+  /* Dark theme checkboxes - green (except preferences) */
+  :root.dark-theme input[type="checkbox"]:checked {
+    accent-color: #4CAF50;
+  }
+
+  /* Keep preferences checkboxes blue in dark theme */
+  :root.dark-theme #preferencesModal input[type="checkbox"]:checked {
+    accent-color: #3498db;
+  }
+
+  /* Keep preferences sliders blue in dark theme */
+  :root.dark-theme #preferencesModal input[type="range"] {
+    accent-color: #3498db;
+  }
+
+  /* Generate dropdown background: increase contrast in light theme */
+  :root.paper-white-theme .gen-body {
+    background: #e8eef5;
+  }
+
+  /* Sync View button appearance for light theme */
+  :root.paper-white-theme .grid-mgmt-btn {
+    background: linear-gradient(145deg, #f8f8f8, #e8e8e8);
+    color: #333;
+    border: 1px solid #d0d0d0;
+  }
+
+  :root.paper-white-theme .grid-mgmt-btn:hover {
+    background: linear-gradient(145deg, #f0f0f0, #e0e0e0);
+  }
+
+  /* Dark theme grid management button */
+  :root.dark-theme .grid-mgmt-btn {
+    background: linear-gradient(145deg, rgba(60, 70, 80, 0.9), rgba(50, 60, 70, 0.9));
+    color: #f9fafb;
+    border: 1px solid rgba(76, 175, 80, 0.2);
+  }
+
+  :root.dark-theme .grid-mgmt-btn:hover {
+    background: linear-gradient(145deg, rgba(70, 80, 90, 0.95), rgba(60, 70, 80, 0.95));
+  }
+
+  /* Grid dimmer section - dark theme */
+  :root.dark-theme .grid-dimmer-section {
+    background: linear-gradient(145deg, rgba(60, 70, 80, 0.9), rgba(50, 60, 70, 0.9));
+    border: 1px solid rgba(76, 175, 80, 0.2);
+  }
+
+  :root.dark-theme .grid-dimmer-label {
+    color: #f9fafb;
+  }
+
+  :root.dark-theme .grid-dimmer-row span {
+    color: #f9fafb;
+  }
+
+  /* Editing mode buttons - blue for light, green for dark */
+  :root.paper-white-theme .pill-switch {
+    background: linear-gradient(145deg, #f0f0f0, #e0e0e0);
+  }
+
+  :root.dark-theme .pill-switch {
+    background: rgba(80, 90, 100, 0.8);
+  }
+
+  /* Light theme editing buttons should be blue when active */
+  :root.paper-white-theme #toggleClickBtn.active,
+  :root.paper-white-theme #verticesBtn.active,
+  :root.paper-white-theme #cubeBtn.active,
+  :root.paper-white-theme #decorationBtn.active,
+  :root.paper-white-theme #arrowBtn.active {
+    background: #3498db;
+    color: white;
+  }
+
+  /* Dark theme editing buttons should be green when active */
+  :root.dark-theme #toggleClickBtn.active,
+  :root.dark-theme #verticesBtn.active,
+  :root.dark-theme #cubeBtn.active,
+  :root.dark-theme #decorationBtn.active,
+  :root.dark-theme #arrowBtn.active {
+    background: #4CAF50;
+    color: white;
+  }
+
+  /* LOD indicators border color - green in dark theme */
+  :root.dark-theme #preferencesModal > div > div:nth-child(2) > div:has(#lodIndicatorsCheckbox) {
+    border-top-color: #4CAF50 !important;
+  }
+
+  /* Fix active grid button color - make it fully green in dark theme */
+  :root.dark-theme .grid-btn.active {
+    background: #4CAF50 !important;
+    color: white !important;
+  }
+
+  /* FPS Counter left border - green in dark theme */
+  :root.dark-theme #fpsCounter {
+    border-left-color: #4CAF50 !important;
   }
 
   html, body {
@@ -1857,6 +2097,12 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.25) !important;
 }
 
+/* Dark theme Help button hover */
+:root.dark-theme #helpBtn:hover {
+  background: linear-gradient(145deg, rgba(70, 80, 90, 0.95), rgba(60, 70, 80, 0.95)) !important;
+  color: #f9fafb !important;
+}
+
 /* Help Dropdown Menu Item Hover */
 .help-menu-item:hover {
   background: #f5f5f5 !important;
@@ -1941,6 +2187,222 @@
   fill: #00d9ff;  /* cyan */
 }
 
+/* === DARK THEME OVERRIDES FOR UI ELEMENTS === */
+
+/* Help dropdown menu */
+:root.dark-theme .help-dropdown {
+  background: rgba(60, 64, 72, 0.95);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+:root.dark-theme .help-menu-item {
+  color: #e5e7eb;
+}
+
+:root.dark-theme .help-menu-item:hover {
+  background: linear-gradient(145deg, rgba(70, 80, 90, 0.95), rgba(60, 70, 80, 0.95));
+}
+
+:root.dark-theme .help-license-info {
+  color: #9ca3af;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+:root.dark-theme .help-license-info strong {
+  color: #e5e7eb;
+}
+
+:root.dark-theme .help-license-info a {
+  color: #60a5fa;
+}
+
+/* Grid tabs container */
+:root.dark-theme #gridList {
+  background: rgba(60, 64, 72, 0.95);
+  border: 2px solid #4b5563;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+:root.dark-theme .grid-btn {
+  background: linear-gradient(145deg, #4b5563, #374151);
+  color: #e5e7eb;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+:root.dark-theme .grid-btn:hover {
+  background: linear-gradient(145deg, #6b7280, #4b5563);
+}
+
+:root.dark-theme .grid-btn.active {
+  background: linear-gradient(145deg, #3b82f6, #2563eb);
+  color: #ffffff;
+}
+
+:root.dark-theme .grid-btn .close-btn {
+  color: #e5e7eb;
+}
+
+:root.dark-theme .grid-btn .close-btn:hover {
+  color: #ef4444;
+}
+
+/* Modal popup windows (About, Preferences, Keyboard Shortcuts) */
+:root.dark-theme #aboutModal > div,
+:root.dark-theme #preferencesModal > div,
+:root.dark-theme #keyboardShortcutsModal > div {
+  background: #2d3748 !important;
+  color: #e5e7eb !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
+}
+
+:root.dark-theme #aboutModal h2,
+:root.dark-theme #aboutModal h3,
+:root.dark-theme #preferencesModal h2,
+:root.dark-theme #preferencesModal h3,
+:root.dark-theme #keyboardShortcutsModal h2,
+:root.dark-theme #keyboardShortcutsModal h3 {
+  color: #f9fafb !important;
+}
+
+:root.dark-theme #aboutModal p,
+:root.dark-theme #aboutModal li,
+:root.dark-theme #preferencesModal p,
+:root.dark-theme #preferencesModal label,
+:root.dark-theme #keyboardShortcutsModal div {
+  color: #d1d5db !important;
+}
+
+:root.dark-theme #closeAboutModal,
+:root.dark-theme #closePreferencesBtn,
+:root.dark-theme #closeShortcutsModal {
+  color: #9ca3af !important;
+}
+
+:root.dark-theme #closeAboutModal:hover,
+:root.dark-theme #closePreferencesBtn:hover,
+:root.dark-theme #closeShortcutsModal:hover {
+  color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.1) !important;
+}
+
+/* Warning box in About modal */
+:root.dark-theme #aboutModal > div > div:first-of-type {
+  background: rgba(251, 191, 36, 0.2) !important;
+  border-left: 4px solid #fbbf24 !important;
+}
+
+:root.dark-theme #aboutModal > div > div:first-of-type p {
+  color: #fbbf24 !important;
+}
+
+/* Preferences modal specific */
+:root.dark-theme #preferencesModal > div > div:first-child {
+  border-bottom: 2px solid #4b5563 !important;
+}
+
+/* License section - dark theme */
+:root.dark-theme #licenseSection {
+  background: rgba(30, 41, 59, 0.8) !important;
+  border-left: 4px solid #3b82f6 !important;
+}
+
+:root.dark-theme #licenseSection h3 {
+  color: #60a5fa !important;
+}
+
+:root.dark-theme #licenseSection p {
+  color: #e5e7eb !important;
+}
+
+:root.dark-theme #licenseSection a {
+  color: #60a5fa !important;
+}
+
+/* Keyboard shortcuts - key badges and text in Keyboard Shortcuts Modal */
+:root.dark-theme #keyboardShortcutsModal kbd,
+:root.dark-theme #keyboardShortcutsModal code {
+  background: #1f2937 !important;
+  color: #60a5fa !important;
+  border: 1px solid #374151 !important;
+}
+
+:root.dark-theme #keyboardShortcutsModal span {
+  color: #e5e7eb !important;
+}
+
+/* Keyboard shortcuts - key badges in About Modal (match Keyboard Shortcuts modal) */
+:root.dark-theme #aboutModal kbd,
+:root.dark-theme #aboutModal code {
+  background: #1f2937 !important;
+  color: #60a5fa !important;
+  border: 1px solid #374151 !important;
+}
+
+:root.dark-theme #aboutModal kbd {
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  font-family: monospace !important;
+  font-size: 13px !important;
+}
+
+/* Layer dropdown menu (add/remove layer) - dynamically created */
+:root.dark-theme #layerMenu {
+  background: rgba(60, 64, 72, 0.95) !important;
+  border: 1px solid #4b5563 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Preferences modal - dropdown menus (select elements) */
+:root.dark-theme #preferencesModal select {
+  background: #374151 !important;
+  color: #e5e7eb !important;
+  border: 1px solid #4b5563 !important;
+}
+
+:root.dark-theme #preferencesModal select:hover {
+  background: #4b5563 !important;
+  border-color: #6b7280 !important;
+}
+
+:root.dark-theme #preferencesModal select:focus {
+  background: #4b5563 !important;
+  border-color: #60a5fa !important;
+  outline: none !important;
+}
+
+/* Preferences modal - input fields */
+:root.dark-theme #preferencesModal input[type="range"] {
+  background: #374151 !important;
+}
+
+:root.dark-theme #preferencesModal input[type="number"],
+:root.dark-theme #preferencesModal input[type="text"] {
+  background: #374151 !important;
+  color: #e5e7eb !important;
+  border: 1px solid #4b5563 !important;
+}
+
+:root.dark-theme #preferencesModal input[type="number"]:focus,
+:root.dark-theme #preferencesModal input[type="text"]:focus {
+  background: #4b5563 !important;
+  border-color: #60a5fa !important;
+  outline: none !important;
+}
+
+/* Warning/info boxes in Preferences */
+:root.dark-theme #preferencesModal .performance-note,
+:root.dark-theme #preferencesModal div[style*="background: #fff3cd"],
+:root.dark-theme #preferencesModal div[style*="background:#fff3cd"] {
+  background: rgba(180, 83, 9, 0.3) !important;
+  border-left: 4px solid #d97706 !important;
+}
+
+:root.dark-theme #preferencesModal .performance-note,
+:root.dark-theme #preferencesModal div[style*="background: #fff3cd"] *,
+:root.dark-theme #preferencesModal div[style*="background:#fff3cd"] * {
+  color: #fbbf24 !important;
+}
+
 
 </style>
 
@@ -1949,6 +2411,29 @@
 
 </head>
 <body>
+
+<!-- Auto-apply theme on load based on time of day -->
+<script>
+  // This runs BEFORE page content loads - applies theme based on time of day on every load
+  (function() {
+    const now = new Date();
+    const hour = now.getHours();
+    // Dark mode: 12am (0) to 8am (8), Light mode: 8am to 12am
+    const shouldBeDark = (hour >= 0 && hour < 8);
+
+    console.log('[THEME] Current hour:', hour, 'Applying theme:', shouldBeDark ? 'dark' : 'light');
+
+    if (shouldBeDark) {
+      document.documentElement.classList.add('dark-theme');
+      document.documentElement.classList.remove('paper-white-theme');
+      console.log('[THEME] Applied dark-theme class on page load');
+    } else {
+      document.documentElement.classList.add('paper-white-theme');
+      document.documentElement.classList.remove('dark-theme');
+      console.log('[THEME] Applied paper-white-theme class on page load');
+    }
+  })();
+</script>
 
 <!-- Top Bar -->
 <div class="topbar">
@@ -1979,7 +2464,7 @@
         <rect x="44.5" y="44.5" width="11" height="11" rx="2" class="gl-marker" />
         <rect x="74.5" y="14.5" width="11" height="11" rx="2" class="gl-marker" />
       </svg>
-      GridLab <span>v1.0</span>
+      GridLab
     </div>
     <div class="tb-right">
       <button class="tb-btn" id="preferencesBtn">Preferences</button>
@@ -1988,9 +2473,11 @@
       <div class="help-btn-wrapper">
         <button class="tb-btn" id="helpBtn">Help</button>
         <div class="help-dropdown" id="helpDropdown">
-          <div class="help-menu-item" data-action="about">About</div>
+          <div class="help-menu-item" data-action="about">About GridLab v2.0</div>
           <div class="help-menu-item" data-action="shortcuts">Keyboard Shortcuts</div>
           <div class="help-menu-item" data-action="readme">README</div>
+          <!-- License info suspended for now - can be re-enabled later -->
+          <!--
           <div style="height: 1px; background: rgba(0, 0, 0, 0.1); margin: 4px 0;"></div>
           <div class="help-license-info">
             <strong>📄 License</strong>
@@ -2001,6 +2488,7 @@
             <br><br>
             Contact: <a href="mailto:albijuventus@yahoo.com">albijuventus@yahoo.com</a>
           </div>
+          -->
         </div>
       </div>
     </div>
@@ -2151,11 +2639,11 @@
   <div class="grid-dimensions">
     <div class="grid-dim-label">Grid Dimensions</div>
     <div class="grid-dim-inputs">
-      <input id="widthInput" type="number" value="6" min="1" placeholder="W">
+      <input id="widthInput" type="number" value="4" min="1" placeholder="W">
       <span>×</span>
-      <input id="heightInput" type="number" value="6" min="1" placeholder="H">
+      <input id="heightInput" type="number" value="4" min="1" placeholder="H">
       <span>×</span>
-      <input id="depthInput" type="number" value="6" min="1" placeholder="D">
+      <input id="depthInput" type="number" value="4" min="1" placeholder="D">
     </div>
   </div>
   
@@ -2250,7 +2738,26 @@
       <span id="mainCameraSensitivityValue" style="font-size: 12px; color: var(--sidebar-text); min-width: 30px;">1.0</span>
     </div>
   </div>
-  
+
+  <!-- FPS Counter (Performance Monitor) -->
+  <div id="fpsCounter" style="display: none; margin-top: 12px; padding: 12px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; border-left: 3px solid #3498db;">
+    <div style="font-size: 12px; color: var(--sidebar-text); margin-bottom: 6px; font-weight: 500;">Performance Monitor</div>
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 11px; color: var(--sidebar-text); opacity: 0.8;">FPS:</span>
+        <span id="fpsValue" style="font-size: 14px; color: #2ecc71; font-weight: 600; font-family: 'Courier New', monospace;">60</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 11px; color: var(--sidebar-text); opacity: 0.8;">Frame Time:</span>
+        <span id="frameTimeValue" style="font-size: 11px; color: var(--sidebar-text); font-family: 'Courier New', monospace;">16.7ms</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 11px; color: var(--sidebar-text); opacity: 0.8;">LOD Level:</span>
+        <span id="lodLevelValue" style="font-size: 11px; color: #f39c12; font-family: 'Courier New', monospace;">—</span>
+      </div>
+    </div>
+  </div>
+
 </aside>
 
 
@@ -2286,6 +2793,17 @@ input[type=number]::-webkit-outer-spin-button {
 
 input[type=number] {
   -moz-appearance: textfield;
+}
+
+/* Remove hover highlighting in preferences */
+#preferencesModal input[type="checkbox"],
+#preferencesModal label,
+#preferencesModal input[type="checkbox"] + label {
+  background-color: transparent !important;
+}
+
+#preferencesModal > div > div > div:hover {
+  background-color: transparent !important;
 }
 </style>
 
@@ -2413,11 +2931,7 @@ input[type=number] {
     <!-- About Content -->
     <h2 style="margin: 0 0 8px 0; font-size: 28px; color: #333; font-weight: 600;">About GridLab</h2>
     
-    <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px 16px; margin: 0 0 20px 0; border-radius: 4px;">
-      <p style="margin: 0; color: #856404; font-size: 14px; font-weight: 500;">
-        ⚠️ GridLab v1.0 is work in progress. Expect quirks.
-      </p>
-    </div>
+    
     
     <p style="color: #555; font-size: 15px; margin: 0 0 24px 0;">
       GridLab is an interactive 2D/3D playground for grid graphs. It lets you generate, visualize, 
@@ -2426,11 +2940,11 @@ input[type=number] {
     
     <h3 style="font-size: 18px; color: #333; margin: 24px 0 12px 0; font-weight: 600;">What you can do</h3>
     <ul style="color: #555; font-size: 14px; margin: 0 0 20px 0; padding-left: 24px;">
-      <li style="margin-bottom: 8px;"><strong>Generate</strong> Hamiltonian paths/cycles; check "Hamiltonian?"; color by gradient; show arrows.</li>
+      <li style="margin-bottom: 8px;"><strong>Generate</strong> Hamiltonian paths/cycles; color by gradient; orient edges with arrows.</li>
       <li style="margin-bottom: 8px;"><strong>Reconfigure</strong> using Switch and Backbite moves.</li>
       <li style="margin-bottom: 8px;"><strong>See components:</strong> after a switch, if a cycle splits, GridLab colors components separately.</li>
       <li style="margin-bottom: 8px;"><strong>Edit/Build grids:</strong> add/remove vertices, edges, cubes, layers; duplicate grids; per-grid notes.</li>
-      <li style="margin-bottom: 8px;"><strong>View/Navigation:</strong> toggle grid/axes, sync view across grids, grid dimmer, light/dark themes, show all vertices.</li>
+      <li style="margin-bottom: 8px;"><strong>View/Navigation:</strong> toggle grid/axes, sync view across grids, grid view settings, light/dark themes.</li>
       <li style="margin-bottom: 8px;"><strong>2D Grids:</strong> special camera mode for grids with one dimension = 1 (pan/zoom without rotation).</li>
       <li style="margin-bottom: 8px;"><strong>Persist:</strong> Save/Load grids including active subgraph(s), colors, and UI state.</li>
     </ul>
@@ -2444,14 +2958,15 @@ input[type=number] {
       <li style="margin-bottom: 6px;"><strong>Save/Load:</strong> Save Grids • Load Grids • Grid Notes</li>
     </ul>
     
-    <h3 style="font-size: 18px; color: #333; margin: 24px 0 12px 0; font-weight: 600;">Performance tips</h3>
+    <h3 style="font-size: 18px; color: #333; margin: 24px 0 12px 0; font-weight: 600;">Performance</h3>
     <ul style="color: #555; font-size: 14px; margin: 0 0 20px 0; padding-left: 24px;">
-      <li style="margin-bottom: 8px;">Generation time grows as <strong>N²</strong> where N = x×y×z (grid size)</li>
-      <li style="margin-bottom: 8px;">Small grids (5×5×5) generate instantly; large grids (50×50×50) may take 20+ minutes</li>
+      <li style="margin-bottom: 8px;">Generation uses <strong><a href="https://cp-algorithms.com/data_structures/treap.html" target="_blank" style="color: #3498db; text-decoration: underline;">treap</a> data structures</strong> for O(log N) path reversals, reducing backbite times on large grids.</li>
+      <li style="margin-bottom: 8px;">Enable <strong>Progressive LOD</strong> in Preferences for 5-10× speed improvement on large grids (automatically reduces geometry detail based on camera distance).</li>
+      <li style="margin-bottom: 8px;">Generation time scales as <strong>b·log(N)</strong> where N = x×y×z (total vertices) and b is the number of backbite moves. We have set b=10N. Small grids (5×5×5) generate instantly; large grids (50×50×50+) take several seconds.</li>
+      <li style="margin-bottom: 8px;">For large grids (50×50×50+), <strong>rendering performance becomes the limiting factor</strong>, not the cost of backbite moves.</li>
       <li style="margin-bottom: 8px;">Press <strong>ESC</strong> during generation to stop the process at any time</li>
-      <li style="margin-bottom: 8px;">Very large generations trigger a time estimate; consider reducing grid dimensions if needed</li>
     </ul>
-    
+
 <h3 style="font-size: 18px; color: #333; margin: 24px 0 12px 0; font-weight: 600;">Quick reference</h3>
 
 <ul style="color: #555; font-size: 14px; margin: 0 0 20px 0; padding-left: 24px;">
@@ -2482,22 +2997,22 @@ input[type=number] {
     <p style="color: #555; font-size: 14px; margin: 0 0 12px 0;">Saves include:</p>
     <ul style="color: #555; font-size: 14px; margin: 0 0 20px 0; padding-left: 24px;">
       <li style="margin-bottom: 6px;">Visual state (theme, dimmer, arrows, etc. ).</li>
-      <li style="margin-bottom: 6px;">Active subgraph (colored vertices, edges, decos).</li>
+      <li style="margin-bottom: 6px;">Active subgraph (colored vertices, edges, decorations).</li>
       <li style="margin-bottom: 6px;">Per-grid notes.</li>
     </ul>
     
     <h3 style="font-size: 18px; color: #333; margin: 24px 0 12px 0; font-weight: 600;">Limits</h3>
     <ul style="color: #555; font-size: 14px; margin: 0 0 20px 0; padding-left: 24px;">
-      <li style="margin-bottom: 8px;">Large grids (≳20k vertices) may take minutes to generate; estimates are shown.</li>
+      <li style="margin-bottom: 8px;">Very large grids (≳100k vertices) may lag. GridLab v2.0 is work in progress. Expect quirks.</li>
     </ul>
     
-    <div style="background: #e8f4fd; border-left: 4px solid #3b82f6; padding: 16px 20px; margin: 24px 0 0 0; border-radius: 4px;">
+    <div style="background: #e8f4fd; border-left: 4px solid #3b82f6; padding: 16px 20px; margin: 24px 0 0 0; border-radius: 4px;" id="licenseSection">
       <h3 style="font-size: 16px; color: #1e40af; margin: 0 0 8px 0; font-weight: 600;">📄 License & Copyright</h3>
       <p style="color: #1e40af; font-size: 14px; margin: 0 0 12px 0;">
-        <strong>GridLab v1.0.0</strong> • Copyright © 2025 Albi
+        <strong>GridLab v2.0.0</strong> • Copyright © 2025 Albi
       </p>
       <p style="color: #1e40af; font-size: 13px; margin: 0 0 8px 0;">
-        Licensed under <a href="https://polyformproject.org/licenses/noncommercial/1.0.0" target="_blank" 
+        Licensed under <a href="https://polyformproject.org/licenses/noncommercial/1.0.0" target="_blank"
         style="color: #2563eb; text-decoration: underline;">PolyForm Noncommercial License 1.0.0</a>
       </p>
       <p style="color: #1e40af; font-size: 13px; margin: 0 0 8px 0;">
@@ -2505,7 +3020,7 @@ input[type=number] {
         ❌ <strong>Commercial use requires a separate license</strong>
       </p>
       <p style="color: #1e40af; font-size: 13px; margin: 0;">
-        For commercial licensing inquiries: <a href="mailto:albijuventus@yahoo.com" 
+        For commercial licensing inquiries: <a href="mailto:albijuventus@yahoo.com"
         style="color: #2563eb;">albijuventus@yahoo.com</a>
       </p>
     </div>
@@ -2755,7 +3270,7 @@ input[type=number] {
 
 <!-- Preferences Modal -->
 <div id="preferencesModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center;">
-  <div style="background: white; border-radius: 12px; width: 500px; max-height: 80vh; overflow-y: auto; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); position: relative;">
+  <div style="background: white; border-radius: 12px; width: 1000px; max-height: 95vh; overflow-y: auto; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); position: relative; display: flex; flex-direction: column;">
     
     <!-- Header -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #3498db; padding-bottom: 10px;">
@@ -2765,134 +3280,254 @@ input[type=number] {
       <button id="closePreferencesBtn" style="background: none; border: none; font-size: 28px; color: #666; cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; transition: color 0.2s;">×</button>
     </div>
     
-    <!-- Preferences List -->
-    <div style="margin-bottom: 30px;">
-      
-      <!-- Switch Mode Section -->
-      <h3 style="font-size: 16px; color: #666; margin: 20px 0 12px 0; font-weight: 600; border-bottom: 1px solid #e0e0e0; padding-bottom: 8px;">Switch Mode</h3>
-      
-      <!-- Box Highlighting Preference -->
-      <div style="display: flex; align-items: center; padding: 12px; border-radius: 6px; transition: background 0.2s; margin-bottom: 10px;">
-        <input type="checkbox" id="boxHighlightingCheckbox" checked style="width: 20px; height: 20px; cursor: pointer; margin-right: 15px;">
-        <label for="boxHighlightingCheckbox" style="cursor: pointer; font-size: 14px; color: #333; flex: 1; user-select: none;">
-          Highlight switchable boxes at component borders
-        </label>
-      </div>
-      
-      <!-- Component Coloring Preference -->
-      <div style="display: flex; align-items: center; padding: 12px; border-radius: 6px; transition: background 0.2s; margin-bottom: 10px;">
-        <input type="checkbox" id="componentColoringCheckbox" checked style="width: 20px; height: 20px; cursor: pointer; margin-right: 15px;">
-        <label for="componentColoringCheckbox" style="cursor: pointer; font-size: 14px; color: #333; flex: 1; user-select: none;">
-          Color last disconnected component with second color
-        </label>
-      </div>
-      
-      <!-- Coordinate Hover Section -->
-      <h3 style="font-size: 16px; color: #666; margin: 20px 0 12px 0; font-weight: 600; border-bottom: 1px solid #e0e0e0; padding-bottom: 8px;">Coordinate Hover</h3>
-      
-      <!-- Coordinate Hover - Vertices Preference -->
-      <div style="display: flex; align-items: center; padding: 12px; border-radius: 6px; transition: background 0.2s; margin-bottom: 10px;">
-        <input type="checkbox" id="hoverVerticesCheckbox" checked style="width: 20px; height: 20px; cursor: pointer; margin-right: 15px;">
-        <label for="hoverVerticesCheckbox" style="cursor: pointer; font-size: 14px; color: #333; flex: 1; user-select: none;">
-          Show vertex coordinates
-        </label>
-      </div>
-      
-      <!-- Coordinate Hover - Edges Preference -->
-      <div style="display: flex; align-items: center; padding: 12px; border-radius: 6px; transition: background 0.2s; margin-bottom: 10px;">
-        <input type="checkbox" id="hoverEdgesCheckbox" checked style="width: 20px; height: 20px; cursor: pointer; margin-right: 15px;">
-        <label for="hoverEdgesCheckbox" style="cursor: pointer; font-size: 14px; color: #333; flex: 1; user-select: none;">
-          Show edge coordinates
-        </label>
-      </div>
-      
-      <!-- Vertex Settings Section -->
-      <h3 style="font-size: 16px; color: #666; margin: 20px 0 12px 0; font-weight: 600; border-bottom: 1px solid #e0e0e0; padding-bottom: 8px;">Vertex Settings</h3>
-      
-      <!-- Show All Vertices Preference -->
-      <div style="display: flex; align-items: center; padding: 12px; border-radius: 6px; transition: background 0.2s; margin-bottom: 10px;">
-        <input type="checkbox" id="showAllVerticesCheckbox" style="width: 20px; height: 20px; cursor: pointer; margin-right: 15px;">
-        <label for="showAllVerticesCheckbox" style="cursor: pointer; font-size: 14px; color: #333; flex: 1; user-select: none;">
-          Show all grid vertices as gray spheres
-        </label>
-      </div>
-      
-      <!-- Edge Settings Section -->
-      <h3 style="font-size: 16px; color: #666; margin: 20px 0 12px 0; font-weight: 600; border-bottom: 1px solid #e0e0e0; padding-bottom: 8px;">Edge Settings</h3>
-      
-      <div style="padding: 12px;">
-        <label style="font-size: 14px; color: #333; display: block; margin-bottom: 8px;">Edge Click Radius:</label>
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <input type="range" id="edgeCollisionRadiusSlider" min="0.02" max="0.15" step="0.01" value="0.08" style="flex: 1;">
-          <span id="edgeCollisionRadiusValue" style="font-size: 14px; color: #333; min-width: 40px;">0.08</span>
+    <!-- Preferences List - Two Column Layout -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 96px; margin-bottom: 0; flex: 1; overflow-y: visible;">
+
+      <!-- LEFT COLUMN -->
+      <div>
+
+        <!-- Switch Mode Section -->
+        <h3 style="font-size: 15px; color: #2c3e50; margin: 0 0 10px 0; font-weight: 700;">Switch Mode</h3>
+
+        <!-- Box Highlighting Preference -->
+        <div style="display: flex; align-items: center; padding: 6px 0; margin-bottom: 6px; transition: background 0s;">
+          <input type="checkbox" id="boxHighlightingCheckbox" checked style="width: 18px; height: 18px; cursor: pointer; margin-right: 12px;">
+          <label for="boxHighlightingCheckbox" style="cursor: pointer; font-size: 13px; color: #555; flex: 1; user-select: none;">
+            Highlight switchable boxes
+          </label>
         </div>
-      </div>
-      
-      <!-- Display Section -->
-      <h3 style="font-size: 16px; color: #666; margin: 20px 0 12px 0; font-weight: 600; border-bottom: 1px solid #e0e0e0; padding-bottom: 8px;">Display</h3>
-      
-      <!-- Theme Selection -->
-      <div style="display: flex; align-items: center; padding: 12px; border-radius: 6px; transition: background 0.2s;">
-        <label for="themeSelect" style="font-size: 14px; color: #333; margin-right: 20px;">Theme:</label>
-        <select id="themeSelect" style="padding: 8px 16px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; font-size: 14px; background: white; color: #333; min-width: 180px;">
-          <option value="paper-white">📄 Paper White</option>
-          <option value="dark">🌙 Dark</option>
-          <option value="sandstone">🏜️ Sandstone</option>
-          <option value="mist-blue">🌊 Mist Blue</option>
-          <option value="warm-light">🔆 Warm Light</option>
-          <option value="light"> Contrast 1</option>
-        </select>
-      </div>
-      
-      <!-- Background Override Selection -->
-      <div style="display: flex; align-items: center; padding: 12px; border-radius: 6px; transition: background 0.2s; margin-top: 10px;">
-        <label for="backgroundOverrideSelect" style="font-size: 14px; color: #333; margin-right: 20px;">Background:</label>
-        <select id="backgroundOverrideSelect" style="padding: 8px 16px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; font-size: 14px; background: white; color: #333; min-width: 180px;">
-          <option value="theme-default">Theme Default</option>
-          <option value="beige">Beige</option>
-          <option value="light-gradient">Light Gradient</option>
-          <option value="warm-gradient">Warm Gradient</option>
-          <option value="mist-gradient">Mist Gradient</option>
-          <option value="white">White</option>
-          <option value="black">Black</option>
-          <option value="custom">Custom Color...</option>
-        </select>
-      </div>
-      
-      <!-- Custom Background Color Picker (hidden by default) -->
-      <div id="customBackgroundPicker" style="display: none; padding: 12px; margin-top: 10px;">
-        <label for="customBgColor" style="font-size: 14px; color: #333; margin-right: 10px;">Custom Color:</label>
-        <input type="color" id="customBgColor" value="#f7f5e9" style="width: 60px; height: 40px; border: 2px solid #ddd; border-radius: 6px; cursor: pointer;">
-      </div>
-      
-      <!-- Camera Section -->
-      <h3 style="font-size: 16px; color: #666; margin: 20px 0 12px 0; font-weight: 600; border-bottom: 1px solid #e0e0e0; padding-bottom: 8px;">Camera</h3>
-      
-      <!-- Camera Mouse Sensitivity -->
-      <div style="padding: 12px; border-radius: 6px;">
-        <label for="cameraSensitivitySlider" style="font-size: 14px; color: #333; display: block; margin-bottom: 8px;">Camera Mouse Sensitivity:</label>
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <input type="range" id="cameraSensitivitySlider" min="0.1" max="2.0" step="0.1" value="1.0" style="flex: 1;">
-          <span id="cameraSensitivityValue" style="font-size: 14px; color: #333; min-width: 30px;">1.0</span>
+
+        <!-- Component Coloring Preference -->
+        <div style="display: flex; align-items: center; padding: 6px 0; margin-bottom: 14px;">
+          <input type="checkbox" id="componentColoringCheckbox" checked style="width: 18px; height: 18px; cursor: pointer; margin-right: 12px;">
+          <label for="componentColoringCheckbox" style="cursor: pointer; font-size: 13px; color: #555; flex: 1; user-select: none;">
+            Color disconnected component
+          </label>
         </div>
+
+        <!-- Coordinate Hover Section -->
+        <h3 style="font-size: 15px; color: #2c3e50; margin: 14px 0 10px 0; font-weight: 700;">Coordinate Hover</h3>
+
+        <!-- Coordinate Hover - Vertices Preference -->
+        <div style="display: flex; align-items: center; padding: 6px 0; margin-bottom: 6px;">
+          <input type="checkbox" id="hoverVerticesCheckbox" checked style="width: 18px; height: 18px; cursor: pointer; margin-right: 12px;">
+          <label for="hoverVerticesCheckbox" style="cursor: pointer; font-size: 13px; color: #555; flex: 1; user-select: none;">
+            Show vertex coordinates
+          </label>
+        </div>
+
+        <!-- Coordinate Hover - Edges Preference -->
+        <div style="display: flex; align-items: center; padding: 6px 0; margin-bottom: 14px;">
+          <input type="checkbox" id="hoverEdgesCheckbox" checked style="width: 18px; height: 18px; cursor: pointer; margin-right: 12px;">
+          <label for="hoverEdgesCheckbox" style="cursor: pointer; font-size: 13px; color: #555; flex: 1; user-select: none;">
+            Show edge coordinates
+          </label>
+        </div>
+
+        <!-- Vertex Settings Section -->
+        <h3 style="font-size: 15px; color: #2c3e50; margin: 14px 0 10px 0; font-weight: 700;">Vertex Settings</h3>
+
+        <!-- Show All Vertices Preference -->
+        <div style="display: flex; align-items: center; padding: 6px 0; margin-bottom: 14px;">
+          <input type="checkbox" id="showAllVerticesCheckbox" style="width: 18px; height: 18px; cursor: pointer; margin-right: 12px;">
+          <label for="showAllVerticesCheckbox" style="cursor: pointer; font-size: 13px; color: #555; flex: 1; user-select: none;">
+            Show all grid vertices
+          </label>
+        </div>
+
+        <!-- Toggle Grid Hides Vertices Preference -->
+        <div style="display: flex; align-items: center; padding: 6px 0; margin-bottom: 14px;">
+          <input type="checkbox" id="toggleGridHidesVerticesCheckbox" checked style="width: 18px; height: 18px; cursor: pointer; margin-right: 12px;">
+          <label for="toggleGridHidesVerticesCheckbox" style="cursor: pointer; font-size: 13px; color: #555; flex: 1; user-select: none;">
+            Hide vertices when toggling grid off
+          </label>
+        </div>
+
+        <!-- Edge Settings Section -->
+        <h3 style="font-size: 15px; color: #2c3e50; margin: 14px 0 10px 0; font-weight: 700;">Edge Settings</h3>
+
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 13px; color: #555; display: block; margin-bottom: 5px; font-weight: 500;">Edge Click Radius:</label>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <input type="range" id="edgeCollisionRadiusSlider" min="0.02" max="0.15" step="0.01" value="0.08" style="flex: 1;">
+            <span id="edgeCollisionRadiusValue" style="font-size: 13px; color: #555; min-width: 40px; text-align: right;">0.08</span>
+          </div>
+        </div>
+
+        <!-- Display Section -->
+        <h3 style="font-size: 15px; color: #2c3e50; margin: 14px 0 10px 0; font-weight: 700;">Display</h3>
+
+        <!-- Theme Selection -->
+        <div style="margin-bottom: 10px;">
+          <label for="themeSelect" style="font-size: 13px; color: #555; display: block; margin-bottom: 4px; font-weight: 500;">Theme:</label>
+          <select id="themeSelect" style="width: 100%; padding: 6px 10px; border: 1px solid #bbb; border-radius: 6px; cursor: pointer; font-size: 13px; background: white; color: #333;">
+            <option value="paper-white">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </div>
+
+        <!-- Auto-switch theme by time of day -->
+        <div style="display: flex; align-items: center; padding: 8px 0; margin-bottom: 10px;">
+          <input type="checkbox" id="autoSwitchThemeCheckbox" style="width: 16px; height: 16px; cursor: pointer; margin-right: 10px;">
+          <label for="autoSwitchThemeCheckbox" style="cursor: pointer; font-size: 13px; color: #555; flex: 1; user-select: none;">
+            Auto-switch theme by time of day
+          </label>
+        </div>
+
+        <!-- Background Override Selection -->
+        <div style="margin-bottom: 10px;">
+          <label for="backgroundOverrideSelect" style="font-size: 13px; color: #555; display: block; margin-bottom: 4px; font-weight: 500;">Background:</label>
+          <select id="backgroundOverrideSelect" style="width: 100%; padding: 6px 10px; border: 1px solid #bbb; border-radius: 6px; cursor: pointer; font-size: 13px; background: white; color: #333;">
+            <option value="theme-default">Theme Default</option>
+            <option value="beige">Beige</option>
+            <option value="light-gradient">Light Gradient</option>
+            <option value="warm-gradient">Warm Gradient</option>
+            <option value="mist-gradient">Mist Gradient</option>
+            <option value="white">White</option>
+            <option value="black">Black</option>
+            <option value="custom">Custom Color...</option>
+          </select>
+        </div>
+
+        <!-- Custom Background Color Picker (hidden by default) -->
+        <div id="customBackgroundPicker" style="display: none; margin-bottom: 14px;">
+          <label for="customBgColor" style="font-size: 13px; color: #555; display: block; margin-bottom: 4px; font-weight: 500;">Custom Color:</label>
+          <input type="color" id="customBgColor" value="#f7f5e9" style="width: 60px; height: 40px; border: 1px solid #bbb; border-radius: 6px; cursor: pointer;">
+        </div>
+
       </div>
-      
-      <!-- Show Camera Sensitivity in Main Screen -->
-      <div style="display: flex; align-items: center; padding: 12px; border-radius: 6px; transition: background 0.2s; margin-bottom: 10px;">
-        <input type="checkbox" id="showCameraSensitivityCheckbox" style="width: 20px; height: 20px; cursor: pointer; margin-right: 15px;">
-        <label for="showCameraSensitivityCheckbox" style="cursor: pointer; font-size: 14px; color: #333; flex: 1; user-select: none;">
-          Show camera sensitivity slider in main screen
-        </label>
+
+      <!-- RIGHT COLUMN -->
+      <div>
+
+        <!-- Rendering Options Section -->
+        <h3 style="font-size: 15px; color: #2c3e50; margin: 0 0 10px 0; font-weight: 700;">Rendering Options</h3>
+
+        <!-- Performance Warning -->
+        <div style="padding: 10px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px; margin-bottom: 14px;">
+          <p style="margin: 0; font-size: 12px; color: #856404; line-height: 1.3;">
+            ℹ️ Higher detail improves quality but reduces performance. Lower settings for faster rendering on large grids.
+          </p>
+        </div>
+
+        <!-- Edge Detail Control -->
+        <div style="margin-bottom: 14px;">
+          <label for="edgeDetailSelect" style="font-size: 13px; color: #555; display: block; margin-bottom: 4px; font-weight: 500;">Edge Detail (cylinder sides):</label>
+          <select id="edgeDetailSelect" style="width: 100%; padding: 6px 10px; border: 1px solid #bbb; border-radius: 6px; cursor: pointer; font-size: 13px; background: white; color: #333;">
+            <option value="4">4</option>
+            <option value="6">6</option>
+            <option value="8" selected>8 (default)</option>
+            <option value="10">10</option>
+            <option value="12">12</option>
+          </select>
+        </div>
+
+        <!-- Vertex Detail Control -->
+        <div style="margin-bottom: 14px;">
+          <label for="vertexDetailSelect" style="font-size: 13px; color: #555; display: block; margin-bottom: 4px; font-weight: 500;">Vertex Detail (sphere smoothness):</label>
+          <select id="vertexDetailSelect" style="width: 100%; padding: 6px 10px; border: 1px solid #bbb; border-radius: 6px; cursor: pointer; font-size: 13px; background: white; color: #333;">
+            <option value="0">Low</option>
+            <option value="1" selected>Normal (default)</option>
+            <option value="2">Medium</option>
+            <option value="3">High</option>
+            <option value="4">Ultra</option>
+          </select>
+        </div>
+
+        <!-- LOD (Level of Detail) Section -->
+        <h3 style="font-size: 15px; color: #2c3e50; margin: 14px 0 10px 0; font-weight: 700;">Level of Detail (LOD)</h3>
+
+        <!-- LOD Info -->
+        <div style="padding: 10px; background: #2c3e50; border-left: 4px solid #3498db; border-radius: 4px; margin-bottom: 14px;">
+          <p style="margin: 0; font-size: 12px; color: #ffffff; line-height: 1.3;">
+            🚀 LOD automatically reduces detail for distant objects. 5-10× performance boost on large grids!
+          </p>
+        </div>
+
+        <!-- LOD Enable Toggle -->
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 13px; color: #555; display: flex; align-items: center; cursor: pointer; font-weight: 500;">
+            <input type="checkbox" id="lodEnabledCheckbox" checked style="width: 16px; height: 16px; margin-right: 8px; cursor: pointer;">
+            <span>Enable Progressive LOD</span>
+          </label>
+        </div>
+
+        <!-- LOD Distance Controls (only visible when LOD enabled) -->
+        <div id="lodDistanceControls" style="margin-left: 10px;">
+
+          <!-- LOD 0 Distance -->
+          <div style="margin-bottom: 12px;">
+            <label for="lod0Distance" style="font-size: 12px; color: #666; display: block; margin-bottom: 3px;">
+              Full Detail Distance: <span id="lod0DistanceValue" style="font-weight: 600; color: #333;">50</span> units
+            </label>
+            <input type="range" id="lod0Distance" min="10" max="100" value="50" step="5"
+                   style="width: 100%; cursor: pointer; height: 6px; border-radius: 3px; background: #ddd;">
+          </div>
+
+          <!-- LOD 1 Distance -->
+          <div style="margin-bottom: 12px;">
+            <label for="lod1Distance" style="font-size: 12px; color: #666; display: block; margin-bottom: 3px;">
+              Medium Detail Distance: <span id="lod1DistanceValue" style="font-weight: 600; color: #333;">150</span> units
+            </label>
+            <input type="range" id="lod1Distance" min="50" max="300" value="150" step="10"
+                   style="width: 100%; cursor: pointer; height: 6px; border-radius: 3px; background: #ddd;">
+          </div>
+
+          <!-- LOD 2 Distance -->
+          <div style="margin-bottom: 12px;">
+            <label for="lod2Distance" style="font-size: 12px; color: #666; display: block; margin-bottom: 3px;">
+              Low Detail Distance: <span id="lod2DistanceValue" style="font-weight: 600; color: #333;">300</span> units
+            </label>
+            <input type="range" id="lod2Distance" min="150" max="500" value="300" step="10"
+                   style="width: 100%; cursor: pointer; height: 6px; border-radius: 3px; background: #ddd;">
+          </div>
+
+          <!-- LOD Help Text -->
+          <div style="font-size: 11px; color: #777; line-height: 1.3; margin-top: 8px;">
+            Objects closer than <strong>Full Detail</strong> use your selected Edge/Vertex detail.<br>
+            Objects farther than <strong>Low Detail</strong> use minimal geometry.
+          </div>
+
+        </div>
+
+        <!-- LOD Performance Indicators Toggle -->
+        <div style="margin-bottom: 14px; margin-top: 14px; padding-top: 12px; border-top: 2px solid #3498db;">
+          <label style="font-size: 13px; color: #555; display: flex; align-items: center; cursor: pointer; font-weight: 500;">
+            <input type="checkbox" id="lodIndicatorsCheckbox" style="width: 16px; height: 16px; margin-right: 8px; cursor: pointer;">
+            <span>Show LOD performance indicators</span>
+          </label>
+        </div>
+
+        <!-- Camera Section -->
+        <h3 style="font-size: 15px; color: #2c3e50; margin: 14px 0 10px 0; font-weight: 700;">Camera</h3>
+
+        <!-- Camera Mouse Sensitivity -->
+        <div style="margin-bottom: 12px;">
+          <label for="cameraSensitivitySlider" style="font-size: 13px; color: #555; display: block; margin-bottom: 5px; font-weight: 500;">Mouse Sensitivity:</label>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <input type="range" id="cameraSensitivitySlider" min="0.1" max="2.0" step="0.1" value="1.0" style="flex: 1;">
+            <span id="cameraSensitivityValue" style="font-size: 13px; color: #555; min-width: 30px; text-align: right;">1.0</span>
+          </div>
+        </div>
+
+        <!-- Show Camera Sensitivity in Main Screen -->
+        <div style="display: flex; align-items: center; padding: 6px 0; margin-bottom: 6px;">
+          <input type="checkbox" id="showCameraSensitivityCheckbox" style="width: 18px; height: 18px; cursor: pointer; margin-right: 12px;">
+          <label for="showCameraSensitivityCheckbox" style="cursor: pointer; font-size: 13px; color: #555; flex: 1; user-select: none;">
+            Show slider in main screen
+          </label>
+        </div>
+
+        <!-- Use 2D Camera Mode -->
+        <div style="display: flex; align-items: center; padding: 6px 0;">
+          <input type="checkbox" id="use2DCameraModeCheckbox" checked style="width: 18px; height: 18px; cursor: pointer; margin-right: 12px;">
+          <label for="use2DCameraModeCheckbox" style="cursor: pointer; font-size: 13px; color: #555; flex: 1; user-select: none;">
+            Use 2D camera for 2D grids
+          </label>
+        </div>
+
       </div>
-      
-      <!-- Use 2D Camera Mode -->
-      <div style="display: flex; align-items: center; padding: 12px; border-radius: 6px; transition: background 0.2s; margin-bottom: 10px;">
-        <input type="checkbox" id="use2DCameraModeCheckbox" checked style="width: 20px; height: 20px; cursor: pointer; margin-right: 15px;">
-        <label for="use2DCameraModeCheckbox" style="cursor: pointer; font-size: 14px; color: #333; flex: 1; user-select: none;">
-          Use 2D camera mode (for grids with one dimension = 1)
-        </label>
-      </div>
-      
+
     </div>
     
     <!-- Footer Buttons -->
@@ -2920,7 +3555,7 @@ input[type=number] {
     <!-- README Content -->
     <div style="color: #333; line-height: 1.6;">
       
-      <h1 style="margin-top: 0; color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px;">GridLab v1.0</h1>
+      <h1 style="margin-top: 0; color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px;">GridLab v2.0</h1>
       
       <p style="font-size: 16px; color: #555; margin-bottom: 30px;"><strong>GridLab</strong> is an interactive 3D visualization and editing tool for exploring Hamiltonian paths and cycles on grid graphs. Built with Three.js, it provides an environment for studying graph theory, particularly the properties of paths and cycles on rectangular lattice structures.</p>
       
@@ -2975,64 +3610,21 @@ input[type=number] {
       
       <h2 style="color: #2c3e50; margin-top: 30px;">Performance & Complexity</h2>
       
-      <p>Path generation uses a backbite algorithm with computational complexity:</p>
-      
+      <p>Path generation uses a backbite algorithm optimized with <a href="https://cp-algorithms.com/data_structures/treap.html" target="_blank" style="color: #3498db; text-decoration: underline;">treap</a> data structures. Computational complexity:</p>
+
       <div style="background: #f0f7ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3498db;">
-        <p style="margin: 0; font-family: monospace; font-size: 16px; color: #2c3e50;"><strong>Running time ≈ 9cN²</strong></p>
-        <p style="margin: 10px 0 0 0; color: #555;">Where <strong>N = x × y × z</strong> (total vertices) and <strong>c</strong> is the backbite multiplier (default c = 10)</p>
+        <p style="margin: 0; font-family: monospace; font-size: 16px; color: #2c3e50;"><strong>Running time ≈ c·N·log(N)</strong></p>
+        <p style="margin: 10px 0 0 0; color: #555;">Where <strong>N = x × y × z</strong> (total vertices), <strong>c ≥ 10</strong> is the backbite iteration multiplier, and <strong>log(N)</strong> is the cost per backbite move using <a href="https://cp-algorithms.com/data_structures/treap.html" target="_blank" style="color: #3498db; text-decoration: underline;">treap</a>-optimized path reversals. Enable Progressive LOD in Preferences for 1.5-2× additional speedup on large grids.</p>
       </div>
       
-      <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px;">
-        <thead>
-          <tr style="background: #ecf0f1;">
-            <th style="padding: 10px; border: 1px solid #bdc3c7; text-align: left;">Grid Size</th>
-            <th style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">N (vertices)</th>
-            <th style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">Backbites</th>
-            <th style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">Operations</th>
-            <th style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">Est. Time</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="padding: 10px; border: 1px solid #bdc3c7;">5×5×5</td>
-            <td style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">125</td>
-            <td style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">1,250</td>
-            <td style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">~140K</td>
-            <td style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">&lt;1 sec</td>
-          </tr>
-          <tr style="background: #f9f9f9;">
-            <td style="padding: 10px; border: 1px solid #bdc3c7;">10×10×10</td>
-            <td style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">1,000</td>
-            <td style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">10,000</td>
-            <td style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">~9M</td>
-            <td style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">~1 sec</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px; border: 1px solid #bdc3c7;">20×20×20</td>
-            <td style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">8,000</td>
-            <td style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">80,000</td>
-            <td style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">~576M</td>
-            <td style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">~10 sec</td>
-          </tr>
-          <tr style="background: #f9f9f9;">
-            <td style="padding: 10px; border: 1px solid #bdc3c7;">30×30×30</td>
-            <td style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">27,000</td>
-            <td style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">270,000</td>
-            <td style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">~6.6B</td>
-            <td style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">~90 sec</td>
-          </tr>
-          <tr>
-            <td style="padding: 10px; border: 1px solid #bdc3c7;">50×50×50</td>
-            <td style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">125,000</td>
-            <td style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">1,250,000</td>
-            <td style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">~141B</td>
-            <td style="padding: 10px; border: 1px solid #bdc3c7; text-align: right;">~25 min</td>
-          </tr>
-        </tbody>
-      </table>
+
       
       <p style="color: #555;"><strong>Note:</strong> Press <kbd style="background: #f5f5f5; padding: 2px 6px; border-radius: 4px; border: 1px solid #ddd; font-family: monospace;">ESC</kbd> during generation to stop the process at any time.</p>
-      
+
+      <p style="color: #666; margin-top: 20px; padding: 15px; background: #fff9e6; border-left: 4px solid #f39c12; border-radius: 4px;">
+        <strong>Performance Note:</strong> For very large grids (30×30×30 and above), GPU rendering capabilities become the bottleneck, not the cost of backbite moves themselves. The <a href="https://cp-algorithms.com/data_structures/treap.html" target="_blank" style="color: #3498db; text-decoration: underline;">treap</a> optimization reduces backbite computational cost to near-instant O(log N) operations. To maximize performance on large grids, <strong>enable Progressive LOD</strong> in Preferences and use <strong>Toggle Grid</strong> to hide uncolored edges, which dramatically improves rendering performance and interactivity.
+      </p>
+
       <h2 style="color: #2c3e50; margin-top: 30px;">Key Features</h2>
       
       <h3 style="color: #34495e; margin-top: 20px;">Path Generation</h3>
@@ -3100,7 +3692,7 @@ input[type=number] {
         <ul style="margin-left: 20px; margin-bottom: 15px;">
           <li><strong>E:</strong> Toggle edge coloring mode</li>
           <li><strong>Shift+E:</strong> Toggle edge decoration mode</li>
-          <li><strong>A:</strong> Toggle arrows</li>
+          <li><strong>Shift+A:</strong> Toggle arrows</li>
           <li><strong>V:</strong> Toggle vertex mode</li>
           <li><strong>Shift+V:</strong> Toggle vertex decoration mode</li>
         </ul>
@@ -3184,9 +3776,9 @@ input[type=number] {
     let gridCounter = 0;
     let currentGrid = null;
 	// === Set your grid dimensions here ===
-		let GRID_WIDTH = 6;
-		let GRID_HEIGHT = 6;
-		let GRID_DEPTH = 6;
+		let GRID_WIDTH = 4;
+		let GRID_HEIGHT = 4;
+		let GRID_DEPTH = 4;
     const allGrids = new Map();
 	let lastHighlighted = null;
 	let gridVisible = true;
@@ -3203,6 +3795,7 @@ input[type=number] {
 	let showCameraSensitivityInMain = false; // Whether to show camera sensitivity in main UI
 	let use2DCameraMode = true; // Whether to use 2D camera mode for grids with one dimension = 1
 	let showAllVertices = false; // Whether to show all grid vertices as gray spheres
+	let toggleGridHidesVertices = true; // Whether toggling grid off also hides gray vertices
 	let isGenerating = false; // Track if generation is in progress
 	let shouldStopGeneration = false; // Flag to stop generation
 	let boxHighlightHelpers = [];
@@ -3211,7 +3804,8 @@ input[type=number] {
 	let gradientMode = false; // Controls gradient coloring
 	let batchMode = false; // Add this global variable
 	let arrowReverse = false;
-	
+	let dontShowBackbiteWarning = false; // User dismissal for non-Hamiltonian backbite warning
+
 	// Track unsaved changes for beforeunload protection
 	let hasUnsavedChanges = false;
 	let lastSaveTime = null;
@@ -3239,10 +3833,64 @@ let mouseDownType = null; // 'edge', 'vertex', 'box'
 
 let edgeCollisionRadius = 0.065; // Default: slightly larger than thick edges (0.05)
 
+// Rendering preferences
+let edgeSegments = 8; // Default edge cylinder segments
+let vertexSubdivisions = 1; // Default vertex icosphere subdivisions (0=4 verts, 1=12 verts, 2=42 verts, 3=162 verts, 4=642 verts)
+
+// Progressive LOD (Level of Detail) system
+let lodEnabled = true; // Toggle for LOD system
+let lodDistanceThresholds = {
+  lod0: 50,   // Closest: full detail (user-selected segments/subdivisions)
+  lod1: 150,  // Medium: half detail
+  lod2: 300   // Far: minimum geometry (3 segments, 0 subdivisions)
+  // lod3 (>300): lines/points (not yet implemented)
+};
+let lodHysteresis = 0.1; // 10% buffer to prevent flickering when objects are near threshold
+let lastLODUpdatePosition = null; // Last camera position when LOD was updated
+let lodUpdateDistanceThreshold = 20; // Camera must move this far to trigger LOD update
+let lodLastUpdateTime = 0; // Timestamp of last LOD update
+let lodUpdateInterval = 250; // Minimum milliseconds between LOD updates
+let currentLODLevel = 0; // Track current LOD level for display
+
+// FPS Counter variables
+let fpsFrames = 0;
+let fpsLastTime = performance.now();
+let fpsUpdateInterval = 500; // Update FPS display every 500ms
+let lastFrameTime = performance.now();
+
+// Auto-switch theme by time of day
+let autoSwitchThemeEnabled = localStorage.getItem('autoSwitchThemeEnabled') === 'true'; // Toggle for auto-switching theme
+let lastAutoSwitchCheck = 0; // Timestamp of last auto-switch check
+const autoSwitchCheckInterval = 60000; // Check every 60 seconds
+
+// Get current hour and determine theme
+function getThemeByTime() {
+  const now = new Date();
+  const hour = now.getHours();
+  // Dark mode: 12am (0) to 8am (8), Light mode: 8am to 12am (0)
+  return (hour >= 0 && hour < 8) ? 'dark' : 'paper-white';
+}
+
+// Auto-switch theme based on time
+function checkAndApplyAutoTheme() {
+  if (!autoSwitchThemeEnabled) return;
+
+  const currentTime = performance.now();
+  if (currentTime - lastAutoSwitchCheck < autoSwitchCheckInterval) return;
+
+  lastAutoSwitchCheck = currentTime;
+
+  const requiredTheme = getThemeByTime();
+  const themeSelect = document.getElementById('themeSelect');
+
+  if (themeSelect && themeSelect.value !== requiredTheme) {
+    themeSelect.value = requiredTheme;
+    updateTheme(requiredTheme);
+  }
+}
 
 
-	
-	
+
 //     ====================================================================================================================
 // 											   1. GRID CREATION FUNCTIONS
 //     ====================================================================================================================
@@ -3251,21 +3899,25 @@ function addVertex(grid, x, y, z = 0) {
   const key = vertexKey(x, y, z);
   if (!grid.vertices.has(key)) {
     grid.vertices.set(key, { coords: [x, y, z], neighbors: new Set() });
-    
-    // Create invisible collision helper for vertex clicking
-    const collisionGeometry = new THREE.SphereGeometry(0.4, 8, 8);
-    const collisionMaterial = new THREE.MeshBasicMaterial({ 
-      transparent: true,
-      opacity: 0,
-      visible: false
-    });
-    const collisionHelper = new THREE.Mesh(collisionGeometry, collisionMaterial);
-    collisionHelper.position.set(x, y, z);
-    collisionHelper.userData.vertexKey = key;
-    collisionHelper.userData.isVertexHelper = true;
-    
-    grid.group.add(collisionHelper);
-    grid.vertices.get(key).collisionHelper = collisionHelper;
+
+    // Only create individual collision helper if NOT using instanced rendering
+    // When instanced rendering is enabled, collisions are handled by instancedVertexCollisionHelpers
+    if (!useInstancedRendering) {
+      // Create invisible collision helper for vertex clicking
+      const collisionGeometry = new THREE.SphereGeometry(0.4, 8, 8);
+      const collisionMaterial = new THREE.MeshBasicMaterial({
+        transparent: true,
+        opacity: 0,
+        visible: false
+      });
+      const collisionHelper = new THREE.Mesh(collisionGeometry, collisionMaterial);
+      collisionHelper.position.set(x, y, z);
+      collisionHelper.userData.vertexKey = key;
+      collisionHelper.userData.isVertexHelper = true;
+
+      grid.group.add(collisionHelper);
+      grid.vertices.get(key).collisionHelper = collisionHelper;
+    }
   }
 }
 
@@ -3346,6 +3998,7 @@ function createEmptyGridData() {
     cameraTarget: null,
     highlightOverlay: null,
     vertexSpheres: new Map(),
+    standaloneDecorations: new Map(),  // Store decorations without vertices
     vertexHighlight: null,
     notes: "",
     customPlanes: [],  // <-- Changed from customPlane to customPlanes array
@@ -3393,7 +4046,15 @@ function addGrid() {
  grid.startMarker = null;
  grid.endMarker = null;
  grid.activeBoxHelpers = [];
- 
+
+ // Authoritative LOD state (ChatGPT fix)
+ grid.lodState = {
+   edgeSegments: edgeSegments,      // Current edge detail
+   vertexDetail: vertexSubdivisions, // Current vertex detail
+   level: 0,                         // Current LOD level (0=full, 1=medium, 2=low, 3=min)
+   lastRebuildTime: 0                // Timestamp of last rebuild for cooldown
+ };
+
  // Only initialize camera state if it's a fresh grid
  grid.cameraPosition = camera.position.clone();
  grid.cameraTarget = controls.target.clone();
@@ -3952,26 +4613,26 @@ function initializeInstancedGridEdges(grid) {
     return;
   }
   
-  console.log(`[initializeInstancedGridEdges] Creating instanced meshes for ${totalEdges} edges`);
-  
+  console.log(`[initializeInstancedGridEdges] Creating instanced meshes for ${totalEdges} edges with ${edgeSegments} segments per cylinder`);
+
   // Create thin mesh (pre-allocated for all edges)
-  const thinGeometry = new THREE.CylinderGeometry(0.015, 0.015, 1, 8);
+  const thinGeometry = new THREE.CylinderGeometry(0.015, 0.015, 1, edgeSegments);
   const thinMaterial = new THREE.MeshBasicMaterial();
   grid.instancedEdgesThin = new THREE.InstancedMesh(thinGeometry, thinMaterial, totalEdges);
   grid.instancedEdgesThin.instanceColor = new THREE.InstancedBufferAttribute(
     new Float32Array(totalEdges * 3), 3
   );
-  
+
   // Create thick mesh (pre-allocated for all edges, starts empty)
-  const thickGeometry = new THREE.CylinderGeometry(0.05, 0.05, 1, 8);
+  const thickGeometry = new THREE.CylinderGeometry(0.05, 0.05, 1, edgeSegments);
   const thickMaterial = new THREE.MeshBasicMaterial();
   grid.instancedEdgesThick = new THREE.InstancedMesh(thickGeometry, thickMaterial, totalEdges);
   grid.instancedEdgesThick.instanceColor = new THREE.InstancedBufferAttribute(
     new Float32Array(totalEdges * 3), 3
   );
-  
+
   // Create collision mesh (invisible, fat cylinders for easy clicking)
-  const collisionGeometry = new THREE.CylinderGeometry(edgeCollisionRadius, edgeCollisionRadius, 1, 8);
+  const collisionGeometry = new THREE.CylinderGeometry(edgeCollisionRadius, edgeCollisionRadius, 1, edgeSegments);
   const collisionMaterial = new THREE.MeshBasicMaterial({ 
     transparent: true, opacity: 0, depthTest: true, depthWrite: false // Invisible but still raycastable
   });
@@ -4134,12 +4795,15 @@ function colorEdgeInstanced(grid, a, b, color, width) {
   
   // CRITICAL: Update collision mesh to match active visual mesh
   grid.instancedEdgesCollision.setMatrixAt(mapping.collision, matrix);
-  
-  grid.instancedEdgesThin.instanceMatrix.needsUpdate = true;
-  grid.instancedEdgesThin.instanceColor.needsUpdate = true;
-  grid.instancedEdgesThick.instanceMatrix.needsUpdate = true;
-  grid.instancedEdgesThick.instanceColor.needsUpdate = true;
-  grid.instancedEdgesCollision.instanceMatrix.needsUpdate = true;
+
+  // Batch mode optimization: don't sync GPU for each edge, sync once at end
+  if (!grid.batchMode) {
+    grid.instancedEdgesThin.instanceMatrix.needsUpdate = true;
+    grid.instancedEdgesThin.instanceColor.needsUpdate = true;
+    grid.instancedEdgesThick.instanceMatrix.needsUpdate = true;
+    grid.instancedEdgesThick.instanceColor.needsUpdate = true;
+    grid.instancedEdgesCollision.instanceMatrix.needsUpdate = true;
+  }
 }
 
 
@@ -4473,7 +5137,11 @@ function addArrowInstanced(grid, edge, direction, from, to) {
   
   // Update instance
   instancedMesh.setMatrixAt(instanceIndex, matrix);
-  instancedMesh.instanceMatrix.needsUpdate = true;
+
+  // Batch mode optimization: don't sync GPU for each arrow, sync once at end
+  if (!grid.batchMode) {
+    instancedMesh.instanceMatrix.needsUpdate = true;
+  }
   
   // FIX 3: Ensure instance count covers this index
   instancedMesh.count = Math.max(instancedMesh.count, instanceIndex + 1);
@@ -4483,7 +5151,7 @@ function addArrowInstanced(grid, edge, direction, from, to) {
     direction: direction,
     index: instanceIndex
   });
-  
+
   // Update edge data
   edge.arrowDirection = direction;
   edge.arrows = 'instanced';
@@ -4511,17 +5179,21 @@ function removeArrowInstanced(grid, edge, providedKey = null) {
   // Hide the arrow by setting zero matrix
   const zeroMatrix = new THREE.Matrix4().makeScale(0, 0, 0);
   instancedMesh.setMatrixAt(mapping.index, zeroMatrix);
-  instancedMesh.instanceMatrix.needsUpdate = true;
+
+  // Batch mode optimization: don't sync GPU for each arrow removal, sync once at end
+  if (!grid.batchMode) {
+    instancedMesh.instanceMatrix.needsUpdate = true;
+  }
   
   // Free the slot
   slots.freeSlots.push(mapping.index);
   
   // Remove mapping
   grid.edgeToArrowInstanceMap.delete(eKey);
-  
-  // Clear edge data
+
+  // Clear edge data - but PRESERVE arrowDirection for toggle restoration
   edge.arrows = null;
-  edge.arrowDirection = undefined;
+  // edge.arrowDirection stays set!
 }
 
 
@@ -4633,6 +5305,476 @@ function performRedo() {
   currentGrid.undoStack.push(action);
 }
 
+// Rebuild edges with new segment count
+function rebuildEdgesWithNewSegments(grid, newSegments) {
+  if (!grid.isInstanced || !grid.instancedEdgesThin) {
+    console.log('Not using instanced rendering, skipping edge rebuild');
+    return;
+  }
+
+  // Use authoritative lodState instead of geometry.parameters (ChatGPT fix)
+  const oldSegments = grid.lodState?.edgeSegments ?? edgeSegments;
+
+  // Early exit if no change needed
+  if (oldSegments === newSegments) {
+    console.log(`[EDGE-REBUILD] Skipped: already at ${newSegments} segments (lodState: ${grid.lodState?.edgeSegments}, fallback: ${edgeSegments})`);
+    return;
+  }
+
+  console.log(`[EDGE-REBUILD] Starting: ${oldSegments} → ${newSegments} segments (lodState.edges=${grid.lodState?.edgeSegments})`);
+
+  // Remove old meshes from scene
+  if (grid.instancedEdgesThin) {
+    grid.group.remove(grid.instancedEdgesThin);
+    grid.instancedEdgesThin.geometry.dispose();
+    grid.instancedEdgesThin.material.dispose();
+  }
+  if (grid.instancedEdgesThick) {
+    grid.group.remove(grid.instancedEdgesThick);
+    grid.instancedEdgesThick.geometry.dispose();
+    grid.instancedEdgesThick.material.dispose();
+  }
+  if (grid.instancedEdgesCollision) {
+    grid.group.remove(grid.instancedEdgesCollision);
+    grid.instancedEdgesCollision.geometry.dispose();
+    grid.instancedEdgesCollision.material.dispose();
+  }
+
+  // Create new geometries with new segment count
+  const thinGeometry = new THREE.CylinderGeometry(0.015, 0.015, 1, newSegments);
+  const thickGeometry = new THREE.CylinderGeometry(0.05, 0.05, 1, newSegments);
+  const collisionGeometry = new THREE.CylinderGeometry(edgeCollisionRadius, edgeCollisionRadius, 1, newSegments);
+
+  // Create new instanced meshes
+  const thinMaterial = new THREE.MeshBasicMaterial();
+  grid.instancedEdgesThin = new THREE.InstancedMesh(thinGeometry, thinMaterial, grid.edges.size);
+  grid.instancedEdgesThin.instanceColor = new THREE.InstancedBufferAttribute(
+    new Float32Array(grid.edges.size * 3), 3
+  );
+
+  const thickMaterial = new THREE.MeshBasicMaterial();
+  grid.instancedEdgesThick = new THREE.InstancedMesh(thickGeometry, thickMaterial, grid.edges.size);
+  grid.instancedEdgesThick.instanceColor = new THREE.InstancedBufferAttribute(
+    new Float32Array(grid.edges.size * 3), 3
+  );
+
+  const collisionMaterial = new THREE.MeshBasicMaterial({
+    transparent: true, opacity: 0, depthTest: true, depthWrite: false
+  });
+  grid.instancedEdgesCollision = new THREE.InstancedMesh(collisionGeometry, collisionMaterial, grid.edges.size);
+
+  // Add to scene
+  grid.group.add(grid.instancedEdgesThin);
+  grid.group.add(grid.instancedEdgesThick);
+  grid.group.add(grid.instancedEdgesCollision);
+
+  // Rebuild all edge instances
+  const up = new THREE.Vector3(0, 1, 0);
+  const matrix = new THREE.Matrix4();
+  const quaternion = new THREE.Quaternion();
+  const zeroMatrix = new THREE.Matrix4().makeScale(0, 0, 0);
+
+  let thinIndex = 0, thickIndex = 0, collisionIndex = 0;
+  for (const [eKey, edge] of grid.edges.entries()) {
+    const [aStr, bStr] = eKey.split("-");
+    const a = aStr.split(",").map(Number);
+    const b = bStr.split(",").map(Number);
+
+    const start = new THREE.Vector3(...a);
+    const end = new THREE.Vector3(...b);
+    const direction = new THREE.Vector3().subVectors(end, start);
+    const length = direction.length();
+    const midpoint = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+
+    // Build transform matrix
+    matrix.makeScale(1, length, 1);
+    quaternion.setFromUnitVectors(up, direction.normalize());
+    const rotationMatrix = new THREE.Matrix4().makeRotationFromQuaternion(quaternion);
+    matrix.premultiply(rotationMatrix);
+    matrix.setPosition(midpoint);
+
+    // Add to collision mesh
+    grid.instancedEdgesCollision.setMatrixAt(collisionIndex, matrix);
+    grid.edgeToInstanceMap.set(eKey, {
+      thin: thinIndex,
+      thick: thickIndex,
+      collision: collisionIndex
+    });
+
+    // Set color for thin mesh
+    const thinColor = new THREE.Color(edge.color || UNCOLORED_COLOR);
+    grid.instancedEdgesThin.setColorAt(thinIndex, thinColor);
+    grid.instancedEdgesThin.setMatrixAt(thinIndex, matrix);
+    thinIndex++;
+
+    // Set color for thick mesh if edge is colored
+    if (edge.color !== UNCOLORED_COLOR) {
+      const thickColor = new THREE.Color(edge.color);
+      grid.instancedEdgesThick.setColorAt(thickIndex, thickColor);
+      grid.instancedEdgesThick.setMatrixAt(thickIndex, matrix);
+    } else {
+      grid.instancedEdgesThick.setMatrixAt(thickIndex, zeroMatrix);
+    }
+    thickIndex++;
+    collisionIndex++;
+  }
+
+  grid.instancedEdgesThin.instanceMatrix.needsUpdate = true;
+  grid.instancedEdgesThin.instanceColor.needsUpdate = true;
+  grid.instancedEdgesThick.instanceMatrix.needsUpdate = true;
+  grid.instancedEdgesThick.instanceColor.needsUpdate = true;
+  grid.instancedEdgesCollision.instanceMatrix.needsUpdate = true;
+
+  // Update authoritative LOD state (ChatGPT fix)
+  if (grid.lodState) {
+    const oldState = grid.lodState.edgeSegments;
+    grid.lodState.edgeSegments = newSegments;
+    grid.lodState.lastRebuildTime = performance.now();
+    console.log(`[EDGE-REBUILD] State updated: ${oldState} → ${grid.lodState.edgeSegments}`);
+  }
+
+  console.log(`[EDGE-REBUILD] Complete! UUID: ${grid.instancedEdgesThin.uuid}, segments: ${newSegments}`);
+}
+
+// Rebuild vertices with new subdivision level
+function rebuildVerticesWithNewDetail(grid, newSubdivisions) {
+  if (!grid.isInstanced || !grid.instancedVertexSpheres) {
+    console.log('Not using instanced rendering, skipping vertex rebuild');
+    return;
+  }
+
+  // Use authoritative lodState instead of geometry.parameters (ChatGPT fix)
+  const oldSubdivisions = grid.lodState?.vertexDetail ?? vertexSubdivisions;
+
+  // Early exit if no change needed
+  if (oldSubdivisions === newSubdivisions) {
+    console.log(`[VERTEX-REBUILD] Skipped: already at ${newSubdivisions} subdivisions (lodState: ${grid.lodState?.vertexDetail}, fallback: ${vertexSubdivisions})`);
+    return;
+  }
+
+  console.log(`[VERTEX-REBUILD] Starting: ${oldSubdivisions} → ${newSubdivisions} subdivisions (lodState.detail=${grid.lodState?.vertexDetail}, showAllVerts=${showAllVertices})`);
+
+  // Remove old meshes from scene
+  if (grid.instancedVertexSpheres) {
+    console.log(`  → Removing old sphere mesh (${grid.instancedVertexSpheres.geometry.parameters.detail} subdivisions)`);
+    grid.group.remove(grid.instancedVertexSpheres);
+    grid.instancedVertexSpheres.geometry.dispose();
+    grid.instancedVertexSpheres.material.dispose();
+  }
+  if (grid.instancedVertexCollisionHelpers) {
+    grid.group.remove(grid.instancedVertexCollisionHelpers);
+    grid.instancedVertexCollisionHelpers.geometry.dispose();
+    grid.instancedVertexCollisionHelpers.material.dispose();
+  }
+
+  // Create new geometries with new subdivision level
+  const sphereGeometry = new THREE.IcosahedronGeometry(0.2, newSubdivisions);
+  const collisionGeometry = new THREE.IcosahedronGeometry(0.25, newSubdivisions);
+  console.log(`  → Created new geometry: detail=${sphereGeometry.parameters.detail}, vertices=${sphereGeometry.attributes.position.count}`);
+
+  // Create new instanced meshes
+  const sphereMaterial = new THREE.MeshBasicMaterial({ depthTest: true });
+  grid.instancedVertexSpheres = new THREE.InstancedMesh(sphereGeometry, sphereMaterial, grid.vertices.size);
+  grid.instancedVertexSpheres.instanceColor = new THREE.InstancedBufferAttribute(
+    new Float32Array(grid.vertices.size * 3), 3
+  );
+
+  const collisionMaterial = new THREE.MeshBasicMaterial({ visible: false });
+  grid.instancedVertexCollisionHelpers = new THREE.InstancedMesh(collisionGeometry, collisionMaterial, grid.vertices.size);
+
+  // Add to scene
+  grid.group.add(grid.instancedVertexSpheres);
+  grid.group.add(grid.instancedVertexCollisionHelpers);
+
+  // CRITICAL FIX: Only rebuild visible vertex spheres, not all grid vertices!
+  // Visual spheres should be hidden by default, collision helpers visible
+  const zeroMatrix = new THREE.Matrix4().makeScale(0, 0, 0);
+  const collisionMatrix = new THREE.Matrix4();
+
+  let vertexIndex = 0;
+  for (const [vKey, vertexData] of grid.vertices.entries()) {
+    const [x, y, z] = vKey.split(",").map(Number);
+
+    // COLLISION HELPERS: Always at vertex position for raycasting
+    collisionMatrix.setPosition(x, y, z);
+    grid.instancedVertexCollisionHelpers.setMatrixAt(vertexIndex, collisionMatrix);
+
+    // VISUAL SPHERES: Visible if user created a sphere OR if "Show All Vertices" is enabled
+    if (grid.vertexSpheres && grid.vertexSpheres.has(vKey)) {
+      // User created sphere - make it visible with user's color
+      const matrix = new THREE.Matrix4().setPosition(x, y, z);
+      grid.instancedVertexSpheres.setMatrixAt(vertexIndex, matrix);
+
+      const sphereData = grid.vertexSpheres.get(vKey);
+      const vertexColor = new THREE.Color(sphereData.color || 0x888888);
+      grid.instancedVertexSpheres.setColorAt(vertexIndex, vertexColor);
+    } else if (showAllVertices) {
+      // "Show All Vertices" preference is ON - make this vertex visible with gray color
+      const matrix = new THREE.Matrix4().setPosition(x, y, z);
+      grid.instancedVertexSpheres.setMatrixAt(vertexIndex, matrix);
+      grid.instancedVertexSpheres.setColorAt(vertexIndex, new THREE.Color(0x888888));
+    } else {
+      // No user sphere and show all is OFF - hide it
+      grid.instancedVertexSpheres.setMatrixAt(vertexIndex, zeroMatrix);
+    }
+
+    grid.vertexToInstanceMap.set(vKey, vertexIndex);
+    vertexIndex++;
+  }
+
+  grid.instancedVertexSpheres.instanceMatrix.needsUpdate = true;
+  grid.instancedVertexSpheres.instanceColor.needsUpdate = true;
+  grid.instancedVertexCollisionHelpers.instanceMatrix.needsUpdate = true;
+
+  // Update authoritative LOD state (ChatGPT fix)
+  if (grid.lodState) {
+    const oldState = grid.lodState.vertexDetail;
+    grid.lodState.vertexDetail = newSubdivisions;
+    grid.lodState.lastRebuildTime = performance.now();
+    console.log(`[VERTEX-REBUILD] State updated: ${oldState} → ${grid.lodState.vertexDetail}`);
+  }
+
+  console.log(`[VERTEX-REBUILD] Complete! UUID: ${grid.instancedVertexSpheres.uuid}, detail: ${newSubdivisions}, vertices: ${grid.instancedVertexSpheres.geometry.attributes.position.count}`);
+}
+
+// ==================== LOD (Level of Detail) SYSTEM ====================
+
+// Rebuild all geometry at full detail (when LOD is disabled)
+function rebuildAllGeometryAtFullDetail(grid) {
+  if (!grid || !grid.isInstanced) return;
+
+  console.log('[LOD] Rebuilding all geometry at full detail...');
+
+  // Rebuild edges and vertices at user-selected detail levels
+  if (grid.instancedEdgesThin) {
+    rebuildEdgesWithNewSegments(grid, edgeSegments);
+  }
+  if (grid.instancedVertexSpheres) {
+    rebuildVerticesWithNewDetail(grid, vertexSubdivisions);
+  }
+
+  console.log('[LOD] Full detail rebuild complete');
+}
+
+// Calculate distance from camera to a point
+function getDistanceFromCamera(point) {
+  if (!camera) return Infinity;
+
+  const cameraPos = camera.position;
+  const dx = cameraPos.x - point.x;
+  const dy = cameraPos.y - point.y;
+  const dz = cameraPos.z - point.z;
+  return Math.sqrt(dx * dx + dy * dy + dz * dz);
+}
+
+// Determine LOD level for a given distance
+function getLODLevel(distance, previousLevel) {
+  // Apply hysteresis to prevent flickering when near thresholds
+  // Hysteresis creates "sticky" zones - harder to transition when near a boundary
+
+  // Define base thresholds
+  const threshold0 = lodDistanceThresholds.lod0;
+  const threshold1 = lodDistanceThresholds.lod1;
+  const threshold2 = lodDistanceThresholds.lod2;
+
+  // Apply hysteresis based on previous level
+  // When moving to HIGHER detail (lower LOD number), use stricter threshold (distance must be clearly smaller)
+  // When moving to LOWER detail (higher LOD number), use looser threshold (distance must be clearly larger)
+  const hysteresisDelta = threshold0 * lodHysteresis; // Use absolute delta instead of multiplier
+
+  if (previousLevel === undefined || previousLevel === null) {
+    previousLevel = currentLODLevel; // Use global current level
+  }
+
+  // Determine new LOD level with hysteresis
+  if (distance < threshold0) {
+    return 0; // Full detail
+  } else if (distance < threshold1) {
+    // Between lod0 and lod1
+    if (previousLevel === 0 && distance < threshold0 + hysteresisDelta) {
+      return 0; // Stay at full detail (sticky)
+    } else if (previousLevel === 2 && distance > threshold1 - hysteresisDelta) {
+      return 2; // Stay at low detail (sticky)
+    }
+    return 1; // Medium detail
+  } else if (distance < threshold2) {
+    // Between lod1 and lod2
+    if (previousLevel === 1 && distance < threshold1 + hysteresisDelta) {
+      return 1; // Stay at medium detail (sticky)
+    } else if (previousLevel === 3 && distance > threshold2 - hysteresisDelta) {
+      return 3; // Stay at minimum detail (sticky)
+    }
+    return 2; // Low detail
+  } else {
+    // Beyond lod2
+    if (previousLevel === 2 && distance < threshold2 + hysteresisDelta) {
+      return 2; // Stay at low detail (sticky)
+    }
+    return 3; // Minimum/Line rendering (future)
+  }
+}
+
+// Get appropriate segment count for edge LOD level
+function getEdgeSegmentsForLOD(lodLevel) {
+  switch (lodLevel) {
+    case 0: return edgeSegments; // User-selected detail
+    case 1: return Math.max(3, Math.floor(edgeSegments / 2)); // Half detail
+    case 2: return 3; // Minimum (triangular prism)
+    case 3: return 3; // Line rendering (not yet implemented, use 3 for now)
+    default: return edgeSegments;
+  }
+}
+
+// Get appropriate subdivision count for vertex LOD level
+function getVertexSubdivisionsForLOD(lodLevel) {
+  // If "Show All Vertices" is enabled, always use user's preferred detail level
+  // This ensures all visible vertices maintain the user's chosen quality setting
+  if (showAllVertices) {
+    return vertexSubdivisions;
+  }
+
+  switch (lodLevel) {
+    case 0: return vertexSubdivisions; // User-selected detail
+    case 1: return Math.max(0, vertexSubdivisions - 1); // One level down
+    case 2: return 0; // Minimum (icosahedron - 12 vertices)
+    case 3: return 0; // Point rendering (not yet implemented, use 0 for now)
+    default: return vertexSubdivisions;
+  }
+}
+
+// Check if an edge should always render at full detail (special cases)
+function shouldEdgeUseFullDetail(edge, eKey) {
+  // Always render at full detail if:
+  // 1. Edge has arrows
+  if (edge.arrows) return true;
+
+  // 2. Edge is colored (not default gray)
+  if (edge.color && edge.color !== UNCOLORED_COLOR) return true;
+
+  // 3. Edge is part of current path being generated (future check)
+  // if (currentGrid && currentGrid.currentPath && currentGrid.currentPath.includes(eKey)) return true;
+
+  return false;
+}
+
+// Check if a vertex should always render at full detail (special cases)
+function shouldVertexUseFullDetail(vertexData, vKey) {
+  // Always render at full detail if:
+  // 1. Vertex has decoration
+  if (currentGrid.vertexSpheres && currentGrid.vertexSpheres.has(vKey)) {
+    const sphereData = currentGrid.vertexSpheres.get(vKey);
+    if (sphereData.decoration) return true;
+  }
+  if (currentGrid.standaloneDecorations && currentGrid.standaloneDecorations.has(vKey)) {
+    return true;
+  }
+
+  // 2. Vertex is colored (not default gray)
+  if (vertexData.color && vertexData.color !== 0x888888) return true;
+
+  return false;
+}
+
+// Main LOD update function - called each frame from animate()
+function updateLOD() {
+  if (!currentGrid || !currentGrid.isInstanced || !lodEnabled || !camera) return;
+  if (!currentGrid.lodState) return; // Need lodState (ChatGPT fix)
+
+  const currentTime = performance.now();
+
+  // Rate limiting: Only update LOD if enough time has passed
+  const timeSinceLastUpdate = currentTime - lodLastUpdateTime;
+  if (timeSinceLastUpdate < lodUpdateInterval) return;
+
+  // Calculate grid center for distance calculation
+  const gridCenter = calculateGridCenter();
+  if (!gridCenter) return;
+
+  // Get distance from camera to grid center
+  const distance = getDistanceFromCamera(gridCenter);
+  const lodLevel = getLODLevel(distance, currentLODLevel);
+
+  // Check if LOD level actually changed
+  const lodLevelChanged = (lodLevel !== currentLODLevel);
+
+  // CRITICAL FIX: Only apply rebuild cooldown if LOD level hasn't changed
+  // If LOD level HAS changed, we need to rebuild even if cooldown hasn't elapsed
+  // This prevents geometry from getting "stuck" when zooming quickly
+  const timeSinceLastRebuild = currentTime - (currentGrid.lodState.lastRebuildTime || 0);
+  const rebuildCooldown = 250; // Reduced from 1000ms to prevent getting stuck
+  if (timeSinceLastRebuild < rebuildCooldown && !lodLevelChanged) {
+    // Only return early if LOD level hasn't changed AND cooldown hasn't elapsed
+    return;
+  }
+
+  // Update current LOD level for FPS display
+  currentLODLevel = lodLevel;
+
+  // Determine required detail levels
+  const requiredEdgeSegments = getEdgeSegmentsForLOD(lodLevel);
+  const requiredVertexSubdivisions = getVertexSubdivisionsForLOD(lodLevel);
+
+  // Check if we need to rebuild geometry using authoritative lodState (ChatGPT fix)
+  const currentEdgeSegments = currentGrid.lodState.edgeSegments;
+  const currentVertexSubdivisions = currentGrid.lodState.vertexDetail;
+
+  let geometryRebuilt = false;
+
+  if (requiredEdgeSegments !== currentEdgeSegments) {
+    console.log(`[LOD] Updating edge detail: ${currentEdgeSegments} → ${requiredEdgeSegments} segments (LOD ${lodLevel}, dist: ${distance.toFixed(1)})`);
+    console.log(`[LOD-EDGE] lodState before rebuild: ${currentGrid.lodState.edgeSegments}, required: ${requiredEdgeSegments}`);
+    rebuildEdgesWithNewSegments(currentGrid, requiredEdgeSegments);
+    console.log(`[LOD-EDGE] lodState after rebuild: ${currentGrid.lodState.edgeSegments}`);
+    geometryRebuilt = true;
+  }
+
+  if (requiredVertexSubdivisions !== currentVertexSubdivisions) {
+    console.log(`[LOD] Updating vertex detail: ${currentVertexSubdivisions} → ${requiredVertexSubdivisions} subdivisions (LOD ${lodLevel}, dist: ${distance.toFixed(1)})`);
+    console.log(`[LOD-VERTEX] lodState before rebuild: ${currentGrid.lodState.vertexDetail}, required: ${requiredVertexSubdivisions}, showAllVertices: ${showAllVertices}`);
+    rebuildVerticesWithNewDetail(currentGrid, requiredVertexSubdivisions);
+    console.log(`[LOD-VERTEX] lodState after rebuild: ${currentGrid.lodState.vertexDetail}`);
+    geometryRebuilt = true;
+  }
+
+  if (geometryRebuilt) {
+    // Update LOD level in authoritative state (ChatGPT fix)
+    currentGrid.lodState.level = lodLevel;
+    console.log(`[LOD] ✓ Geometry rebuilt for LOD level ${lodLevel} at distance ${distance.toFixed(1)}`);
+    console.log(`[LOD] State: edges=${currentGrid.lodState.edgeSegments}, vertices=${currentGrid.lodState.vertexDetail}, level=${currentGrid.lodState.level}`);
+  }
+
+  // Debug logging every update cycle
+  if (lodLevelChanged) {
+    console.log(`[LOD] Level changed to ${lodLevel} at distance ${distance.toFixed(1)} (thresholds: ${lodDistanceThresholds.lod0}, ${lodDistanceThresholds.lod1}, ${lodDistanceThresholds.lod2})`);
+  }
+
+  // Update tracking variables
+  lodLastUpdateTime = currentTime;
+}
+
+// Calculate center point of the grid
+function calculateGridCenter() {
+  if (!currentGrid || !currentGrid.vertices || currentGrid.vertices.size === 0) {
+    return null;
+  }
+
+  let sumX = 0, sumY = 0, sumZ = 0;
+  let count = 0;
+
+  for (const vKey of currentGrid.vertices.keys()) {
+    const [x, y, z] = vKey.split(",").map(Number);
+    sumX += x;
+    sumY += y;
+    sumZ += z;
+    count++;
+  }
+
+  return {
+    x: sumX / count,
+    y: sumY / count,
+    z: sumZ / count
+  };
+}
 
 // Vertex sphere undo/redo functions
 function undoVertexSphere(actionData) {
@@ -4678,23 +5820,42 @@ function redoVertexSphere(actionData) {
 // Vertex decoration undo/redo functions
 function undoVertexDecoration(actionData) {
   const { vertexKey, beforeState } = actionData;
-  
-  if (!currentGrid.vertexSpheres.has(vertexKey)) return;
-  
-  const sphereData = currentGrid.vertexSpheres.get(vertexKey);
-  
+
+  // Handle both vertex-attached and standalone decorations
+  let hasExistingDecoration = false;
+  let existingDecorationGroup = null;
+
+  // Check if decoration is on an existing vertex sphere
+  if (currentGrid.vertexSpheres.has(vertexKey)) {
+    const sphereData = currentGrid.vertexSpheres.get(vertexKey);
+    if (sphereData.decoration) {
+      hasExistingDecoration = true;
+      existingDecorationGroup = sphereData.decoration;
+    }
+  } else if (currentGrid.standaloneDecorations.has(vertexKey)) {
+    // Check if decoration is standalone (on non-existing vertex)
+    hasExistingDecoration = true;
+    existingDecorationGroup = currentGrid.standaloneDecorations.get(vertexKey).decorationGroup;
+  }
+
   // Remove current decoration if exists
-  if (sphereData.decoration) {
-    currentGrid.group.remove(sphereData.decoration);
-    if (sphereData.decoration.children) {
-      sphereData.decoration.children.forEach(child => {
+  if (hasExistingDecoration && existingDecorationGroup) {
+    currentGrid.group.remove(existingDecorationGroup);
+    if (existingDecorationGroup.children) {
+      existingDecorationGroup.children.forEach(child => {
         if (child.geometry) child.geometry.dispose();
         if (child.material) child.material.dispose();
       });
     }
-    sphereData.decoration = null;
+
+    // Clean up tracking
+    if (currentGrid.vertexSpheres.has(vertexKey)) {
+      currentGrid.vertexSpheres.get(vertexKey).decoration = null;
+    } else if (currentGrid.standaloneDecorations.has(vertexKey)) {
+      currentGrid.standaloneDecorations.delete(vertexKey);
+    }
   }
-  
+
   // Restore previous decoration state
   if (beforeState && beforeState.hasDecoration) {
     addVertexDecoration(currentGrid, vertexKey, beforeState.decorationColor);
@@ -4703,23 +5864,42 @@ function undoVertexDecoration(actionData) {
 
 function redoVertexDecoration(actionData) {
   const { vertexKey, afterState } = actionData;
-  
-  if (!currentGrid.vertexSpheres.has(vertexKey)) return;
-  
-  const sphereData = currentGrid.vertexSpheres.get(vertexKey);
-  
+
+  // Handle both vertex-attached and standalone decorations
+  let hasExistingDecoration = false;
+  let existingDecorationGroup = null;
+
+  // Check if decoration is on an existing vertex sphere
+  if (currentGrid.vertexSpheres.has(vertexKey)) {
+    const sphereData = currentGrid.vertexSpheres.get(vertexKey);
+    if (sphereData.decoration) {
+      hasExistingDecoration = true;
+      existingDecorationGroup = sphereData.decoration;
+    }
+  } else if (currentGrid.standaloneDecorations.has(vertexKey)) {
+    // Check if decoration is standalone (on non-existing vertex)
+    hasExistingDecoration = true;
+    existingDecorationGroup = currentGrid.standaloneDecorations.get(vertexKey).decorationGroup;
+  }
+
   // Remove current decoration if exists
-  if (sphereData.decoration) {
-    currentGrid.group.remove(sphereData.decoration);
-    if (sphereData.decoration.children) {
-      sphereData.decoration.children.forEach(child => {
+  if (hasExistingDecoration && existingDecorationGroup) {
+    currentGrid.group.remove(existingDecorationGroup);
+    if (existingDecorationGroup.children) {
+      existingDecorationGroup.children.forEach(child => {
         if (child.geometry) child.geometry.dispose();
         if (child.material) child.material.dispose();
       });
     }
-    sphereData.decoration = null;
+
+    // Clean up tracking
+    if (currentGrid.vertexSpheres.has(vertexKey)) {
+      currentGrid.vertexSpheres.get(vertexKey).decoration = null;
+    } else if (currentGrid.standaloneDecorations.has(vertexKey)) {
+      currentGrid.standaloneDecorations.delete(vertexKey);
+    }
   }
-  
+
   // Apply new decoration state
   if (afterState && afterState.hasDecoration) {
     addVertexDecoration(currentGrid, vertexKey, afterState.decorationColor);
@@ -5322,29 +6502,48 @@ function redoSwitch(data) {
 
 // State capture helper functions
 function captureVertexSphereState(vertexKey) {
-  if (!currentGrid.vertexSpheres.has(vertexKey)) {
-    return null;
-  }
-  
-  const sphereData = currentGrid.vertexSpheres.get(vertexKey);
-  
-  // Get color (works for both instanced and individual mode)
-  const color = currentGrid.isInstanced 
-    ? sphereData.color 
-    : sphereData.sphere.material.color.getHex();
-  
-  const state = {
-    color: color,
-    hasDecoration: !!sphereData.decoration
-  };
-  
-  if (state.hasDecoration && sphereData.decoration) {
-    if (sphereData.decoration.children && sphereData.decoration.children.length > 0) {
-      state.decorationColor = sphereData.decoration.children[0].material.color.getHex();
+  // Check if there's a vertex sphere
+  if (currentGrid.vertexSpheres.has(vertexKey)) {
+    const sphereData = currentGrid.vertexSpheres.get(vertexKey);
+
+    // Get color (works for both instanced and individual mode)
+    const color = currentGrid.isInstanced
+      ? sphereData.color
+      : sphereData.sphere.material.color.getHex();
+
+    const state = {
+      color: color,
+      hasDecoration: !!sphereData.decoration,
+      isStandalone: false
+    };
+
+    if (state.hasDecoration && sphereData.decoration) {
+      if (sphereData.decoration.children && sphereData.decoration.children.length > 0) {
+        state.decorationColor = sphereData.decoration.children[0].material.color.getHex();
+      }
     }
+
+    return state;
   }
-  
-  return state;
+
+  // Check if there's a standalone decoration (decoration without vertex sphere)
+  if (currentGrid.standaloneDecorations && currentGrid.standaloneDecorations.has(vertexKey)) {
+    const decorationData = currentGrid.standaloneDecorations.get(vertexKey);
+    const state = {
+      color: null, // No vertex sphere
+      hasDecoration: true,
+      isStandalone: true
+    };
+
+    if (decorationData.decorationGroup && decorationData.decorationGroup.children && decorationData.decorationGroup.children.length > 0) {
+      state.decorationColor = decorationData.decorationGroup.children[0].material.color.getHex();
+    }
+
+    return state;
+  }
+
+  // No vertex sphere and no standalone decoration
+  return null;
 }
 
 function captureEdgeState(edgeKey) {
@@ -5594,7 +6793,7 @@ function serializeCurrentSubgraph() {
         // New format
         sphere = sphereData.sphere;
         decoration = sphereData.decoration;
-        
+
         // Get color (works for both instanced and individual mode)
         if (currentGrid.isInstanced) {
           color = sphereData.color;
@@ -5607,42 +6806,85 @@ function serializeCurrentSubgraph() {
         decoration = null;
         color = sphere.material.color.getHex();
       }
-      
+
       const vertexInfo = {
         color: color
       };
-      
+
       if (decoration) {
         vertexInfo.hasDecoration = true;
         if (decoration.children && decoration.children.length > 0) {
           vertexInfo.decorationColor = decoration.children[0].material.color.getHex();
         }
       }
-      
+
       subgraphData.vertexSpheres.set(vertexKey, vertexInfo);
     }
   }
-  
+
+  // Save standalone decorations (decorations without vertex spheres)
+  if (currentGrid.standaloneDecorations) {
+    if (!subgraphData.standaloneDecorations) {
+      subgraphData.standaloneDecorations = new Map();
+    }
+
+    for (const [vertexKey, decorationData] of currentGrid.standaloneDecorations.entries()) {
+      let decorationColor;
+      if (decorationData.decorationGroup && decorationData.decorationGroup.children && decorationData.decorationGroup.children.length > 0) {
+        decorationColor = decorationData.decorationGroup.children[0].material.color.getHex();
+      }
+
+      if (decorationColor !== undefined) {
+        subgraphData.standaloneDecorations.set(vertexKey, {
+          decorationColor: decorationColor
+        });
+      }
+    }
+  }
+
   return subgraphData;
 }
 
 function rebuildGridWithDimensions(newDims) {
   // Clear current grid visuals but preserve the grid slot
   clearCurrentGridContents();
-  
+
   // Update global dimensions for rebuilding
   GRID_WIDTH = newDims.width;
-  GRID_HEIGHT = newDims.height; 
+  GRID_HEIGHT = newDims.height;
   GRID_DEPTH = newDims.depth;
-  
+
   // Update grid properties
   currentGrid.width = newDims.width;
   currentGrid.height = newDims.height;
   currentGrid.depth = newDims.depth;
-  
+
   // Rebuild grid structure
   buildGridContent(currentGrid);
-  
+
+  // Apply "Show All Vertices" preference to new layer(s)
+  // This ensures newly added vertices respect the checkbox state
+  if (currentGrid.isInstanced && currentGrid.instancedVertexSpheres && showAllVertices) {
+    const grayColor = new THREE.Color(0x888888);
+    const identityMatrix = new THREE.Matrix4();
+
+    // Show gray vertices at all uncolored positions
+    for (const [vKey, instanceIndex] of currentGrid.vertexToInstanceMap.entries()) {
+      const hasColoredSphere = currentGrid.vertexSpheres?.has(vKey) && currentGrid.vertexSpheres.get(vKey).color !== 0x888888;
+
+      if (!hasColoredSphere) {
+        // This is a new or uncolored vertex - show gray sphere
+        const [x, y, z] = vKey.split(',').map(Number);
+        identityMatrix.setPosition(x, y, z);
+        currentGrid.instancedVertexSpheres.setMatrixAt(instanceIndex, identityMatrix);
+        currentGrid.instancedVertexSpheres.setColorAt(instanceIndex, grayColor);
+      }
+    }
+
+    currentGrid.instancedVertexSpheres.instanceMatrix.needsUpdate = true;
+    currentGrid.instancedVertexSpheres.instanceColor.needsUpdate = true;
+  }
+
   // Update dimension UI
   document.getElementById("widthInput").value = newDims.width;
   document.getElementById("heightInput").value = newDims.height;
@@ -5677,9 +6919,12 @@ function clearCurrentGridContents() {
   currentGrid.boxesXZ.clear();
   currentGrid.boxesYZ.clear();
   currentGrid.vertexSpheres.clear(); // This clears the map but meshes were already removed above
+  if (currentGrid.standaloneDecorations) {
+    currentGrid.standaloneDecorations.clear(); // Clear standalone decorations too
+  }
   currentGrid.path = null;
   currentGrid.activeSubgraph = null;
-  
+
   // Clear UI/hover artifacts
   currentGrid.highlightOverlay = null;
   if (window.highlightedEdge) {
@@ -5753,16 +6998,16 @@ function restoreTranslatedSubgraph(savedSubgraph, coordTranslation) {
     for (const [vertexKey, sphereData] of savedSubgraph.vertexSpheres.entries()) {
       const translatedVertexKey = translateVertexKey(vertexKey, coordTranslation);
       const [x, y, z] = translatedVertexKey.split(',').map(Number);
-      
+
       // Only restore if vertex exists AND is within new grid bounds
-      if (currentGrid.vertices.has(translatedVertexKey) && 
+      if (currentGrid.vertices.has(translatedVertexKey) &&
           x >= 0 && x < currentGrid.width &&
           y >= 0 && y < currentGrid.height &&
           z >= 0 && z < currentGrid.depth) {
-        
+
         // Create vertex sphere using the new function (creates proper format)
         createVertexSphere(currentGrid, translatedVertexKey, sphereData.color);
-        
+
         // Add decoration if it existed
         if (sphereData.hasDecoration && sphereData.decorationColor) {
           addVertexDecoration(currentGrid, translatedVertexKey, sphereData.decorationColor);
@@ -5770,7 +7015,27 @@ function restoreTranslatedSubgraph(savedSubgraph, coordTranslation) {
       }
     }
   }
-  
+
+  // Restore standalone decorations with translation and bounds checking
+  if (savedSubgraph.standaloneDecorations) {
+    for (const [vertexKey, decorationData] of savedSubgraph.standaloneDecorations.entries()) {
+      const translatedVertexKey = translateVertexKey(vertexKey, coordTranslation);
+      const [x, y, z] = translatedVertexKey.split(',').map(Number);
+
+      // Only restore if vertex exists AND is within new grid bounds
+      if (currentGrid.vertices.has(translatedVertexKey) &&
+          x >= 0 && x < currentGrid.width &&
+          y >= 0 && y < currentGrid.height &&
+          z >= 0 && z < currentGrid.depth) {
+
+        // Add standalone decoration
+        if (decorationData.decorationColor) {
+          addVertexDecoration(currentGrid, translatedVertexKey, decorationData.decorationColor);
+        }
+      }
+    }
+  }
+
   // Restore path with translation
   if (savedSubgraph.path) {
     currentGrid.path = savedSubgraph.path.map(vertexKey => 
@@ -5902,7 +7167,7 @@ function canRemoveLayer(direction) {
   if (currentGrid.vertexSpheres) {
     for (const vertexKey of currentGrid.vertexSpheres.keys()) {
       const [x, y, z] = vertexKey.split(',').map(Number);
-      
+
       switch(direction) {
         case "x-": if (x === 0) return false; break;
         case "x+": if (x === currentGrid.width - 1) return false; break;
@@ -5913,7 +7178,23 @@ function canRemoveLayer(direction) {
       }
     }
   }
-  
+
+  // Check for standalone decorations on the boundary
+  if (currentGrid.standaloneDecorations) {
+    for (const vertexKey of currentGrid.standaloneDecorations.keys()) {
+      const [x, y, z] = vertexKey.split(',').map(Number);
+
+      switch(direction) {
+        case "x-": if (x === 0) return false; break;
+        case "x+": if (x === currentGrid.width - 1) return false; break;
+        case "y-": if (y === 0) return false; break;
+        case "y+": if (y === currentGrid.height - 1) return false; break;
+        case "z-": if (z === 0) return false; break;
+        case "z+": if (z === currentGrid.depth - 1) return false; break;
+      }
+    }
+  }
+
   return true;
 }
 
@@ -5999,21 +7280,7 @@ async function generatePath() {
   }
   
   const totalVertices = currentGrid.width * currentGrid.height * currentGrid.depth;
-  
-  // Check vertex count and show warnings
-  if (totalVertices > 125000) {
-    alert("Too many vertices. Grid dimensions not supported for generation.");
-    return;
-  } else if (totalVertices > 30000) {
-    if (!confirm("This may take a long long time. Proceed with generation anyway?")) {
-      return;
-    }
-  } else if (totalVertices > 10000) {
-    if (!confirm("This may take a few minutes. Proceed with generation anyway?")) {
-      return;
-    }
-  }
-  
+
   // Set generation flags
   isGenerating = true;
   shouldStopGeneration = false;
@@ -6066,7 +7333,7 @@ async function generatePath() {
   batchMode = true;
   
   makeSnakeyPath();
-  
+
   // IMMEDIATELY clear visual meshes so snakey path doesn't show
   currentGrid.activeSubgraph.clear();
   for (const [key, edge] of currentGrid.edges.entries()) {
@@ -6074,19 +7341,25 @@ async function generatePath() {
       edge.mesh.visible = false;
     }
   }
-  
+
   console.log(`Performing backbite ${backbiteMoves} times...`);
-  
+
+  // OPTIMIZATION: Convert path to HamiltonianPath for O(log N) reversals
+  // This is the key optimization: batch all reversals in the treap,
+  // then extract to array only once when visualization is needed
+  currentHamPath = new HamiltonianPath(currentGrid.path);
+  console.log(`[OPTIMIZATION] Using HamiltonianPath for efficient backbite moves`);
+
   // Initialize adjacency tracking
   let adjacencyCount = 0;
   let adjacencyHistory = [];
   let lastReportedPercent = 0;
-  
+
   const tBackbiteStart = performance.now();
-  
+
   // Chunk size for yielding to browser (update every N moves)
   const chunkSize = Math.max(100, Math.floor(backbiteMoves / 100));
-  
+
   for (let i = 0; i < backbiteMoves; i++) {
     // Check if user wants to stop
     if (shouldStopGeneration) {
@@ -6119,22 +7392,65 @@ async function generatePath() {
   }
   
   const tBackbiteEnd = performance.now();
-  
+
+  // OPTIMIZATION: Extract final path from HamiltonianPath (O(N) once after all moves)
+  // This converts the treap back to array format for visualization
+  const finalPath = currentHamPath.toArray();
+  currentGrid.path = finalPath;
+  currentPath = finalPath;
+
+  // DEBUG: Check if path looks correct
+  console.log(`[OPTIMIZATION] Extracted path from HamiltonianPath (${finalPath.length} vertices)`);
+  if (finalPath.length < 10) {
+    console.log('DEBUG: Final path vertices:', finalPath);
+  } else {
+    console.log('DEBUG: First 5 vertices:', finalPath.slice(0, 5));
+    console.log('DEBUG: Last 5 vertices:', finalPath.slice(-5));
+  }
+
+  currentHamPath = null;  // Clear the global reference
+
   // Disable batch mode and do final visual update
   batchMode = false;
-  
+
   // Rebuild visual representation once at the end
   currentGrid.activeSubgraph.clear();
+
+  // OPTIMIZATION: Enable batch mode for edges - don't sync GPU per edge
+  currentGrid.batchMode = true;
+
+  const edgeVisualizationStart = performance.now();
   for (let i = 0; i < currentGrid.path.length - 1; i++) {
     const a = currentGrid.path[i].split(',').map(Number);
     const b = currentGrid.path[i + 1].split(',').map(Number);
     currentGrid.activeSubgraph.addEdge(a, b);
   }
-  
+
+  // OPTIMIZATION: Disable batch mode and sync GPU once for all edges
+  currentGrid.batchMode = false;
+
+  if (currentGrid.instancedEdgesThin) {
+    currentGrid.instancedEdgesThin.instanceMatrix.needsUpdate = true;
+    currentGrid.instancedEdgesThin.instanceColor.needsUpdate = true;
+  }
+  if (currentGrid.instancedEdgesThick) {
+    currentGrid.instancedEdgesThick.instanceMatrix.needsUpdate = true;
+    currentGrid.instancedEdgesThick.instanceColor.needsUpdate = true;
+  }
+  if (currentGrid.instancedEdgesCollision) {
+    currentGrid.instancedEdgesCollision.instanceMatrix.needsUpdate = true;
+  }
+
+  // Trigger render to sync edges to GPU
+  renderer.render(scene, camera);
+
+  const edgeVisualizationTime = performance.now() - edgeVisualizationStart;
+  console.log(`[Visualization] Edges rendered in ${edgeVisualizationTime.toFixed(0)}ms`);
+
   if (gradientMode) applyGradientToPath();
   clearEndpointMarkers(currentGrid);
   decoratePathEndpoints(currentGrid.path[0], currentGrid.path[currentGrid.path.length - 1]);
-  
+
   // Add directional arrows if arrow mode is active
   if (arrowMode) {
     addDirectionalArrowsToPath(currentGrid.path);
@@ -6359,21 +7675,95 @@ function updateEdgeMeshesFromSubgraph(grid, subgraph, color = selectedColor) {
  * 
  * CONFIRMED: Array reversal (.reverse()) is the primary bottleneck
  */
+// Global reference to HamiltonianPath during generation
+// Used to batch reversals efficiently
+let currentHamPath = null;
+
 function performBackbite() {
-  if (!currentGrid.path || currentGrid.path.length < 2) return;
+  // If using HamiltonianPath during generation, use optimized path
+  if (currentHamPath) {
+    performBackbiteOptimized();
+  } else {
+    // Fallback to array-based approach (for backward compatibility)
+    performBackbiteArrayBased();
+  }
+}
+
+function performBackbiteOptimized() {
+  // NEW APPROACH: Vertex-based treap with rank/kth order-statistics
+  // This is the TRUE O(log N) per backbite implementation!
+  //
+  // Key insights:
+  // 1. Use treap.rank(vertex) to find position: O(log N)
+  // 2. Use treap.kth(k) to get path neighbors: O(log N)
+  // 3. Compute directions from coordinates: O(1)
+  // 4. Reverse via treap: O(log N)
+  // Total per move: O(log N)!
+
+  if (!currentHamPath) return;
   if (!currentGrid.activeSubgraph) return;
-  
-  const path = currentGrid.path;
+
   const isHead = Math.random() < 0.5;
-  const endpoint = isHead ? path[0] : path[path.length - 1];
+  const endpoint = isHead ? currentHamPath.getHead() : currentHamPath.getTail();
+
+  if (!endpoint) return;
+
   const [x, y, z] = endpoint.split(',').map(Number);
-  
+
+  // Generate 6 neighbor coordinates (O(1) - just math)
   const neighborCoords = [
     [x + 1, y, z], [x - 1, y, z],
     [x, y + 1, z], [x, y - 1, z],
     [x, y, z + 1], [x, y, z - 1]
   ];
-  
+
+  // Find valid backbite targets
+  // Only store neighborRank - don't call kth() for neighbors we might not use!
+  const validMoves = [];
+
+  for (const [nx, ny, nz] of neighborCoords) {
+    const neighborKey = `${nx},${ny},${nz}`;
+
+    // Check 1: Is this vertex in the grid? (O(1))
+    if (!currentGrid.vertices.has(neighborKey)) continue;
+
+    // Check 2: Is this vertex in the path? (O(log N) via rankVertex - uses parent pointers!)
+    const neighborRank = currentHamPath.treap.rankVertex(neighborKey);
+    if (neighborRank === -1) continue;
+
+    // Check 3: Valid for backbite move (not directly adjacent to endpoint)
+    if (isHead && neighborRank === 1) continue;  // Next to head
+    if (!isHead && neighborRank === currentHamPath.length - 2) continue;  // Prev to tail
+
+    // Store only the rank - don't compute prev/next yet!
+    validMoves.push(neighborRank);
+  }
+
+  if (validMoves.length === 0) return;
+
+  // Pick a random valid move
+  const selectedRank = validMoves[Math.floor(Math.random() * validMoves.length)];
+
+  // Apply backbite using O(log N) treap reversal
+  currentHamPath.applyBackbiteMove(selectedRank, isHead);
+}
+
+function performBackbiteArrayBased() {
+  // Original implementation - O(N) reversals (for backward compatibility)
+  if (!currentGrid.path || currentGrid.path.length < 2) return;
+  if (!currentGrid.activeSubgraph) return;
+
+  const path = currentGrid.path;
+  const isHead = Math.random() < 0.5;
+  const endpoint = isHead ? path[0] : path[path.length - 1];
+  const [x, y, z] = endpoint.split(',').map(Number);
+
+  const neighborCoords = [
+    [x + 1, y, z], [x - 1, y, z],
+    [x, y + 1, z], [x, y - 1, z],
+    [x, y, z + 1], [x, y, z - 1]
+  ];
+
   const neighbors = neighborCoords
     .map(c => c.join(','))
     .filter(n => {
@@ -6384,13 +7774,13 @@ function performBackbite() {
       if (!isHead && idx === path.length - 2) return false;
       return true;
     });
-    
+
   if (neighbors.length === 0) return;
-  
+
   const neighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
   const idx = path.indexOf(neighbor);
-  
-  // Reconfigure path
+
+  // Reconfigure path (array-based, O(N))
   let newPath;
   if (isHead) {
     const newHead = path.slice(0, idx).reverse();
@@ -6401,11 +7791,11 @@ function performBackbite() {
     const newHead = path.slice(0, idx + 1);
     newPath = [...newHead, ...newTail];
   }
-  
+
   // Update path references
   currentGrid.path = newPath;
   currentPath = newPath;
-  
+
   // Skip expensive visual updates in batch mode
   if (!batchMode) {
     // Rebuild the activeSubgraph to match the new path
@@ -6415,12 +7805,12 @@ function performBackbite() {
       const b = newPath[i + 1].split(',').map(Number);
       currentGrid.activeSubgraph.addEdge(a, b);
     }
-    
+
     // Reapply gradient if gradient mode is active
     if (gradientMode) {
       applyGradientToPath();
     }
-    
+
     // Update endpoint markers
     clearEndpointMarkers(currentGrid);
     decoratePathEndpoints(newPath[0], newPath[newPath.length - 1]);
@@ -6434,21 +7824,7 @@ async function generateCycleFromPath() {
   }
   
   const totalVertices = currentGrid.width * currentGrid.height * currentGrid.depth;
-  
-  // Check vertex count and show warnings
-  if (totalVertices > 125000) {
-    alert("Too many vertices. Grid dimensions not supported for generation.");
-    return;
-  } else if (totalVertices > 30000) {
-    if (!confirm("This may take a long long time. Proceed with generation anyway?")) {
-      return;
-    }
-  } else if (totalVertices > 10000) {
-    if (!confirm("This may take a few minutes. Proceed with generation anyway?")) {
-      return;
-    }
-  }
-  
+
   // Check if Hamiltonian cycles are impossible (all dimensions odd)
   if (currentGrid.width % 2 === 1 && 
       currentGrid.height % 2 === 1 && 
@@ -6513,7 +7889,7 @@ async function generateCycleFromPath() {
   batchMode = true;
   
   makeSnakeyPath();
-  
+
   // IMMEDIATELY clear visual meshes so snakey path doesn't show
   currentGrid.activeSubgraph.clear();
   for (const [key, edge] of currentGrid.edges.entries()) {
@@ -6521,20 +7897,24 @@ async function generateCycleFromPath() {
       edge.mesh.visible = false;
     }
   }
-  
+
   console.log(`Performing ${minimumMoves} scrambling moves, then searching for cycle...`);
-  
+
+  // OPTIMIZATION: Convert path to HamiltonianPath for O(log N) reversals
+  currentHamPath = new HamiltonianPath(currentGrid.path);
+  console.log(`[OPTIMIZATION] Using HamiltonianPath for efficient cycle generation`);
+
   // Initialize tracking
   let adjacencyCount = 0;
   let movesPerformed = 0;
   let cycleFound = false;
   let lastReportedPercent = 0;
-  
+
   const tBackbiteStart = performance.now();
-  
+
   // Chunk size for yielding to browser
   const chunkSize = Math.max(100, Math.floor(totalMoves / 100));
-  
+
   // Phase 1: Do the full scrambling without looking for cycles
   for (let i = 0; i < minimumMoves; i++) {
     // Check if user wants to stop
@@ -6600,10 +7980,17 @@ async function generateCycleFromPath() {
   }
   
   const tBackbiteEnd = performance.now();
-  
+
+  // OPTIMIZATION: Extract final path from HamiltonianPath (O(N) once)
+  const finalPath = currentHamPath.toArray();
+  currentGrid.path = finalPath;
+  currentPath = finalPath;
+  currentHamPath = null;  // Clear the global reference
+  console.log(`[OPTIMIZATION] Extracted path from HamiltonianPath (${finalPath.length} vertices)`);
+
   // Disable batch mode
   batchMode = false;
-  
+
   if (cycleFound) {
     // Convert path to actual cycle
     const start = currentGrid.path[0].split(',').map(Number);
@@ -6684,20 +8071,40 @@ ProgressOverlay.complete(timeInSeconds);
 
 
 function areEndpointsAdjacent() {
- if (!currentGrid.path || currentGrid.path.length < 2) return false;
- 
- const start = currentGrid.path[0];
- const end = currentGrid.path[currentGrid.path.length - 1];
- 
- const [x1, y1, z1] = start.split(',').map(Number);
- const [x2, y2, z2] = end.split(',').map(Number);
- 
- // Check if they're unit distance apart (adjacent)
- const dx = Math.abs(x1 - x2);
- const dy = Math.abs(y1 - y2);
- const dz = Math.abs(z1 - z2);
- 
- return (dx + dy + dz === 1);
+  // During cycle generation, use HamiltonianPath treap for accurate endpoint checking
+  // The treap is the actual source of truth during backbite moves
+  if (currentHamPath) {
+    if (currentHamPath.length < 2) return false;
+
+    const start = currentHamPath.getHead();
+    const end = currentHamPath.getTail();
+
+    const [x1, y1, z1] = start.split(',').map(Number);
+    const [x2, y2, z2] = end.split(',').map(Number);
+
+    // Check if they're unit distance apart (adjacent)
+    const dx = Math.abs(x1 - x2);
+    const dy = Math.abs(y1 - y2);
+    const dz = Math.abs(z1 - z2);
+
+    return (dx + dy + dz === 1);
+  }
+
+  // Fallback to currentGrid.path if not using HamiltonianPath
+  if (!currentGrid.path || currentGrid.path.length < 2) return false;
+
+  const start = currentGrid.path[0];
+  const end = currentGrid.path[currentGrid.path.length - 1];
+
+  const [x1, y1, z1] = start.split(',').map(Number);
+  const [x2, y2, z2] = end.split(',').map(Number);
+
+  // Check if they're unit distance apart (adjacent)
+  const dx = Math.abs(x1 - x2);
+  const dy = Math.abs(y1 - y2);
+  const dz = Math.abs(z1 - z2);
+
+  return (dx + dy + dz === 1);
 }
 
 
@@ -6806,12 +8213,12 @@ function createArrowTexture(direction = 1) {
 }
 
 
-function addArrowsToEdge(edge, direction = 1, from = null, to = null) {
-  if (edge.arrows) removeArrowsFromEdge(edge);
+function addArrowsToEdge(edge, direction = 1, from = null, to = null, edgeKey = null) {
+  if (edge.arrows) removeArrowsFromEdge(edge, edgeKey);
 
   // Get edge coordinates - either from parameters or derive from edge key in currentGrid
   let edgeLength, edgeRadius, startPos, endPos;
-  
+
   if (from && to) {
     // Calculate from provided coordinates
     startPos = new THREE.Vector3(from[0], from[1], (from[2] ?? 0));
@@ -6825,24 +8232,27 @@ function addArrowsToEdge(edge, direction = 1, from = null, to = null) {
     endPos = edge.mesh.position.clone();
   } else {
     // Instanced mode - find coordinates from edge data in grid
-    // Search for this edge in the grid to get its coordinates
-    let foundKey = null;
-    for (const [key, e] of currentGrid.edges.entries()) {
-      if (e === edge) {
-        foundKey = key;
-        break;
+    // Use provided key or search for it (but search should be rare now)
+    let foundKey = edgeKey;
+    if (!foundKey) {
+      // Fallback: only search if key not provided
+      for (const [key, e] of currentGrid.edges.entries()) {
+        if (e === edge) {
+          foundKey = key;
+          break;
+        }
       }
     }
-    
+
     if (!foundKey) {
       console.error("Cannot add arrows: edge not found in grid");
       return;
     }
-    
+
     const [aStr, bStr] = foundKey.split("-");
     from = aStr.split(",").map(Number);
     to = bStr.split(",").map(Number);
-    
+
     startPos = new THREE.Vector3(from[0], from[1], (from[2] ?? 0));
     endPos = new THREE.Vector3(to[0], to[1], (to[2] ?? 0));
     edgeLength = startPos.distanceTo(endPos);
@@ -6919,12 +8329,12 @@ function addArrowsToEdge(edge, direction = 1, from = null, to = null) {
 }
 
 
-function removeArrowsFromEdge(edge) {
+function removeArrowsFromEdge(edge, edgeKey = null) {
   if (!edge.arrows) return;
-  
+
   if (currentGrid.isInstanced && edge.arrows === 'instanced') {
-    // Instanced mode
-    removeArrowInstanced(currentGrid, edge);
+    // Instanced mode - pass the key to avoid O(n) edge lookup
+    removeArrowInstanced(currentGrid, edge, edgeKey);
     // Clear visual marker but PRESERVE direction for toggle
     edge.arrows = null;
     // edge.arrowDirection stays set!
@@ -6944,10 +8354,14 @@ function addDirectionalArrowsToPath(path, closed = false) {
 
   // Determine base direction (respect arrowReverse toggle)
   const baseDirection = arrowReverse ? -1 : 1;
-  
+
   // Do not mutate the original path
   const ordered = arrowReverse ? [...path].reverse() : path;
 
+  // OPTIMIZATION: Enable batch mode for arrows - don't sync GPU per arrow
+  currentGrid.batchMode = true;
+
+  const arrowVisualizationStart = performance.now();
   const limit = closed ? ordered.length : (ordered.length - 1);
   for (let i = 0; i < limit; i++) {
     const aStr = ordered[i];
@@ -6965,6 +8379,22 @@ function addDirectionalArrowsToPath(path, closed = false) {
       addArrowsToEdge(edge, baseDirection, a, b);
     }
   }
+
+  // OPTIMIZATION: Disable batch mode and sync GPU once for all arrows
+  currentGrid.batchMode = false;
+
+  if (currentGrid.instancedArrowsForward) {
+    currentGrid.instancedArrowsForward.instanceMatrix.needsUpdate = true;
+  }
+  if (currentGrid.instancedArrowsBackward) {
+    currentGrid.instancedArrowsBackward.instanceMatrix.needsUpdate = true;
+  }
+
+  // Trigger render to sync arrows to GPU
+  renderer.render(scene, camera);
+
+  const arrowVisualizationTime = performance.now() - arrowVisualizationStart;
+  console.log(`[Visualization] Arrows rendered in ${arrowVisualizationTime.toFixed(0)}ms`);
 }
 
 
@@ -7067,11 +8497,18 @@ function performManualBackbite(clickedEdgeKey) {
   if (!currentGrid.activeSubgraph) return false;
 
   const path = currentGrid.path;
+
+  // Check if activeSubgraph is non-Hamiltonian and warn user
+  if (!dontShowBackbiteWarning && currentGrid.activeSubgraph.vertices.size !== path.length) {
+    showBackbiteWarning();
+    return false;
+  }
+
   const activeEndpointKey = activeEndpoint === 'start' ? path[0] : path[path.length - 1];
-  
+
   const validEdges = getValidBackbiteEdges(activeEndpointKey);
   const matchingEdge = validEdges.find(edge => edge.edgeKey === clickedEdgeKey);
-  
+
   if (!matchingEdge) {
     console.warn("Invalid backbite edge selected for active endpoint");
     return false;
@@ -7246,11 +8683,11 @@ function applyGradientToPath() {
     colorEdgeWithColor(currentGrid, a, b, edgeColor, 0.05);
   }
   
-  // Re-add arrows AFTER coloring
+  // Re-add arrows AFTER coloring - pass the key to avoid O(n) edge lookup
   for (const [eKey, info] of arrowInfo.entries()) {
     const edge = currentGrid.edges.get(eKey);
     if (edge) {
-      addArrowsToEdge(edge, info.direction, info.a, info.b);
+      addArrowsToEdge(edge, info.direction, info.a, info.b, eKey);  // ← PASS THE KEY!
     }
   }
 }
@@ -7621,11 +9058,33 @@ function duplicateCurrentGrid() {
   
   // Switch to the duplicate
   switchToGrid(duplicateId);
-  
+
   // Copy states to the duplicate
   copyEdgeStatesDelayed(sourceGrid, duplicateGrid);
   copySubgraphData(sourceGrid, duplicateGrid);
-  
+
+  // Apply showAllVertices setting to the duplicate grid
+  if (duplicateGrid.isInstanced && showAllVertices) {
+    // Show gray vertices on the duplicate grid if the preference is enabled
+    const grayColor = new THREE.Color(0x888888);
+    const identityMatrix = new THREE.Matrix4();
+
+    for (const [vKey, instanceIndex] of duplicateGrid.vertexToInstanceMap.entries()) {
+      // Only show gray vertices at positions without colored spheres
+      const hasColoredSphere = duplicateGrid.vertexSpheres?.has(vKey) && duplicateGrid.vertexSpheres.get(vKey).color !== 0x888888;
+
+      if (!hasColoredSphere) {
+        const [x, y, z] = vKey.split(',').map(Number);
+        identityMatrix.setPosition(x, y, z);
+        duplicateGrid.instancedVertexSpheres.setMatrixAt(instanceIndex, identityMatrix);
+        duplicateGrid.instancedVertexSpheres.setColorAt(instanceIndex, grayColor);
+      }
+    }
+
+    duplicateGrid.instancedVertexSpheres.instanceMatrix.needsUpdate = true;
+    duplicateGrid.instancedVertexSpheres.instanceColor.needsUpdate = true;
+  }
+
   console.log(`Grid duplicated: ${originalId} -> ${duplicateId}`);
 }
 
@@ -7835,7 +9294,7 @@ function copyEdgeStatesDelayed(sourceGrid, targetGrid) {
       const b = bStr.split(",").map(Number);
       colorEdge(targetGrid, a, b, sourceEdge.color, 0.05);
     }
-    
+
     // Copy block cubes
     if (sourceEdge.blockCube) {
       const targetEdge = targetGrid.edges.get(edgeKey);
@@ -7849,6 +9308,24 @@ function copyEdgeStatesDelayed(sourceGrid, targetGrid) {
     }
   }
 
+  // Copy ALL arrows in a separate loop after coloring is complete
+  // Use setTimeout to ensure edges are fully colored before adding arrows
+  setTimeout(() => {
+    let arrowCount = 0;
+    for (const [edgeKey, sourceEdge] of sourceGrid.edges.entries()) {
+      if (sourceEdge.arrows && sourceEdge.arrowDirection) {
+        const targetEdge = targetGrid.edges.get(edgeKey);
+        if (targetEdge) {
+          addArrowsToEdge(targetEdge, sourceEdge.arrowDirection);
+          arrowCount++;
+        }
+      }
+    }
+    if (arrowCount > 0) {
+      console.log(`[Duplication] Copied ${arrowCount} arrows`);
+    }
+  }, 50);
+
   // Copy vertex spheres
   if (sourceGrid.vertexSpheres) {
     for (const [vertexKey, sphereData] of sourceGrid.vertexSpheres.entries()) {
@@ -7858,7 +9335,7 @@ function copyEdgeStatesDelayed(sourceGrid, targetGrid) {
         // New format
         sphere = sphereData.sphere;
         decoration = sphereData.decoration;
-        
+
         // Get color (works for both instanced and individual mode)
         if (sourceGrid.isInstanced) {
           color = sphereData.color;
@@ -7871,9 +9348,9 @@ function copyEdgeStatesDelayed(sourceGrid, targetGrid) {
         decoration = null;
         color = sphere.material.color.getHex();
       }
-      
+
       createVertexSphere(targetGrid, vertexKey, color);
-      
+
       // Copy decoration if it exists
       if (decoration) {
         // Extract decoration color from the decoration
@@ -7883,7 +9360,7 @@ function copyEdgeStatesDelayed(sourceGrid, targetGrid) {
         } else if (decoration.material) {
           decorationColor = decoration.material.color.getHex();
         }
-        
+
         if (decorationColor !== undefined) {
           addVertexDecoration(targetGrid, vertexKey, decorationColor);
         }
@@ -7891,17 +9368,23 @@ function copyEdgeStatesDelayed(sourceGrid, targetGrid) {
     }
   }
 
-  // Copy arrows after a brief delay to ensure edges are ready
-  setTimeout(() => {
-    for (const [edgeKey, sourceEdge] of sourceGrid.edges.entries()) {
-      if (sourceEdge.arrows && sourceEdge.arrowDirection) {
-        const targetEdge = targetGrid.edges.get(edgeKey);
-        if (targetEdge) {
-          addArrowsToEdge(targetEdge, sourceEdge.arrowDirection);
-        }
+  // Copy standalone decorations (decorations without vertex spheres)
+  if (sourceGrid.standaloneDecorations) {
+    for (const [vertexKey, decorationData] of sourceGrid.standaloneDecorations.entries()) {
+      // Extract decoration color
+      let decorationColor;
+      if (decorationData.decorationGroup && decorationData.decorationGroup.children && decorationData.decorationGroup.children.length > 0) {
+        decorationColor = decorationData.decorationGroup.children[0].material.color.getHex();
+      }
+
+      if (decorationColor !== undefined) {
+        addVertexDecoration(targetGrid, vertexKey, decorationColor);
       }
     }
-  }, 100);
+  }
+
+  // Note: All arrows (including path arrows) are already copied in the loop above
+  // No need for additional arrow processing - verbatim copy preserves exact arrow directions
 }
   
 
@@ -8354,9 +9837,16 @@ function createVertexSphereInstanced(grid, vertexKey, color) {
   
   // Store in vertexSpheres map for compatibility
   if (!grid.vertexSpheres.has(vertexKey)) {
+    // Check if there's a standalone decoration for this coordinate
+    let decoration = null;
+    if (grid.standaloneDecorations.has(vertexKey)) {
+      decoration = grid.standaloneDecorations.get(vertexKey).decorationGroup;
+      grid.standaloneDecorations.delete(vertexKey);
+    }
+
     grid.vertexSpheres.set(vertexKey, {
       sphere: 'instanced',  // Marker
-      decoration: null,
+      decoration: decoration,
       collisionHelper: 'instanced',  // Marker
       color: color
     });
@@ -8369,16 +9859,7 @@ function createVertexSphereInstanced(grid, vertexKey, color) {
 function removeVertexSphereInstanced(grid, vertexKey) {
   const instanceIndex = grid.vertexToInstanceMap.get(vertexKey);
   if (instanceIndex === undefined) return;
-  
-  // Hide by scaling to zero
-  const zeroMatrix = new THREE.Matrix4().makeScale(0, 0, 0);
-  
-  grid.instancedVertexSpheres.setMatrixAt(instanceIndex, zeroMatrix);
-  grid.instancedVertexSpheres.instanceMatrix.needsUpdate = true;
-  
-  grid.instancedVertexCollisionHelpers.setMatrixAt(instanceIndex, zeroMatrix);
-  grid.instancedVertexCollisionHelpers.instanceMatrix.needsUpdate = true;
-  
+
   // Remove decoration if present (keep individual)
   const sphereData = grid.vertexSpheres.get(vertexKey);
   if (sphereData && sphereData.decoration) {
@@ -8393,8 +9874,33 @@ function removeVertexSphereInstanced(grid, vertexKey) {
       if (sphereData.decoration.material) sphereData.decoration.material.dispose();
     }
   }
-  
+
+  // Remove from tracking
   grid.vertexSpheres.delete(vertexKey);
+
+  // Behavior like gray edges: restore gray vertex if showAllVertices is ON
+  if (showAllVertices) {
+    // Show gray sphere at this position
+    const [x, y, z] = vertexKey.split(',').map(Number);
+    const matrix = new THREE.Matrix4().setPosition(x, y, z);
+    const grayColor = new THREE.Color(0x888888);
+
+    grid.instancedVertexSpheres.setMatrixAt(instanceIndex, matrix);
+    grid.instancedVertexSpheres.setColorAt(instanceIndex, grayColor);
+    grid.instancedVertexSpheres.instanceMatrix.needsUpdate = true;
+    grid.instancedVertexSpheres.instanceColor.needsUpdate = true;
+  } else {
+    // Hide by scaling to zero
+    const zeroMatrix = new THREE.Matrix4().makeScale(0, 0, 0);
+    grid.instancedVertexSpheres.setMatrixAt(instanceIndex, zeroMatrix);
+    grid.instancedVertexSpheres.instanceMatrix.needsUpdate = true;
+  }
+
+  // Collision helper always stays at vertex position (for clicking)
+  const [x, y, z] = vertexKey.split(',').map(Number);
+  const collisionMatrix = new THREE.Matrix4().setPosition(x, y, z);
+  grid.instancedVertexCollisionHelpers.setMatrixAt(instanceIndex, collisionMatrix);
+  grid.instancedVertexCollisionHelpers.instanceMatrix.needsUpdate = true;
 }
 
 function createVertexSphere(grid, vertexKey, color) {
@@ -8418,33 +9924,45 @@ function createVertexSphere(grid, vertexKey, color) {
   sphere.position.set(x, y, z);
   
   grid.group.add(sphere);
-  
+
   const existingCollisionHelper = grid.vertices.get(vertexKey)?.collisionHelper;
-  
+
+  // Check if there's a standalone decoration for this coordinate
+  let decoration = null;
+  if (grid.standaloneDecorations.has(vertexKey)) {
+    decoration = grid.standaloneDecorations.get(vertexKey).decorationGroup;
+    grid.standaloneDecorations.delete(vertexKey);
+  }
+
   grid.vertexSpheres.set(vertexKey, {
     sphere: sphere,
-    decoration: null,
+    decoration: decoration,
     collisionHelper: existingCollisionHelper
   });
-  
+
   return sphere;
 }
 
 
 function addVertexDecoration(grid, vertexKey, decorationColor) {
-  if (!grid.vertexSpheres.has(vertexKey)) return;
-  
-  const sphereData = grid.vertexSpheres.get(vertexKey);
-  if (sphereData.decoration) return; // Already has decoration
-  
+  // Check if decoration already exists (on vertex sphere or standalone)
+  if (grid.vertexSpheres.has(vertexKey)) {
+    const sphereData = grid.vertexSpheres.get(vertexKey);
+    if (sphereData.decoration) return; // Already has decoration on this vertex
+  }
+
+  if (grid.standaloneDecorations.has(vertexKey)) {
+    return; // Already has standalone decoration at this coordinate
+  }
+
   const [x, y, z] = vertexKey.split(',').map(Number);
   const sphereRadius = 0.12;
-  
+
   const decorationGroup = new THREE.Group();
   decorationGroup.position.set(x, y, z);
-  
+
   const segments = 32;
-  
+
   // === Equatorial band (unchanged) ===
   const equatorGeometry = new THREE.SphereGeometry(
     sphereRadius * 1.01,
@@ -8462,7 +9980,7 @@ function addVertexDecoration(grid, vertexKey, decorationColor) {
   const equatorBand = new THREE.Mesh(equatorGeometry, equatorMaterial);
   equatorBand.renderOrder = 10;
   decorationGroup.add(equatorBand);
-  
+
   // === Second band (rotated around Z-axis) ===
   const band2Geometry = new THREE.SphereGeometry(
     sphereRadius * 1.01,
@@ -8481,7 +9999,7 @@ function addVertexDecoration(grid, vertexKey, decorationColor) {
   band2.rotation.z = Math.PI / 2;  // Rotate 90 degrees around Z-axis
   band2.renderOrder = 10;
   decorationGroup.add(band2);
-  
+
   // === Third band (rotated around X-axis) ===
   const band3Geometry = new THREE.SphereGeometry(
     sphereRadius * 1.01,
@@ -8500,9 +10018,18 @@ function addVertexDecoration(grid, vertexKey, decorationColor) {
   band3.rotation.x = Math.PI / 2;  // Rotate 90 degrees around X-axis
   band3.renderOrder = 10;
   decorationGroup.add(band3);
-  
+
   grid.group.add(decorationGroup);
-  sphereData.decoration = decorationGroup;
+
+  // If vertex sphere exists, attach to it; otherwise store as standalone
+  if (grid.vertexSpheres.has(vertexKey)) {
+    grid.vertexSpheres.get(vertexKey).decoration = decorationGroup;
+  } else {
+    grid.standaloneDecorations.set(vertexKey, {
+      decorationGroup: decorationGroup,
+      color: decorationColor
+    });
+  }
 }
 
 function removeVertexSphere(grid, vertexKey) {
@@ -9053,6 +10580,39 @@ function toggleUnderlyingGrid() {
           edge.mesh.visible = gridVisible;
         }
       });
+    }
+  }
+
+  // Toggle gray vertices if the preference is enabled
+  if (toggleGridHidesVertices && showAllVertices) {
+    for (const [gridId, grid] of allGrids.entries()) {
+      if (!grid || !grid.isInstanced || !grid.instancedVertexSpheres) continue;
+
+      const grayColor = new THREE.Color(0x888888);
+      const zeroMatrix = new THREE.Matrix4().makeScale(0, 0, 0);
+      const identityMatrix = new THREE.Matrix4();
+
+      for (const [vKey, instanceIndex] of grid.vertexToInstanceMap.entries()) {
+        // Check if this vertex has a colored sphere (not gray)
+        const hasColoredSphere = grid.vertexSpheres?.has(vKey) && grid.vertexSpheres.get(vKey).color !== 0x888888;
+
+        if (!hasColoredSphere) {
+          // This is an uncolored vertex position
+          if (gridVisible) {
+            // Show gray vertex
+            const [x, y, z] = vKey.split(',').map(Number);
+            identityMatrix.setPosition(x, y, z);
+            grid.instancedVertexSpheres.setMatrixAt(instanceIndex, identityMatrix);
+            grid.instancedVertexSpheres.setColorAt(instanceIndex, grayColor);
+          } else {
+            // Hide gray vertex
+            grid.instancedVertexSpheres.setMatrixAt(instanceIndex, zeroMatrix);
+          }
+        }
+      }
+
+      grid.instancedVertexSpheres.instanceMatrix.needsUpdate = true;
+      grid.instancedVertexSpheres.instanceColor.needsUpdate = true;
     }
   }
 }
@@ -10385,10 +11945,11 @@ document.getElementById("gradientCheckbox").addEventListener("change", (e) => {
     updateEdgeMeshesFromSubgraph(currentGrid, currentGrid.activeSubgraph);
     
     // Re-add arrows AFTER recoloring - in path order with correct a,b coordinates
+    // Pass the key to avoid O(n) edge lookup
     for (const info of arrowInfo) {
       const edge = currentGrid.edges.get(info.eKey);
       if (edge) {
-        addArrowsToEdge(edge, info.direction, info.a, info.b);
+        addArrowsToEdge(edge, info.direction, info.a, info.b, info.eKey);  // ← PASS THE KEY!
       }
     }
   }
@@ -10412,23 +11973,72 @@ document.getElementById("arrowCheckbox").addEventListener("change", (e) => {
  
  if (arrowMode) {
    console.log('→ TURNING ARROWS ON');
-   
+
    // Use addDirectionalArrowsToPath if we have a path
    if (currentGrid.path && currentGrid.path.length > 1) {
      addDirectionalArrowsToPath(currentGrid.path);
    }
- } else {
-   console.log('→ TURNING ARROWS OFF');
-   
-   // CORRECT way to remove arrows (works for both modes)
-   let removedCount = 0;
-   for (const [key, edge] of currentGrid.edges.entries()) {
-     if (edge.arrows) {
-       removeArrowsFromEdge(edge);  // ← Use the proper removal function!
-       removedCount++;
+
+   // ALSO RESTORE ARROWS FOR MANUALLY ADDED EDGES
+   // After restoring Hamiltonian path arrows, restore arrows for any edge that has arrowDirection set
+   // This handles manually added edges with arrows that were toggled off
+   for (const [eKey, edge] of currentGrid.edges.entries()) {
+     // Check if this edge previously had arrows (arrowDirection is set) but no active arrows now
+     if (edge.arrowDirection && !edge.arrows) {
+       addArrowsToEdge(edge, edge.arrowDirection, null, null, eKey);
      }
    }
-   console.log('Removed', removedCount, 'arrows');
+ } else {
+   console.log('→ TURNING ARROWS OFF');
+
+   // OPTIMIZATION: Batch mode for arrow removal - don't sync GPU per arrow
+   currentGrid.batchMode = true;
+
+   const arrowRemovalStart = performance.now();
+   let removedCount = 0;
+
+   // CRITICAL OPTIMIZATION: Only iterate through edges in the Hamiltonian path!
+   // The activeSubgraph contains ONLY the edges that have arrows
+   // This is ~125k edges instead of ~300k grid edges
+   // Perfect insight: if we have a Hamiltonian path/cycle, every edge in it has an arrow!
+   // CRITICAL: Pass the edge key to removeArrowsFromEdge to avoid O(n) edge lookup inside removeArrowInstanced!
+   if (currentGrid.activeSubgraph && currentGrid.activeSubgraph.getEdgeKeys) {
+     const pathEdgeKeys = currentGrid.activeSubgraph.getEdgeKeys();
+     for (const eKey of pathEdgeKeys) {
+       const edge = currentGrid.edges.get(eKey);
+       if (edge) {
+         removeArrowsFromEdge(edge, eKey);  // ← PASS THE KEY!
+         removedCount++;
+       }
+     }
+   } else {
+     // Fallback: loop through edgeToArrowInstanceMap if activeSubgraph not available
+     if (currentGrid.edgeToArrowInstanceMap && currentGrid.edgeToArrowInstanceMap.size > 0) {
+       const arrowEdgeKeys = Array.from(currentGrid.edgeToArrowInstanceMap.keys());
+       for (const eKey of arrowEdgeKeys) {
+         const edge = currentGrid.edges.get(eKey);
+         if (edge) {
+           removeArrowsFromEdge(edge, eKey);  // ← PASS THE KEY!
+           removedCount++;
+         }
+       }
+     }
+   }
+
+   // OPTIMIZATION: Disable batch mode and sync GPU once for all arrow removals
+   currentGrid.batchMode = false;
+
+   if (currentGrid.instancedArrowsForward) {
+     currentGrid.instancedArrowsForward.instanceMatrix.needsUpdate = true;
+   }
+   if (currentGrid.instancedArrowsBackward) {
+     currentGrid.instancedArrowsBackward.instanceMatrix.needsUpdate = true;
+   }
+
+   renderer.render(scene, camera);
+
+   const arrowRemovalTime = performance.now() - arrowRemovalStart;
+   console.log('Removed', removedCount, 'arrows in', arrowRemovalTime.toFixed(0), 'ms');
  }
  
  console.log('═══════════════════════════════════════');
@@ -11098,43 +12708,56 @@ function showLayerMenu(event, options, callback) {
   // Remove existing menu
   const existingMenu = document.getElementById('layerMenu');
   if (existingMenu) existingMenu.remove();
-  
+
+  // Check if dark theme is active
+  const isDarkTheme = document.documentElement.classList.contains('dark-theme');
+
   // Create menu
   const menu = document.createElement('div');
   menu.id = 'layerMenu';
   menu.style.cssText = `
     position: absolute;
-    background: white;
-    border: 1px solid #ccc;
+    background: ${isDarkTheme ? 'rgba(60, 64, 72, 0.95)' : 'white'};
+    border: 1px solid ${isDarkTheme ? '#4b5563' : '#ccc'};
     border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 8px rgba(0,0,0,${isDarkTheme ? '0.4' : '0.2'});
     z-index: 1000;
     min-width: 120px;
   `;
-  
+
   // Position menu near button
   const rect = event.target.getBoundingClientRect();
   menu.style.left = (rect.right + 5) + 'px';
   menu.style.top = rect.top + 'px';
-  
+
   // Add options
   options.forEach(option => {
     const item = document.createElement('div');
     item.textContent = option.label;
+    const enabledColor = isDarkTheme ? '#e5e7eb' : '#333';
+    const disabledColor = isDarkTheme ? '#6b7280' : '#999';
+    const hoverBg = isDarkTheme ? 'rgba(80, 84, 92, 0.8)' : '#f0f0f0';
+
     item.style.cssText = `
       padding: 8px 12px;
       cursor: ${option.enabled !== false ? 'pointer' : 'not-allowed'};
-      color: ${option.enabled !== false ? '#333' : '#999'};
+      color: ${option.enabled !== false ? enabledColor : disabledColor};
+      transition: background 0.2s;
     `;
-    
+
     if (option.enabled !== false) {
-      item.style.cssText += 'hover: background: #f0f0f0;';
+      item.addEventListener('mouseenter', () => {
+        item.style.background = hoverBg;
+      });
+      item.addEventListener('mouseleave', () => {
+        item.style.background = 'transparent';
+      });
       item.addEventListener('click', () => {
         callback(option.value);
         menu.remove();
       });
     }
-    
+
     menu.appendChild(item);
   });
   
@@ -11224,24 +12847,30 @@ document.getElementById("preferencesBtn").addEventListener("click", () => {
   if (showAllVerticesCheckbox) {
     showAllVerticesCheckbox.checked = showAllVertices;
   }
-  
-  // Update theme button states
-  const backgroundSelect = document.getElementById("backgroundSelect");
-  const themeSelect = document.getElementById("themeSelect");
-  
-  // Get current theme
-  let currentTheme = 'paper-white';
-  if (backgroundSelect) {
-    const value = backgroundSelect.value;
-    if (value.startsWith('0x')) {
-      // Old system
-      currentTheme = (parseInt(value, 16) === 0x000000) ? 'dark' : 'light';
-    } else {
-      // New system
-      currentTheme = value;
-    }
+
+  // Load toggle grid hides vertices preference
+  const toggleGridHidesVerticesCheckbox = document.getElementById("toggleGridHidesVerticesCheckbox");
+  if (toggleGridHidesVerticesCheckbox) {
+    toggleGridHidesVerticesCheckbox.checked = toggleGridHidesVertices;
   }
-  
+
+  // Load auto-switch theme preference
+  const autoSwitchThemeCheckbox = document.getElementById("autoSwitchThemeCheckbox");
+  if (autoSwitchThemeCheckbox) {
+    autoSwitchThemeCheckbox.checked = autoSwitchThemeEnabled;
+  }
+
+  // Update theme button states
+  const themeSelect = document.getElementById("themeSelect");
+
+  // Get current theme from applied class (accounts for auto-switch theme)
+  let currentTheme = 'paper-white';
+  if (document.documentElement.classList.contains('dark-theme')) {
+    currentTheme = 'dark';
+  } else {
+    currentTheme = 'paper-white';
+  }
+
   // Set dropdown to current theme
   if (themeSelect) {
     themeSelect.value = currentTheme;
@@ -11310,7 +12939,17 @@ document.getElementById("savePreferencesBtn").addEventListener("click", () => {
   showCameraSensitivityInMain = document.getElementById("showCameraSensitivityCheckbox").checked;
   use2DCameraMode = document.getElementById("use2DCameraModeCheckbox").checked;
   showAllVertices = document.getElementById("showAllVerticesCheckbox").checked;
-  
+  toggleGridHidesVertices = document.getElementById("toggleGridHidesVerticesCheckbox").checked;
+
+  // Save LOD preferences
+  lodEnabled = document.getElementById("lodEnabledCheckbox").checked;
+  let showLODIndicators = document.getElementById("lodIndicatorsCheckbox").checked;
+  document.documentElement.style.setProperty('--show-lod-indicators', showLODIndicators ? '1' : '0');
+
+  // Save auto-switch theme preference
+  autoSwitchThemeEnabled = document.getElementById("autoSwitchThemeCheckbox").checked;
+  localStorage.setItem('autoSwitchThemeEnabled', autoSwitchThemeEnabled);
+
 // Update controls rotate speed and zoom speed
   if (typeof controls !== 'undefined') {
     controls.rotateSpeed = cameraSensitivity;
@@ -11571,15 +13210,23 @@ document.getElementById("syncViewBtn").addEventListener("click", () => {
   }
   
   console.log(`Synced camera view to ${syncedCount} grids`);
-  
-  // Flash the button green
+
+  // Flash the button (blue for light theme, green for dark theme)
   const btn = document.getElementById("syncViewBtn");
-  btn.style.background = '#4CAF50';
-  btn.style.transition = 'background 0.1s ease';
+  const isDarkTheme = document.documentElement.classList.contains('dark-theme');
+  const flashColor = isDarkTheme ? '#4CAF50' : '#3498db';
+
+  btn.classList.add('flashing');
+  btn.style.background = flashColor;
+  btn.style.color = 'white';
+  btn.style.transition = 'background 0.15s ease, color 0.15s ease';
+
   setTimeout(() => {
+    btn.classList.remove('flashing');
     btn.style.background = '';
+    btn.style.color = '';
     btn.style.transition = '';
-  }, 150);
+  }, 600);
 });
 
 document.getElementById("coordinateHoverCheckbox").addEventListener("change", (e) => {
@@ -11830,9 +13477,15 @@ document.addEventListener('keydown', (event) => {
         return;
         
       case 'a':
-        // A: Toggle arrow mode
-        document.getElementById("arrowBtn").click();
-        console.log(`Arrow mode: ${arrowMode ? 'ON' : 'OFF'}`);
+        if (event.shiftKey) {
+          // Shift+A: Toggle arrow display on/off
+          document.getElementById("arrowCheckbox").click();
+          console.log(`Arrow display: ${document.getElementById("arrowCheckbox").checked ? 'ON' : 'OFF'}`);
+        } else {
+          // A: Toggle arrow mode
+          document.getElementById("arrowBtn").click();
+          console.log(`Arrow mode: ${arrowMode ? 'ON' : 'OFF'}`);
+        }
         event.preventDefault();
         return;
         
@@ -11896,6 +13549,95 @@ document.addEventListener('keydown', (event) => {
     }
   }
 });
+
+
+// Backbite Warning Modal
+function showBackbiteWarning() {
+  // Remove any existing warning first
+  const existingOverlay = document.getElementById('backbiteWarningOverlay');
+  const existingWarning = document.getElementById('backbiteWarningDiv');
+  if (existingOverlay) existingOverlay.remove();
+  if (existingWarning) existingWarning.remove();
+
+  // Create overlay FIRST
+  const overlay = document.createElement('div');
+  overlay.id = 'backbiteWarningOverlay';
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 19999;
+    pointer-events: auto;
+  `;
+
+  // Create warning div
+  const warningDiv = document.createElement('div');
+  warningDiv.id = 'backbiteWarningDiv';
+  warningDiv.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    z-index: 20000;
+    max-width: 450px;
+    text-align: center;
+    font-family: inherit;
+    pointer-events: auto;
+  `;
+
+  warningDiv.innerHTML = `
+    <h2 style="margin: 0 0 15px 0; font-size: 20px; color: #d32f2f;">⚠️ Warning</h2>
+    <p style="margin: 0 0 20px 0; font-size: 14px; color: #555; line-height: 1.5;">
+      Performing backbite moves on non-Hamiltonian subgraphs (partial paths) causes erratic behavior.
+    </p>
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; justify-content: center;">
+      <input type="checkbox" id="backbiteWarningCheckbox" style="width: 18px; height: 18px; cursor: pointer;">
+      <label for="backbiteWarningCheckbox" style="cursor: pointer; font-size: 13px; color: #666; user-select: none;">
+        Don't show this again
+      </label>
+    </div>
+    <button id="backbiteWarningBtn" style="padding: 10px 24px; background: #d32f2f; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; font-weight: bold;">
+      OK
+    </button>
+  `;
+
+  // Append OVERLAY first, then WARNING so warning appears on top in DOM
+  document.body.appendChild(overlay);
+  document.body.appendChild(warningDiv);
+
+  // Close function - removes both overlay and warning
+  const closeWarning = () => {
+    overlay.remove();
+    warningDiv.remove();
+  };
+
+  // Add event listeners AFTER elements are in DOM
+  const checkbox = document.getElementById('backbiteWarningCheckbox');
+  if (checkbox) {
+    checkbox.addEventListener('change', (e) => {
+      dontShowBackbiteWarning = e.target.checked;
+    });
+  }
+
+  const button = document.getElementById('backbiteWarningBtn');
+  if (button) {
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeWarning();
+    });
+  }
+
+  // Close on background/overlay click
+  overlay.addEventListener('click', closeWarning);
+}
 
 
 // Keyboard Shortcuts Modal Functionality
@@ -12086,18 +13828,18 @@ const ProgressOverlay = {
   
   updateTheme() {
     if (!this.overlay) return;
-    
-    const bgSelect = document.getElementById('backgroundSelect');
-    const isDarkMode = bgSelect && bgSelect.value === '0x000000';
-    
+
+    // Check if dark-theme class is applied to root element (accounts for auto-switch)
+    const isDarkMode = document.documentElement.classList.contains('dark-theme');
+
     if (isDarkMode) {
       this.overlay.style.background = '#2a2a2a';
       this.overlay.style.color = '#b7f774';
       this.overlay.style.border = '1px solid #3a3a3a';
     } else {
-      this.overlay.style.background = '#0a0f0a';
-      this.overlay.style.color = '#b7f774';
-      this.overlay.style.border = '1px solid #1d2a1d';
+      this.overlay.style.background = '#ffffff';
+      this.overlay.style.color = '#0066ff';
+      this.overlay.style.border = '1px solid #cccccc';
     }
   },
   
@@ -12222,13 +13964,13 @@ document.getElementById('mainCameraSensitivitySlider').addEventListener('input',
   const value = parseFloat(e.target.value);
   cameraSensitivity = value;
   document.getElementById('mainCameraSensitivityValue').textContent = value.toFixed(1);
-  
+
   // Update controls immediately (both rotation and zoom)
   if (typeof controls !== 'undefined') {
     controls.rotateSpeed = cameraSensitivity;
     controls.zoomSpeed = 0.5 * cameraSensitivity;
   }
-  
+
   // Sync with preferences slider
   const prefSlider = document.getElementById('cameraSensitivitySlider');
   const prefValue = document.getElementById('cameraSensitivityValue');
@@ -12238,6 +13980,85 @@ document.getElementById('mainCameraSensitivitySlider').addEventListener('input',
   }
 });
 
+
+// Edge Detail dropdown handler
+document.getElementById('edgeDetailSelect').addEventListener('change', (e) => {
+  const segments = parseInt(e.target.value);
+  edgeSegments = segments;
+
+  console.log(`Edge detail changed to: ${segments} segments`);
+
+  // If a grid exists, rebuild edges with new segment count
+  if (currentGrid) {
+    console.log('Rebuilding edges with new segment count...');
+    rebuildEdgesWithNewSegments(currentGrid, segments);
+  }
+});
+
+// Vertex Detail dropdown handler
+document.getElementById('vertexDetailSelect').addEventListener('change', (e) => {
+  const subdivisions = parseInt(e.target.value);
+  vertexSubdivisions = subdivisions;
+
+  const detailNames = ['Low', 'Normal', 'Medium', 'High', 'Ultra'];
+  console.log(`Vertex detail changed to: ${detailNames[subdivisions]} (${subdivisions} subdivisions)`);
+
+  // If a grid exists, rebuild vertices with new subdivision count
+  if (currentGrid) {
+    console.log('Rebuilding vertices with new subdivision count...');
+    rebuildVerticesWithNewDetail(currentGrid, subdivisions);
+  }
+});
+
+// LOD Enable/Disable toggle
+document.getElementById('lodEnabledCheckbox').addEventListener('change', (e) => {
+  lodEnabled = e.target.checked;
+  console.log(`LOD ${lodEnabled ? 'enabled' : 'disabled'}`);
+
+  // Show/hide distance controls
+  const controls = document.getElementById('lodDistanceControls');
+  if (controls) {
+    controls.style.display = lodEnabled ? 'block' : 'none';
+  }
+
+  // If LOD was disabled, rebuild everything at full detail
+  if (!lodEnabled && currentGrid) {
+    console.log('LOD disabled - rebuilding all geometry at full detail');
+    rebuildAllGeometryAtFullDetail(currentGrid);
+  }
+});
+
+// LOD Performance Indicators toggle
+document.getElementById('lodIndicatorsCheckbox').addEventListener('change', (e) => {
+  const showIndicators = e.target.checked;
+  const fpsCounter = document.getElementById('fpsCounter');
+  if (fpsCounter) {
+    fpsCounter.style.display = showIndicators ? 'block' : 'none';
+  }
+  console.log(`LOD performance indicators ${showIndicators ? 'shown' : 'hidden'}`);
+});
+
+// LOD Distance slider handlers
+document.getElementById('lod0Distance').addEventListener('input', (e) => {
+  const value = parseInt(e.target.value);
+  lodDistanceThresholds.lod0 = value;
+  document.getElementById('lod0DistanceValue').textContent = value;
+  console.log(`LOD 0 (full detail) distance set to: ${value} units`);
+});
+
+document.getElementById('lod1Distance').addEventListener('input', (e) => {
+  const value = parseInt(e.target.value);
+  lodDistanceThresholds.lod1 = value;
+  document.getElementById('lod1DistanceValue').textContent = value;
+  console.log(`LOD 1 (medium detail) distance set to: ${value} units`);
+});
+
+document.getElementById('lod2Distance').addEventListener('input', (e) => {
+  const value = parseInt(e.target.value);
+  lodDistanceThresholds.lod2 = value;
+  document.getElementById('lod2DistanceValue').textContent = value;
+  console.log(`LOD 2 (low detail) distance set to: ${value} units`);
+});
 
 
 function openReadmeInNewTab() {
@@ -12320,7 +14141,7 @@ function openReadmeInNewTab() {
 <body>
   <div class="container">
     <h1>GridLab</h1>
-    <p>GridLab is an interactive 3D visualization and editing tool for exploring Hamiltonian paths and cycles on grid graphs. Built with Three.js, it provides an environment for studying graph theory, particularly the properties of Hamiltonian paths and cycles on the 2D and 3D square lattice.</p>
+    <p>GridLab v2.0 is an interactive 3D visualization and editing tool for exploring Hamiltonian paths and cycles on grid graphs. Built with Three.js, it provides an environment for studying graph theory, particularly the properties of Hamiltonian paths and cycles on the 2D and 3D square lattice.</p>
 
     <h2>Overview</h2>
     <p>GridLab enables users to:</p>
@@ -12418,59 +14239,10 @@ function openReadmeInNewTab() {
     <h3>Undo/Redo</h3>
     <p>Complete undo/redo system (Ctrl+Z / Ctrl+Y) tracking backbite moves, switch moves, edge coloring, and more.</p>
 
-
     <h2>Performance & Complexity</h2>
-    <p>GridLab can handle grids of varying sizes. Generation time scales roughly with the number of backbite operations performed. The runtime per backbite is approximately N/2, where N is the number of vertices in the grid. Generation uses at least 10N backbite moves, so the total run time is approximately of the order N<sup>2</sup></p>
-    
+    <p>GridLab can handle grids of varying sizes. Generation time scales roughly with the number of backbite operations performed. The runtime per backbite move is O(logN), where N is the length of the path.</p>
 
-    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-      <thead>
-        <tr style="background: #3498db; color: white;">
-          <th style="padding: 12px; border: 1px solid #ddd; text-align: left;">Grid Size</th>
-          <th style="padding: 12px; border: 1px solid #ddd; text-align: left;">n (vertices)</th>
-          <th style="padding: 12px; border: 1px solid #ddd; text-align: left;">Backbites</th>
-          <th style="padding: 12px; border: 1px solid #ddd; text-align: left;">Operations</th>
-          <th style="padding: 12px; border: 1px solid #ddd; text-align: left;">Time Estimate</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td style="padding: 10px; border: 1px solid #ddd;">5×5×5</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">125</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">1,250</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">~156K</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">&lt;1 sec</td>
-        </tr>
-        <tr style="background: #f8f9fa;">
-          <td style="padding: 10px; border: 1px solid #ddd;">10×10×10</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">1,000</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">10,000</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">~10M</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">~1 sec</td>
-        </tr>
-        <tr>
-          <td style="padding: 10px; border: 1px solid #ddd;">20×20×20</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">8,000</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">80,000</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">~640M</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">~10 sec</td>
-        </tr>
-        <tr style="background: #f8f9fa;">
-          <td style="padding: 10px; border: 1px solid #ddd;">30×30×30</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">27,000</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">270,000</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">~7.3B</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">~90 sec</td>
-        </tr>
-        <tr>
-          <td style="padding: 10px; border: 1px solid #ddd;">50×50×50</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">125,000</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">1,250,000</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">~156B</td>
-          <td style="padding: 10px; border: 1px solid #ddd;">~25 min</td>
-        </tr>
-      </tbody>
-    </table>
+
 
     <h2>Keyboard Shortcuts</h2>
 
@@ -12491,7 +14263,7 @@ function openReadmeInNewTab() {
     <ul>
       <li><strong>E:</strong> Toggle edge coloring mode</li>
       <li><strong>Shift+E:</strong> Toggle edge decoration mode</li>
-      <li><strong>A:</strong> Toggle arrow mode</li>
+      <li><strong>Shift+A:</strong> Toggle arrow mode</li>
       <li><strong>V:</strong> Toggle vertex mode</li>
       <li><strong>Shift+V:</strong> Toggle vertex decoration mode</li>
       <li><strong>S:</strong> Sync view across grids</li>
@@ -12506,6 +14278,8 @@ function openReadmeInNewTab() {
 
     <h3>Other</h3>
     <ul>
+      <li><strong>Shift+A:</strong> Toggle arrow mode (add/remove arrows)</li>
+      <li><strong>Shift+A:</strong> Toggle arrow display on/off</li>
       <li><strong>Esc:</strong> Stop path/cycle generation</li>
       <li><strong>Shift+?:</strong> Show keyboard shortcuts reference</li>
     </ul>
@@ -12517,7 +14291,7 @@ function openReadmeInNewTab() {
       <li><strong>Art:</strong> Generative patterns, color studies, aesthetic exploration</li>
     </ul>
 
-    <h2>Tips and Best Practices</h2>
+    <h2>Tips</h2>
     <ul>
       <li>Use Toggle Grid to hide uncolored edges on large grids for better focus</li>
       <li>Turn on Gradient to visualize position along long paths</li>
@@ -12534,7 +14308,7 @@ function openReadmeInNewTab() {
     <h2>Technical Details</h2>
 
     <h3>Performance Optimization</h3>
-    <p><strong>Instanced Rendering:</strong> GridLab uses instanced rendering by default for improved performance on large grids by rendering all edges of the same type in a single draw call.</p>
+    <p><strong>Instanced Rendering:</strong> GridLab uses instanced rendering and progressive level of detail (LOD) system that dynamically adjusts geometric detail based on camera distance, keeping frame times smooth in grids up to 100'000 edges. During generations, intermediate Hamiltonian paths are stored in a <a href="https://cp-algorithms.com/data_structures/treap.html" target="_blank" style="color: #3498db; text-decoration: underline;">treap</a> data structure, allowing path reversals - which are the bottleneck for computing backbites - to run in O(log n) time instead of the more standard O(n). This, together with progressive LOD rendering were the main upgrades from GridLab v1.0</p>
 
     <h3>Save File Format</h3>
     <p>Save files are JSON documents containing complete grid states including dimensions, edge colors, vertex markers, paths, camera positions, and rich text notes.</p>
@@ -12754,25 +14528,52 @@ function onMouseDown(event) {
       
       // Force update world matrices
       currentGrid.group.updateMatrixWorld(true);
-      
-      const vertexHelpers = [];
-      for (const [vKey, vertexData] of currentGrid.vertices.entries()) {
-        if (vertexData.collisionHelper) {
-          vertexHelpers.push(vertexData.collisionHelper);
+
+      // Get vertex collision helpers - use instanced if available
+      let vertexHelpers = [];
+      if (useInstancedRendering && currentGrid.instancedVertexCollisionHelpers) {
+        // Instanced mode: use the single InstancedMesh
+        vertexHelpers = [currentGrid.instancedVertexCollisionHelpers];
+      } else {
+        // Non-instanced mode: collect individual collision helpers
+        for (const [vKey, vertexData] of currentGrid.vertices.entries()) {
+          if (vertexData.collisionHelper) {
+            vertexHelpers.push(vertexData.collisionHelper);
+          }
         }
       }
-      
+
       // Raycast against collision helpers
       const vertexIntersects = raycaster.intersectObjects(vertexHelpers, false);
-      
+
       // Restore raycasting on all edge meshes
       for (const backup of edgeRaycastBackups) {
         backup.obj.raycast = backup.fn;
       }
-      
+
       if (vertexIntersects.length > 0) {
-        mouseDownTarget = vertexIntersects[0].object.userData.vertexKey;
-        mouseDownType = 'vertex';
+        const hit = vertexIntersects[0];
+        let vertexKey = null;
+
+        if (hit.instanceId != null) {
+          // Instanced mode: map instance ID to vertex key
+          let instanceIndex = 0;
+          for (const [vKey, vertexData] of currentGrid.vertices.entries()) {
+            if (instanceIndex === hit.instanceId) {
+              vertexKey = vKey;
+              break;
+            }
+            instanceIndex++;
+          }
+        } else {
+          // Non-instanced mode: get vertex key from userData
+          vertexKey = hit.object.userData.vertexKey;
+        }
+
+        if (vertexKey) {
+          mouseDownTarget = vertexKey;
+          mouseDownType = 'vertex';
+        }
       }
       break;
       
@@ -12865,16 +14666,31 @@ function onMouseUp(event) {
       break;
       
     case 'vertex':
-      const vertexHelpers = [];
-      for (const [vKey, vertexData] of currentGrid.vertices.entries()) {
-        if (vertexData.collisionHelper) {
-          vertexHelpers.push(vertexData.collisionHelper);
+      // Raycast against collision helpers (instanced or individual)
+      if (currentGrid.isInstanced && currentGrid.instancedVertexCollisionHelpers) {
+        const vertexIntersects = raycaster.intersectObject(currentGrid.instancedVertexCollisionHelpers);
+        if (vertexIntersects.length > 0) {
+          const instanceId = vertexIntersects[0].instanceId;
+          // Map instance ID back to vertex key
+          for (const [vKey, instanceIdx] of currentGrid.vertexToInstanceMap.entries()) {
+            if (instanceIdx === instanceId) {
+              mouseUpTarget = vKey;
+              break;
+            }
+          }
         }
-      }
-      
-      const vertexIntersects = raycaster.intersectObjects(vertexHelpers);
-      if (vertexIntersects.length > 0) {
-        mouseUpTarget = vertexIntersects[0].object.userData.vertexKey;
+      } else {
+        // Non-instanced mode: use individual collision helpers
+        const vertexHelpers = [];
+        for (const [vKey, vertexData] of currentGrid.vertices.entries()) {
+          if (vertexData.collisionHelper) {
+            vertexHelpers.push(vertexData.collisionHelper);
+          }
+        }
+        const vertexIntersects = raycaster.intersectObjects(vertexHelpers);
+        if (vertexIntersects.length > 0) {
+          mouseUpTarget = vertexIntersects[0].object.userData.vertexKey;
+        }
       }
       break;
       
@@ -12913,10 +14729,16 @@ function onMouseUp(event) {
   }
   
   // Only perform action if mousedown and mouseup targets match
-  if (mouseDownTarget === mouseUpTarget && mouseUpTarget !== null) {
-    performAction(mouseUpTarget, mouseDownType);
+  if (mouseDownType === 'vertex') {
+    console.log(`MOUSEUIP VERTEX: mouseDownTarget="${mouseDownTarget}", mouseUpTarget="${mouseUpTarget}", match=${mouseDownTarget === mouseUpTarget}`);
   }
-  
+  if (mouseDownTarget === mouseUpTarget && mouseUpTarget !== null) {
+    console.log(`MOUSEUP: Action triggered - type="${mouseDownType}", target="${mouseUpTarget}"`);
+    performAction(mouseUpTarget, mouseDownType);
+  } else if (mouseDownTarget !== null) {
+    console.log(`MOUSEUP: No match - down="${mouseDownTarget}", up="${mouseUpTarget}", type="${mouseDownType}"`);
+  }
+
   // Clear stored targets
   mouseDownTarget = null;
   mouseDownType = null;
@@ -13246,30 +15068,44 @@ function handleVertexSphereClick(vertexKey) {
 
 // Handle decoration addition/removal only
 function handleDecorationClick(vertexKey) {
-  // Can only add decoration to existing vertex spheres
-  if (!currentGrid.vertexSpheres.has(vertexKey)) {
-    console.log("No vertex sphere to decorate - create a vertex sphere first");
-    return;
-  }
-  
   const beforeState = captureVertexSphereState(vertexKey);
-  const sphereData = currentGrid.vertexSpheres.get(vertexKey);
-  
-  if (sphereData.decoration) {
+
+  // Check if decoration exists (on vertex sphere or standalone)
+  let hasDecoration = false;
+  let decorationGroup = null;
+
+  if (currentGrid.vertexSpheres.has(vertexKey)) {
+    const sphereData = currentGrid.vertexSpheres.get(vertexKey);
+    if (sphereData.decoration) {
+      hasDecoration = true;
+      decorationGroup = sphereData.decoration;
+    }
+  } else if (currentGrid.standaloneDecorations.has(vertexKey)) {
+    hasDecoration = true;
+    decorationGroup = currentGrid.standaloneDecorations.get(vertexKey).decorationGroup;
+  }
+
+  if (hasDecoration) {
     // Remove decoration
-    currentGrid.group.remove(sphereData.decoration);
-    if (sphereData.decoration.children) {
-      sphereData.decoration.children.forEach(child => {
+    currentGrid.group.remove(decorationGroup);
+    if (decorationGroup.children) {
+      decorationGroup.children.forEach(child => {
         if (child.geometry) child.geometry.dispose();
         if (child.material) child.material.dispose();
       });
     }
-    sphereData.decoration = null;
+
+    // Remove from tracking
+    if (currentGrid.vertexSpheres.has(vertexKey)) {
+      currentGrid.vertexSpheres.get(vertexKey).decoration = null;
+    } else if (currentGrid.standaloneDecorations.has(vertexKey)) {
+      currentGrid.standaloneDecorations.delete(vertexKey);
+    }
   } else {
-    // Add decoration
+    // Add decoration (works with or without vertex sphere)
     addVertexDecoration(currentGrid, vertexKey, selectedColor2);
   }
-  
+
   const afterState = captureVertexSphereState(vertexKey);
   recordAction('VERTEX_DECORATION', { vertexKey, beforeState, afterState });
 }
@@ -13501,34 +15337,63 @@ function restoreInstancedEdgeColor(edgeKey, storedColor, meshType) {
 // =================== I.E.R. FUNCTIONS =================
 
 function handleVertexHover() {
-  // Get all vertex collision helpers
-  const vertexHelpers = [];
-  for (const [vKey, vertexData] of currentGrid.vertices.entries()) {
-    if (vertexData.collisionHelper) {
-      vertexHelpers.push(vertexData.collisionHelper);
+  // Use instanced collision helpers for raycasting
+  // These are pre-created for all vertices during grid initialization
+  let vertexHelpers = [];
+
+  if (useInstancedRendering && currentGrid.instancedVertexCollisionHelpers) {
+    // Instanced mode: use the single InstancedMesh for all vertices
+    vertexHelpers = [currentGrid.instancedVertexCollisionHelpers];
+  } else {
+    // Fallback to individual collision helpers (non-instanced mode)
+    for (const [vKey, vertexData] of currentGrid.vertices.entries()) {
+      if (vertexData.collisionHelper) {
+        vertexHelpers.push(vertexData.collisionHelper);
+      }
     }
   }
-  
+
   const intersects = raycaster.intersectObjects(vertexHelpers);
-  
+
   if (intersects.length > 0) {
-    const hoveredHelper = intersects[0].object;
-    const vertexKey = hoveredHelper.userData.vertexKey;
-    const [x, y, z] = vertexKey.split(',').map(Number);
-    
-    // Create highlight sphere
-    const highlightGeometry = new THREE.SphereGeometry(0.12, 16, 16);
-    const highlightMaterial = new THREE.MeshBasicMaterial({ 
-      color: 0x00ffff,
-      transparent: true, 
-      opacity: 0.6,
-      depthTest: false
-    });
-    currentGrid.vertexHighlight = new THREE.Mesh(highlightGeometry, highlightMaterial);
-    currentGrid.vertexHighlight.position.set(x, y, z);
-    currentGrid.group.add(currentGrid.vertexHighlight);
-    
-    document.body.style.cursor = 'pointer';
+    const hit = intersects[0];
+    let vertexKey = null;
+    let [x, y, z] = [0, 0, 0];
+
+    if (hit.instanceId != null) {
+      // Instanced mode: get vertex from instance mapping
+      // Iterate through vertices to find the one at this instance index
+      let instanceIndex = 0;
+      for (const [vKey, vertexData] of currentGrid.vertices.entries()) {
+        if (instanceIndex === hit.instanceId) {
+          vertexKey = vKey;
+          [x, y, z] = vKey.split(',').map(Number);
+          break;
+        }
+        instanceIndex++;
+      }
+    } else {
+      // Non-instanced mode: get vertex key from userData
+      const hoveredHelper = hit.object;
+      vertexKey = hoveredHelper.userData.vertexKey;
+      [x, y, z] = vertexKey.split(',').map(Number);
+    }
+
+    if (vertexKey) {
+      // Create highlight sphere
+      const highlightGeometry = new THREE.SphereGeometry(0.12, 16, 16);
+      const highlightMaterial = new THREE.MeshBasicMaterial({
+        color: 0x00ffff,
+        transparent: true,
+        opacity: 0.6,
+        depthTest: false
+      });
+      currentGrid.vertexHighlight = new THREE.Mesh(highlightGeometry, highlightMaterial);
+      currentGrid.vertexHighlight.position.set(x, y, z);
+      currentGrid.group.add(currentGrid.vertexHighlight);
+
+      document.body.style.cursor = 'pointer';
+    }
   }
 }
 
@@ -13667,7 +15532,56 @@ document.body.appendChild(renderer.domElement);
 
 function animate() {
   requestAnimationFrame(animate);
+
+  // FPS Counter
+  const currentTime = performance.now();
+  const frameTime = currentTime - lastFrameTime;
+  lastFrameTime = currentTime;
+  fpsFrames++;
+
+  if (currentTime - fpsLastTime >= fpsUpdateInterval) {
+    const fps = Math.round((fpsFrames * 1000) / (currentTime - fpsLastTime));
+    const avgFrameTime = ((currentTime - fpsLastTime) / fpsFrames).toFixed(1);
+
+    // Update FPS display
+    const fpsElement = document.getElementById('fpsValue');
+    const frameTimeElement = document.getElementById('frameTimeValue');
+    const lodLevelElement = document.getElementById('lodLevelValue');
+
+    if (fpsElement) {
+      fpsElement.textContent = fps;
+      // Color code FPS: green (60+), yellow (30-59), orange (20-29), red (<20)
+      if (fps >= 60) {
+        fpsElement.style.color = '#2ecc71';
+      } else if (fps >= 30) {
+        fpsElement.style.color = '#f39c12';
+      } else if (fps >= 20) {
+        fpsElement.style.color = '#e67e22';
+      } else {
+        fpsElement.style.color = '#e74c3c';
+      }
+    }
+
+    if (frameTimeElement) {
+      frameTimeElement.textContent = avgFrameTime + 'ms';
+    }
+
+    if (lodLevelElement) {
+      if (lodEnabled && currentGrid) {
+        const lodNames = ['Full', 'Medium', 'Low', 'Min'];
+        lodLevelElement.textContent = `LOD ${currentLODLevel} (${lodNames[currentLODLevel] || '?'})`;
+      } else {
+        lodLevelElement.textContent = lodEnabled ? '—' : 'Disabled';
+      }
+    }
+
+    fpsFrames = 0;
+    fpsLastTime = currentTime;
+  }
+
   controls.update();  // required for damping to work
+  updateLOD();  // Progressive LOD system
+  checkAndApplyAutoTheme();  // Auto-switch theme by time of day
   renderer.render(scene, camera);
 }
 animate();
@@ -13677,6 +15591,16 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 // Show coordinate axes on page load (after everything is set up)
 window.addEventListener('load', () => {
   toggleCoordinateAxes();
+
+  // Apply auto-switch theme on page load if enabled
+  if (autoSwitchThemeEnabled) {
+    const requiredTheme = getThemeByTime();
+    const themeSelect = document.getElementById('themeSelect');
+    if (themeSelect && themeSelect.value !== requiredTheme) {
+      themeSelect.value = requiredTheme;
+      updateTheme(requiredTheme);
+    }
+  }
 });
 
 
@@ -13690,7 +15614,7 @@ window.addEventListener('load', () => {
 //     =========================================
 function serializeGridState() {
   const saveData = {
-    version: "1.0",
+    version: "2.0",
     app: "3D-Hamilton",
     timestamp: new Date().toISOString(),
     currentGridId: getCurrentGridId(),
@@ -13703,7 +15627,9 @@ function serializeGridState() {
       mode: mode,
       activeEndpoint: activeEndpoint,
       edgeClickEnabled: edgeClickEnabled,
-      useInstancedRendering: useInstancedRendering // Save rendering mode
+      useInstancedRendering: useInstancedRendering, // Save rendering mode
+      showAllVertices: showAllVertices, // Save show all vertices preference
+      autoSwitchThemeEnabled: autoSwitchThemeEnabled // Save auto-switch theme preference
     },
     sceneState: {
       coordinatesVisible: scene.userData.coordGroup?.visible || false
@@ -13800,14 +15726,14 @@ function serializeGrid(grid) {
   if (grid.vertexSpheres) {
     for (const [vertexKey, sphereData] of grid.vertexSpheres.entries()) {
       // Get color (works for both instanced and individual mode)
-      const color = grid.isInstanced 
-        ? sphereData.color 
+      const color = grid.isInstanced
+        ? sphereData.color
         : sphereData.sphere.material.color.getHex();
-      
+
       const vertexInfo = {
         color: color
       };
-      
+
       // Save decoration info if present
       if (sphereData.decoration) {
         vertexInfo.hasDecoration = true;
@@ -13818,8 +15744,29 @@ function serializeGrid(grid) {
           vertexInfo.decorationColor = sphereData.decoration.material.color.getHex();
         }
       }
-      
+
       gridData.vertices[vertexKey] = vertexInfo;
+    }
+  }
+
+  // Save standalone decorations (decorations without vertex spheres)
+  if (grid.standaloneDecorations) {
+    for (const [vertexKey, decorationData] of grid.standaloneDecorations.entries()) {
+      // Only save if not already saved as part of a vertex sphere
+      if (!gridData.vertices[vertexKey]) {
+        const vertexInfo = {
+          color: null, // No vertex sphere
+          hasDecoration: true,
+          isStandalone: true
+        };
+
+        // Get decoration color from the decoration group
+        if (decorationData.decorationGroup && decorationData.decorationGroup.children && decorationData.decorationGroup.children.length > 0) {
+          vertexInfo.decorationColor = decorationData.decorationGroup.children[0].material.color.getHex();
+        }
+
+        gridData.vertices[vertexKey] = vertexInfo;
+      }
     }
   }
 
@@ -13918,7 +15865,7 @@ function loadGridState(saveData) {
   }
   
   // Version check
-  if (saveData.version !== '1.0') {
+  if (saveData.version !== '2.0') {
     console.warn('Unknown save version:', saveData.version);
   }
 
@@ -13930,16 +15877,30 @@ function loadGridState(saveData) {
     const gs = saveData.globalSettings;
     selectedColor = gs.selectedColor ?? selectedColor;
     selectedColor2 = gs.selectedColor2 ?? selectedColor2;
-    
+
     // Restore rendering mode
-    
+
     // DON'T restore gridVisible yet - we'll handle it after loading grids
     const savedGridVisible = gs.gridVisible ?? true; // Store for later use
     gradientMode = gs.gradientMode ?? gradientMode;
     arrowMode = gs.arrowMode ?? arrowMode;
     mode = gs.mode ?? mode;
     activeEndpoint = gs.activeEndpoint ?? activeEndpoint;
-    
+
+    // Restore showAllVertices preference
+    showAllVertices = gs.showAllVertices ?? false;
+    const showAllVerticesCheckbox = document.getElementById('showAllVerticesCheckbox');
+    if (showAllVerticesCheckbox) {
+      showAllVerticesCheckbox.checked = showAllVertices;
+    }
+
+    // Restore autoSwitchThemeEnabled preference
+    autoSwitchThemeEnabled = gs.autoSwitchThemeEnabled ?? false;
+    const autoSwitchThemeCheckbox = document.getElementById('autoSwitchThemeCheckbox');
+    if (autoSwitchThemeCheckbox) {
+      autoSwitchThemeCheckbox.checked = autoSwitchThemeEnabled;
+    }
+
     // Update UI elements
     updateGlobalUI();
   } else {
@@ -13966,6 +15927,9 @@ function loadGridState(saveData) {
   gridVisible = savedGridVisible;
   applyGlobalVisibilitySettings();
 
+  // Apply showAllVertices setting AFTER all grids are loaded
+  updateAllVerticesVisibility();
+
   // Set current grid after all loading is complete
   requestAnimationFrame(() => {
     if (saveData.currentGridId && allGrids.has(saveData.currentGridId)) {
@@ -13973,7 +15937,7 @@ function loadGridState(saveData) {
     } else if (allGrids.size > 0) {
       switchToGrid(allGrids.keys().next().value);
     }
-    
+
     console.log(`Loaded ${Object.keys(saveData.grids).length} grids successfully`);
   });
 }
@@ -14072,26 +16036,42 @@ function loadGridData(gridId, gridData) {
     }
   }
 
-  // Restore vertex spheres (handle both old and new formats)
+  // Restore vertex spheres and standalone decorations
   if (gridData.vertices) {
     for (const [vertexKey, vertexState] of Object.entries(gridData.vertices)) {
-      const [x, y, z] = vertexKey.split(',').map(Number);
-      const geometry = new THREE.SphereGeometry(0.12, 16, 16);
-      const material = new THREE.MeshBasicMaterial({ color: vertexState.color });
-      const sphere = new THREE.Mesh(geometry, material);
-      sphere.position.set(x, y, z);
-      
-      grid.group.add(sphere);
-      
-      // Store in new format (with sphere/decoration structure)
-      grid.vertexSpheres.set(vertexKey, {
-        sphere: sphere,
-        decoration: null
-      });
-      
-      // If the old save had decoration data, restore it
-      if (vertexState.hasDecoration && vertexState.decorationColor) {
-        addVertexDecoration(grid, vertexKey, vertexState.decorationColor);
+      // Check if this is a standalone decoration (decoration without vertex sphere)
+      if (vertexState.isStandalone) {
+        // Only restore the decoration, not a vertex sphere
+        if (vertexState.hasDecoration && vertexState.decorationColor) {
+          addVertexDecoration(grid, vertexKey, vertexState.decorationColor);
+        }
+      } else {
+        // Regular vertex sphere - restore it
+        if (grid.isInstanced) {
+          // Use instanced rendering
+          createVertexSphere(grid, vertexKey, vertexState.color);
+        } else {
+          // Use individual mesh rendering
+          const [x, y, z] = vertexKey.split(',').map(Number);
+          const geometry = new THREE.SphereGeometry(0.12, 16, 16);
+          const material = new THREE.MeshBasicMaterial({ color: vertexState.color });
+          const sphere = new THREE.Mesh(geometry, material);
+          sphere.position.set(x, y, z);
+
+          grid.group.add(sphere);
+
+          // Store in new format (with sphere/decoration structure)
+          grid.vertexSpheres.set(vertexKey, {
+            sphere: sphere,
+            decoration: null,
+            color: vertexState.color
+          });
+        }
+
+        // If vertex sphere has decoration, restore it
+        if (vertexState.hasDecoration && vertexState.decorationColor) {
+          addVertexDecoration(grid, vertexKey, vertexState.decorationColor);
+        }
       }
     }
   }
@@ -14180,39 +16160,41 @@ function clearAllGrids() {
 
 function updateAllVerticesVisibility() {
   // Update vertex visibility for all grids based on showAllVertices preference
+  // Behavior: Like gray edges, only show gray vertices at uncolored vertices
   for (const [gridId, grid] of allGrids.entries()) {
     if (!grid || !grid.isInstanced || !grid.instancedVertexSpheres) continue;
-    
+
     const grayColor = new THREE.Color(0x888888);
     const zeroMatrix = new THREE.Matrix4().makeScale(0, 0, 0);
     const identityMatrix = new THREE.Matrix4();
-    
+
     for (const [vKey, instanceIndex] of grid.vertexToInstanceMap.entries()) {
-      // Check if this vertex already has a colored sphere
+      // Check if this vertex has a user-created colored sphere
       const vertexData = grid.vertexSpheres?.get(vKey);
-      const hasColoredSphere = vertexData && vertexData.sphere;
-      
+      const hasColoredSphere = vertexData && vertexData.color !== 0x888888;
+
       if (hasColoredSphere) {
-        // Don't show gray sphere if there's already a colored one
-        grid.instancedVertexSpheres.setMatrixAt(instanceIndex, zeroMatrix);
+        // Vertex has a colored sphere - don't interfere, it's already visible
+        // (The vertex sphere is managed by the vertex sphere system)
+        continue;
       } else if (showAllVertices) {
-        // Show gray sphere at this vertex
+        // Show gray sphere at this uncolored vertex
         const [x, y, z] = vKey.split(',').map(Number);
         identityMatrix.setPosition(x, y, z);
         grid.instancedVertexSpheres.setMatrixAt(instanceIndex, identityMatrix);
         grid.instancedVertexSpheres.setColorAt(instanceIndex, grayColor);
       } else {
-        // Hide sphere
+        // Hide gray sphere (only if there's no colored sphere)
         grid.instancedVertexSpheres.setMatrixAt(instanceIndex, zeroMatrix);
       }
     }
-    
+
     grid.instancedVertexSpheres.instanceMatrix.needsUpdate = true;
     if (grid.instancedVertexSpheres.instanceColor) {
       grid.instancedVertexSpheres.instanceColor.needsUpdate = true;
     }
   }
-  
+
   console.log(`All vertices visibility updated: ${showAllVertices ? 'shown' : 'hidden'}`);
 }
 
@@ -14307,6 +16289,425 @@ function saveGrid() {
 
 function loadGridFromDisk() {
   promptLoadFile();
+}
+
+// ============================================================================
+// OPTIMIZATION: TreapPath and HamiltonianPath classes
+// O(log N) path reversal for efficient backbite operations
+// ============================================================================
+
+/**
+ * TreapPath - O(log N) Path Reversal using Implicit Treap
+ *
+ * Based on cp-algorithms.com/data_structures/treap.html
+ * Implements implicit treap with lazy reversal for efficient interval reversal
+ *
+ * @author: Generated for GridLab Hamiltonian Path optimization
+ * @version: 2.0.0
+ */
+
+class TreapNode {
+  constructor(value, prior = Math.random()) {
+    this.value = value;
+    this.prior = prior;
+    this.cnt = 1;
+    this.rev = false;
+    this.l = null;
+    this.r = null;
+    this.parent = null;  // ← CRITICAL: parent pointer for O(log n) rank
+  }
+}
+
+class TreapPath {
+  constructor(arr = []) {
+    this.root = null;
+    this.vertexToNode = new Map();  // Map: "x,y,z" -> treap node
+    this.nodeList = [];  // Track all nodes in insertion order for mapping
+
+    for (const value of arr) {
+      this._insertAtEnd(value);
+    }
+  }
+
+  _cnt(node) {
+    return node ? node.cnt : 0;
+  }
+
+  _upd_cnt(node) {
+    if (node) {
+      node.cnt = 1 + this._cnt(node.l) + this._cnt(node.r);
+      // Maintain parent pointers
+      if (node.l) node.l.parent = node;
+      if (node.r) node.r.parent = node;
+    }
+  }
+
+  _push(node) {
+    if (node && node.rev) {
+      node.rev = false;
+      [node.l, node.r] = [node.r, node.l];
+      if (node.l) node.l.rev ^= true;
+      if (node.r) node.r.rev ^= true;
+    }
+  }
+
+  /**
+   * Push all lazy reversal flags on path from node to root
+   * Ensures structure is normalized so rank() works correctly
+   * O(log n) - walks up parent chain
+   */
+  _pushPathToRoot(node) {
+    if (!node) return;
+
+    const stack = [];
+    let cur = node;
+
+    // Climb to root, collecting nodes
+    while (cur) {
+      stack.push(cur);
+      cur = cur.parent;
+    }
+
+    // Push from root downwards
+    for (let i = stack.length - 1; i >= 0; i--) {
+      this._push(stack[i]);
+    }
+  }
+
+  _split(node, key, add = 0) {
+    if (!node) {
+      return { l: null, r: null };
+    }
+
+    this._push(node);
+
+    const cur_key = add + this._cnt(node.l);
+
+    let l, r;
+    if (key <= cur_key) {
+      const split_result = this._split(node.l, key, add);
+      l = split_result.l;
+      node.l = split_result.r;
+      if (split_result.r) split_result.r.parent = node;  // Maintain parent
+      r = node;
+    } else {
+      const split_result = this._split(node.r, key, add + 1 + this._cnt(node.l));
+      node.r = split_result.l;
+      if (split_result.l) split_result.l.parent = node;  // Maintain parent
+      r = split_result.r;
+      l = node;
+    }
+
+    this._upd_cnt(l);
+    this._upd_cnt(r);
+
+    // Clear parent of roots
+    if (l) l.parent = null;
+    if (r) r.parent = null;
+
+    return { l, r };
+  }
+
+  _merge(l, r) {
+    if (!l) {
+      if (r) r.parent = null;
+      return r;
+    }
+    if (!r) {
+      if (l) l.parent = null;
+      return l;
+    }
+
+    this._push(l);
+    this._push(r);
+
+    if (l.prior > r.prior) {
+      l.r = this._merge(l.r, r);
+      if (l.r) l.r.parent = l;  // Maintain parent
+      this._upd_cnt(l);
+      l.parent = null;
+      return l;
+    } else {
+      r.l = this._merge(l, r.l);
+      if (r.l) r.l.parent = r;  // Maintain parent
+      this._upd_cnt(r);
+      r.parent = null;
+      return r;
+    }
+  }
+
+  _insertAtEnd(value) {
+    const newNode = new TreapNode(value);
+
+    // Store mapping from vertex to node
+    this.vertexToNode.set(value, newNode);
+    this.nodeList.push(newNode);
+
+    if (!this.root) {
+      this.root = newNode;
+    } else {
+      this.root = this._merge(this.root, newNode);
+    }
+  }
+
+  reverse(L, R) {
+    if (L > R || L < 0 || R >= this._cnt(this.root)) {
+      console.warn(`Invalid range [${L}, ${R}] for path of length ${this._cnt(this.root)}`);
+      return;
+    }
+
+    let t1, t2, t3;
+    const split1 = this._split(this.root, L);
+    t1 = split1.l;
+    const t23 = split1.r;
+
+    const split2 = this._split(t23, R - L + 1);
+    t2 = split2.l;
+    t3 = split2.r;
+
+    if (t2) {
+      t2.rev ^= true;
+    }
+
+    this.root = this._merge(t1, t2);
+    this.root = this._merge(this.root, t3);
+  }
+
+  toArray() {
+    const result = [];
+    this._inorder(this.root, result);
+    return result;
+  }
+
+  _inorder(node, result) {
+    if (!node) return;
+
+    this._push(node);
+
+    this._inorder(node.l, result);
+    result.push(node.value);
+    this._inorder(node.r, result);
+  }
+
+  get(idx) {
+    return this.toArray()[idx];
+  }
+
+  length() {
+    return this._cnt(this.root);
+  }
+
+  first() {
+    // Get first element WITHOUT materializing - O(log N) tree traversal
+    let node = this.root;
+    while (node) {
+      this._push(node);
+      if (node.l) {
+        node = node.l;
+      } else {
+        return node.value;
+      }
+    }
+    return null;
+  }
+
+  last() {
+    // Get last element WITHOUT materializing - O(log N) tree traversal
+    let node = this.root;
+    while (node) {
+      this._push(node);
+      if (node.r) {
+        node = node.r;
+      } else {
+        return node.value;
+      }
+    }
+    return null;
+  }
+
+  kth(k) {
+    // Get the value at position k (0-indexed) in O(log N)
+    // Returns: the vertex at position k, or null if out of bounds
+    if (k < 0 || k >= this._cnt(this.root)) return null;
+    return this._kthHelper(this.root, k);
+  }
+
+  _kthHelper(node, k) {
+    if (!node) return null;
+
+    this._push(node);  // Apply lazy reversals
+
+    const leftCount = this._cnt(node.l);
+
+    if (k < leftCount) {
+      // k-th element is in left subtree
+      return this._kthHelper(node.l, k);
+    } else if (k === leftCount) {
+      // k-th element is this node
+      return node.value;
+    } else {
+      // k-th element is in right subtree
+      return this._kthHelper(node.r, k - leftCount - 1);
+    }
+  }
+
+  /**
+   * Get rank (0-based position) of a vertex in current path: O(log n)
+   * Uses parent pointers to walk UP from node to root
+   */
+  rank(vertex) {
+    // Get the position of a vertex in the current path
+    // Returns: 0-indexed position, or -1 if not found
+    const node = this.vertexToNode.get(vertex);
+    if (!node) return -1;
+
+    // Normalize lazy flags along path to ensure correct structure
+    this._pushPathToRoot(node);
+
+    // Start with count of left subtree
+    let idx = this._cnt(node.l);
+    let cur = node;
+
+    // Walk UP to root, accumulating position
+    while (cur.parent) {
+      const parent = cur.parent;
+      // If we came from right child, add left subtree + parent
+      if (cur === parent.r) {
+        idx += this._cnt(parent.l) + 1;
+      }
+      cur = parent;
+    }
+
+    return idx;
+  }
+
+  /**
+   * Rank of vertex using vertexToNode map: O(log n)
+   * Convenience method combining vertexToNode lookup + rank
+   */
+  rankVertex(vertexKey) {
+    const node = this.vertexToNode.get(vertexKey);
+    if (!node) return -1;
+    return this.rank(vertexKey);  // Call rank with vertex key
+  }
+
+  indexOf(value) {
+    // Delegate to rank for consistency
+    return this.rank(value);
+  }
+
+  static from(arr) {
+    return new TreapPath(arr);
+  }
+
+  static complexityInfo() {
+    return {
+      reverse: 'O(log N)',
+      toArray: 'O(N)',
+      indexOf: 'O(N) - tree traversal without materialization',
+      get: 'O(N)',
+      length: 'O(1)',
+      first: 'O(N)',
+      last: 'O(N)',
+      space: 'O(N)'
+    };
+  }
+}
+
+/**
+ * HamiltonianPath - Data structure for efficient Hamiltonian path manipulation
+ *
+ * Purpose: Wraps TreapPath to provide a GridLab-specific API optimized for
+ * backbite operations and Hamiltonian path generation.
+ *
+ * @author: Created for GridLab optimization
+ * @version: 2.0.0
+ */
+
+class HamiltonianPath {
+  constructor(vertices = []) {
+    this.treap = new TreapPath(vertices);
+    this.length = vertices.length;
+    // CRITICAL OPTIMIZATION: Keep a Set of vertices for O(1) membership checks
+    // This allows us to do "is vertex X in path?" in O(1) instead of O(N)
+    this.pathSet = new Set(vertices);
+  }
+
+  getHead() {
+    return this.treap.first();
+  }
+
+  getTail() {
+    return this.treap.last();
+  }
+
+  toArray() {
+    return this.treap.toArray();
+  }
+
+  copy() {
+    return this.toArray().slice();
+  }
+
+  getLength() {
+    return this.length;
+  }
+
+  getVertex(idx) {
+    if (idx < 0 || idx >= this.length) {
+      console.warn(`Index ${idx} out of bounds [0, ${this.length - 1}]`);
+      return null;
+    }
+    return this.treap.get(idx);
+  }
+
+  indexOf(vertex) {
+    // Use the treap's tree-based indexOf (no array materialization)
+    return this.treap.indexOf(vertex);
+  }
+
+  applyBackbiteMove(idx, isHead) {
+    // Apply backbite move: reverse segment from endpoint to neighbor
+    // idx = position of neighbor vertex
+    // isHead = whether we're reversing from head or tail
+
+    if (isHead) {
+      // Reverse from head to neighbor: reverse [0, idx-1]
+      this.treap.reverse(0, idx - 1);
+    } else {
+      // Reverse from neighbor to tail: reverse [idx+1, length-1]
+      this.treap.reverse(idx + 1, this.length - 1);
+    }
+  }
+
+  contains(vertex) {
+    return this.indexOf(vertex) !== -1;
+  }
+
+  isValid() {
+    const arr = this.toArray();
+    return new Set(arr).size === arr.length;
+  }
+
+  static from(vertices) {
+    return new HamiltonianPath(vertices);
+  }
+
+  static complexityInfo() {
+    return {
+      reverseSubpath: 'O(log N)',
+      applyBackbiteMove: 'O(log N)',
+      toArray: 'O(N)',
+      getSubpath: 'O(N)',
+      getVertex: 'O(N) [current], O(log N) [potential]',
+      indexOf: 'O(N)',
+      contains: 'O(N)',
+      isValid: 'O(N)',
+      getHead: 'O(log N) [current], O(1) [potential]',
+      getTail: 'O(log N) [current], O(1) [potential]',
+      getLength: 'O(1)'
+    };
+  }
 }
 
   </script>
