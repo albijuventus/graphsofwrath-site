@@ -9126,6 +9126,47 @@ function hasVertexOperationsInHistory(grid) {
   return false;
 }
 
+// Helper function to check if a grid has any manually added edges (non-default colored edges)
+function hasManuallyColoredEdges(grid) {
+  if (!grid || !grid.edges) return false;
+
+  for (const edge of grid.edges.values()) {
+    // Check if edge has non-default color (not gray 0x888888)
+    if (edge.color !== 0x888888 && edge.color !== UNCOLORED_COLOR) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// Helper function to check if a grid has any edge operations in its undo/redo history
+function hasEdgeOperationsInHistory(grid) {
+  if (!grid) return false;
+
+  const edgeActionTypes = ['EDGE_COLOR', 'EDGE_TOGGLE', 'ADD_EDGE', 'REMOVE_EDGE'];
+
+  // Check undo stack
+  if (grid.undoStack && grid.undoStack.length > 0) {
+    for (const action of grid.undoStack) {
+      if (edgeActionTypes.includes(action.type)) {
+        return true;
+      }
+    }
+  }
+
+  // Check redo stack
+  if (grid.redoStack && grid.redoStack.length > 0) {
+    for (const action of grid.redoStack) {
+      if (edgeActionTypes.includes(action.type)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 // Helper function to check if a grid has any block cube decorations
 function hasBlockCubeDecorations(grid) {
   if (!grid || !grid.edges) return false;
@@ -17925,10 +17966,21 @@ function setMode(newMode) {
       }
     }
 
-    // Leaving an edge editing mode - unload edge collision if no other modes need it
+    // Leaving an edge editing mode - potentially unload edge collision
     if (oldModeNeedsEdges && !newModeNeedsEdges) {
-      console.log(`[setMode] Leaving edge editing mode "${oldMode}", unloading edge collision`);
-      unloadEdgeCollision(currentGrid);
+      // Only unload if ALL conditions are met:
+      // 1. No manually colored edges exist
+      // 2. No edge operations in history
+      const shouldUnload =
+        !hasManuallyColoredEdges(currentGrid) &&
+        !hasEdgeOperationsInHistory(currentGrid);
+
+      if (shouldUnload) {
+        console.log(`[setMode] Leaving edge editing mode "${oldMode}", unloading edge collision`);
+        unloadEdgeCollision(currentGrid);
+      } else {
+        console.log(`[setMode] Leaving edge editing mode "${oldMode}", keeping edge collision loaded (needed by manually added/colored edges or history)`);
+      }
     }
   }
 
