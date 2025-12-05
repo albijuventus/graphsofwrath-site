@@ -10894,8 +10894,9 @@ async function restoreGridFromSnapshot(snapshot) {
 function undoBackbite(data) {
   currentGrid.path = [...data.oldPath];
   currentPath = currentGrid.path;
-  
-  // Rebuild subgraph
+
+  // Rebuild subgraph and update visuals in batch mode
+  batchMode = true;  // Use GLOBAL batchMode, not currentGrid.batchMode
   currentGrid.activeSubgraph.clear();
   for (let i = 0; i < currentGrid.path.length - 1; i++) {
     const a = unpackVertex(currentGrid.path[i], currentGrid);
@@ -10903,21 +10904,55 @@ function undoBackbite(data) {
     currentGrid.activeSubgraph.addEdge(a, b);
   }
 
-  // Update visuals
+  // Update visuals (still in batch mode)
   if (gradientMode) {
     applyGradientToPath();
   } else {
     updateEdgeMeshesFromSubgraph(currentGrid, currentGrid.activeSubgraph);
   }
 
+  batchMode = false;
+
+  // Sync GPU once after all batch operations
+  if (currentGrid.chunks) {
+    for (const chunk of currentGrid.chunks.values()) {
+      if (chunk.instancedEdgesThin) {
+        chunk.instancedEdgesThin.instanceMatrix.needsUpdate = true;
+        chunk.instancedEdgesThin.instanceColor.needsUpdate = true;
+      }
+      if (chunk.instancedEdgesThick) {
+        chunk.instancedEdgesThick.instanceMatrix.needsUpdate = true;
+        chunk.instancedEdgesThick.instanceColor.needsUpdate = true;
+      }
+    }
+  }
+
   updateEndpointMarkers();
 
   if (arrowMode && currentGrid.path) {
-    // Remove all arrows first
-    for (const [key, edge] of currentGrid.edges.entries()) {
-      removeArrowsFromEdge(edge);
+    // OPTIMIZATION: Only remove arrows from path edges, not all grid edges
+    currentGrid.batchMode = true;
+    if (currentGrid.edgeToArrowInstanceMap && currentGrid.edgeToArrowInstanceMap.size > 0) {
+      const arrowEdgeKeys = Array.from(currentGrid.edgeToArrowInstanceMap.keys());
+      for (const eKey of arrowEdgeKeys) {
+        const edge = currentGrid.edges.get(eKey);
+        if (edge) {
+          removeArrowsFromEdge(edge, eKey);
+        }
+      }
     }
+
     addDirectionalArrowsToPath(currentGrid.path);
+    currentGrid.batchMode = false;
+
+    // Sync GPU once after batch operation
+    if (currentGrid.instancedArrowsForward) {
+      currentGrid.instancedArrowsForward.instanceMatrix.needsUpdate = true;
+    }
+    if (currentGrid.instancedArrowsBackward) {
+      currentGrid.instancedArrowsBackward.instanceMatrix.needsUpdate = true;
+    }
+    updateArrowInstanceCounts(currentGrid);
   }
 }
 
@@ -10925,29 +10960,64 @@ function redoBackbite(data) {
   currentGrid.path = [...data.newPath];
   currentPath = currentGrid.path;
 
-  // Rebuild subgraph
+  // Rebuild subgraph and update visuals in batch mode
+  batchMode = true;  // Use GLOBAL batchMode, not currentGrid.batchMode
   currentGrid.activeSubgraph.clear();
   for (let i = 0; i < currentGrid.path.length - 1; i++) {
     const a = unpackVertex(currentGrid.path[i], currentGrid);
     const b = unpackVertex(currentGrid.path[i + 1], currentGrid);
     currentGrid.activeSubgraph.addEdge(a, b);
   }
-  
-  // Update visuals
+
+  // Update visuals (still in batch mode)
   if (gradientMode) {
     applyGradientToPath();
   } else {
     updateEdgeMeshesFromSubgraph(currentGrid, currentGrid.activeSubgraph);
   }
-  
-  updateEndpointMarkers();
-  
-  if (arrowMode && currentGrid.path) {
-    // Remove all arrows first
-    for (const [key, edge] of currentGrid.edges.entries()) {
-      removeArrowsFromEdge(edge);
+
+  batchMode = false;
+
+  // Sync GPU once after all batch operations
+  if (currentGrid.chunks) {
+    for (const chunk of currentGrid.chunks.values()) {
+      if (chunk.instancedEdgesThin) {
+        chunk.instancedEdgesThin.instanceMatrix.needsUpdate = true;
+        chunk.instancedEdgesThin.instanceColor.needsUpdate = true;
+      }
+      if (chunk.instancedEdgesThick) {
+        chunk.instancedEdgesThick.instanceMatrix.needsUpdate = true;
+        chunk.instancedEdgesThick.instanceColor.needsUpdate = true;
+      }
     }
+  }
+
+  updateEndpointMarkers();
+
+  if (arrowMode && currentGrid.path) {
+    // OPTIMIZATION: Only remove arrows from path edges, not all grid edges
+    currentGrid.batchMode = true;
+    if (currentGrid.edgeToArrowInstanceMap && currentGrid.edgeToArrowInstanceMap.size > 0) {
+      const arrowEdgeKeys = Array.from(currentGrid.edgeToArrowInstanceMap.keys());
+      for (const eKey of arrowEdgeKeys) {
+        const edge = currentGrid.edges.get(eKey);
+        if (edge) {
+          removeArrowsFromEdge(edge, eKey);
+        }
+      }
+    }
+
     addDirectionalArrowsToPath(currentGrid.path);
+    currentGrid.batchMode = false;
+
+    // Sync GPU once after batch operation
+    if (currentGrid.instancedArrowsForward) {
+      currentGrid.instancedArrowsForward.instanceMatrix.needsUpdate = true;
+    }
+    if (currentGrid.instancedArrowsBackward) {
+      currentGrid.instancedArrowsBackward.instanceMatrix.needsUpdate = true;
+    }
+    updateArrowInstanceCounts(currentGrid);
   }
 }
 
@@ -13986,9 +14056,13 @@ function toggleActiveEndpoint() {
         }
       }
     }
+
+    // Redraw arrows in the new path direction (still in batch mode)
+    addDirectionalArrowsToPath(currentGrid.path);
+
     currentGrid.batchMode = false;
 
-    // Sync GPU once after batch removal
+    // Sync GPU once after batch removal and addition
     if (currentGrid.instancedArrowsForward) {
       currentGrid.instancedArrowsForward.instanceMatrix.needsUpdate = true;
     }
@@ -13996,9 +14070,6 @@ function toggleActiveEndpoint() {
       currentGrid.instancedArrowsBackward.instanceMatrix.needsUpdate = true;
     }
     updateArrowInstanceCounts(currentGrid);
-
-    // Redraw arrows in the new path direction
-    addDirectionalArrowsToPath(currentGrid.path);
   }
   
   // Reapply gradient if active
@@ -19946,6 +20017,85 @@ document.getElementById("coordinateHoverCheckbox").addEventListener("change", (e
   // Clear any existing tooltip when toggling
   const existingTooltip = document.getElementById('coordinateTooltip');
   if (existingTooltip) existingTooltip.remove();
+});
+
+// Hover Vertices Checkbox - load/unload vertex spheres for coordinate hover
+document.getElementById("hoverVerticesCheckbox").addEventListener("change", (e) => {
+  hoverVertices = e.target.checked;
+
+  if (!currentGrid || !currentGrid.isInstanced) return;
+
+  if (hoverVertices) {
+    // Load vertex spheres if not already loaded
+    if (lazyLoadVertexSpheres) {
+      let needsLoading = false;
+      if (currentGrid.chunks && currentGrid.chunks.size > 0) {
+        const firstChunk = currentGrid.chunks.values().next().value;
+        if (!firstChunk.instancedVertexSpheres && !firstChunk.instancedVertexCollisionHelpers) {
+          needsLoading = true;
+        }
+      }
+
+      if (needsLoading) {
+        console.log('[hoverVerticesCheckbox] Loading vertex spheres for coordinate hover');
+        loadVertexSpheres(currentGrid);
+      }
+    }
+  } else {
+    // Unload vertex spheres ONLY if no manual vertices or vertex operations exist
+    if (lazyLoadVertexSpheres) {
+      const shouldUnload =
+        !showAllVertices &&
+        !hasColoredVertices(currentGrid) &&
+        !hasVertexOperationsInHistory(currentGrid);
+
+      if (shouldUnload) {
+        console.log('[hoverVerticesCheckbox] Unloading vertex spheres');
+        unloadVertexSpheres(currentGrid);
+      } else {
+        console.log('[hoverVerticesCheckbox] Keeping vertex spheres loaded (needed by other systems)');
+      }
+    }
+  }
+});
+
+// Hover Edges Checkbox - load/unload edge collision for coordinate hover
+document.getElementById("hoverEdgesCheckbox").addEventListener("change", (e) => {
+  hoverEdges = e.target.checked;
+
+  if (!currentGrid || !currentGrid.isInstanced) return;
+
+  if (hoverEdges) {
+    // Load edge collision if not already loaded
+    if (lazyLoadEdgeCollision) {
+      let needsLoading = false;
+      if (currentGrid.chunks && currentGrid.chunks.size > 0) {
+        const firstChunk = currentGrid.chunks.values().next().value;
+        if (!firstChunk.instancedEdgesCollision) {
+          needsLoading = true;
+        }
+      }
+
+      if (needsLoading) {
+        console.log('[hoverEdgesCheckbox] Loading edge collision for coordinate hover');
+        loadEdgeCollision(currentGrid);
+      }
+    }
+  } else {
+    // Unload edge collision ONLY if no manual edges or edge operations exist
+    if (lazyLoadEdgeCollision) {
+      const shouldUnload =
+        !hasManuallyColoredEdges(currentGrid) &&
+        !hasEdgeOperationsInHistory(currentGrid);
+
+      if (shouldUnload) {
+        console.log('[hoverEdgesCheckbox] Unloading edge collision');
+        unloadEdgeCollision(currentGrid);
+      } else {
+        console.log('[hoverEdgesCheckbox] Keeping edge collision loaded (needed by manually added edges)');
+      }
+    }
+  }
 });
 
 // Show/hide coordinate hover panel on main screen
@@ -26168,6 +26318,91 @@ class HamiltonianPath {
     };
   }
 }
+
+
+/*
+================================================================================
+                          BUG HISTORY & RECURRING ISSUES
+================================================================================
+
+This section documents bugs that have occurred multiple times or are subtle
+enough that they could easily be reintroduced. When fixing a bug, add an entry
+here with:
+  - Date
+  - Symptom
+  - Root cause
+  - Fix applied
+  - How to prevent recurrence
+
+================================================================================
+
+[BUG-001] RECURRING: batchMode inconsistency causing performance freezes
+  Date: Dec 2024 (occurred 3+ times)
+
+  Symptom:
+    - Undo/redo backbite takes 8+ seconds on small grids (16^3)
+    - Manual backbite freezes
+    - Path reversal (T key) freezes
+
+  Root Cause:
+    - Codebase uses TWO different batchMode variables:
+      1. Global `batchMode` (line ~4672)
+      2. `currentGrid.batchMode` (grid-specific property)
+    - Subgraph.addEdge() checks global `batchMode` at line ~6511
+    - But some functions set `currentGrid.batchMode` instead
+    - This causes updateSubgraphComponentDropdowns() → _findConnectedComponents()
+      to run on EVERY edge addition (N times instead of 1 time)
+    - For 1700 edge path = 1700 BFS traversals = billions of operations
+
+  Fix Applied:
+    - Changed undoBackbite() and redoBackbite() to use global `batchMode`
+    - Changed toggleActiveEndpoint() to use global `batchMode`
+
+  Prevention:
+    - ALWAYS use global `batchMode`, NEVER `currentGrid.batchMode`
+    - When adding batch operations, grep for "batchMode =" and verify
+      you're setting the global variable
+    - Consider: Eliminate `grid.batchMode` property entirely to prevent confusion
+
+  Affected Functions:
+    - undoBackbite() (line ~10900)
+    - redoBackbite() (line ~10960)
+    - toggleActiveEndpoint() (line ~13980)
+    - Subgraph.addEdge() (line ~6511)
+
+================================================================================
+
+[BUG-002] RECURRING: JavaScript falsy value bugs (0, null, undefined)
+  Date: Multiple occurrences throughout development
+
+  Symptom:
+    - Vertex at coordinate (0,0,0) not being found/processed
+    - Functions returning early when value is 0
+    - Conditionals treating 0 as "no value"
+
+  Root Cause:
+    - JavaScript treats 0, null, undefined, "", false, NaN as falsy
+    - Checks like `if (!value)` or `if (value)` fail when value is 0
+    - Grid coordinates can legitimately be 0
+    - Vertex keys, edge keys, indices can be 0
+
+  Prevention:
+    - Use explicit checks: `if (value === null)` or `if (value === undefined)`
+    - For numbers: `if (typeof value === 'number')` or `if (value !== null && value !== undefined)`
+    - Never use `if (!value)` when 0 is a valid value
+    - Be especially careful with:
+      * Vertex coordinates (x, y, z can be 0)
+      * Array indices (0 is valid)
+      * Vertex/edge keys (can encode to 0)
+
+  Common Fixes:
+    - BAD:  `if (!vKey) return;`
+    - GOOD: `if (vKey === null || vKey === undefined) return;`
+    - BAD:  `if (vertex)`
+    - GOOD: `if (vertex !== null && vertex !== undefined)`
+
+================================================================================
+*/
 
   </script>
 </body>
