@@ -4617,7 +4617,186 @@ input[type=number] {
     // Build: GL-2025-11A7B91F3E-YORK
     // Dev: ALBI.YORK.RGH.2024
     // ============================================================================
-    
+
+/*
+================================================================================
+                            TABLE OF CONTENTS
+================================================================================
+
+SECTION 1: CONSTANTS & GLOBAL VARIABLES (~4620-4780)
+  - Distinctive constants (fingerprint markers)
+  - Global variables (grids, modes, settings)
+  - Rendering constants (radii, colors, thresholds)
+
+SECTION 2: RENDERING OPTIMIZATION & PERFORMANCE (~4786-5257)
+  - Triangle counting & estimation
+  - Rendering optimizer
+  - Performance warnings & vertex limits
+  - Auto-theme switching
+
+SECTION 3: CHUNKING SYSTEM (~5258-5434)
+  - Optimal chunk size calculation
+  - Chunk key generation
+  - Chunk boundary calculations
+  - Chunk data structures
+
+SECTION 4: GRID CREATION & MANAGEMENT (~5436-6413)
+  - Grid data structures
+  - Vertex/Edge creation
+  - Vertex/Edge key functions (encoding/decoding)
+  - Grid disposal
+
+SECTION 5: GRID CONTENT BUILDING (~6414-7441)
+  - Box creation (XY, XZ, YZ planes)
+  - Grid geometry initialization
+
+SECTION 6: SUBGRAPH CLASS (~6482-7441)
+  - Subgraph data structure
+  - Component analysis
+  - Path/cycle detection
+  - Arrow direction management
+
+SECTION 7: INSTANCED RENDERING SYSTEM (~7442-9217)
+  - Instanced edge rendering (IER)
+  - Instanced box rendering
+  - Instanced arrow rendering
+  - Instanced vertex sphere rendering
+  - Lazy loading functions (edges, vertices, arrows, boxes, cubes)
+
+SECTION 8: UNDO/REDO SYSTEM (~8988-11447)
+  - Core undo/redo (recordAction, performUndo, performRedo)
+  - Helper validation functions
+  - Action handlers (vertex, edge, backbite, switch, layer operations)
+  - State capture functions
+  - State restoration functions
+
+SECTION 9: GEOMETRY REBUILDING (~9218-10433)
+  - Edge segment rebuilding
+  - Vertex detail/radius rebuilding
+  - Frustum culling
+  - LOD (Level of Detail) system
+
+SECTION 10: GRID EXPANSION & CONTRACTION (~11448-12227)
+  - Layer expansion
+  - Layer removal
+  - Coordinate translation
+  - Subgraph preservation
+
+SECTION 11: PATH GENERATION & ALGORITHMS (~12228-13182)
+  - Hamiltonian path generation
+  - Snake path generation
+  - Backbite algorithm (optimized & array-based)
+  - Cycle generation
+  - Path extraction from subgraph
+
+SECTION 12: ENDPOINT & ARROW MANAGEMENT (~13183-13833)
+  - Endpoint markers
+  - Arrow textures & materials
+  - Arrow addition/removal (normal & instanced)
+  - Directional arrow application
+
+SECTION 13: BACKBITE OPERATIONS (~13900-14109)
+  - Valid backbite edge detection
+  - Endpoint toggling
+  - Manual backbite execution
+
+SECTION 14: COLOR & GRADIENT FUNCTIONS (~14115-14480)
+  - Color utilities (hex/RGB conversion, interpolation)
+  - Edge coloring (instanced & individual)
+  - Gradient application
+  - Hamiltonian checking
+
+SECTION 15: SWITCH MODE & BOX OPERATIONS (~14483-17569)
+  - Box validation (isSwitchable)
+  - Grid duplication
+  - Drag & drop handlers
+  - Grid button management
+  - State copying (edges, subgraphs)
+  - Switch execution
+
+SECTION 16: EDGE & VERTEX INTERACTIONS (~15357-16177)
+  - Edge click handlers
+  - Block cube operations
+  - Vertex sphere toggle & creation
+  - Vertex decorations
+  - BB Distance operations
+
+SECTION 17: COORDINATE DISPLAY & UI (~16186-17170)
+  - Coordinate tooltips
+  - Coordinate hover handling
+  - Underlying grid & axes
+  - Transparent planes
+
+SECTION 18: SUBGRAPH HIGHLIGHTING (~17171-17900)
+  - Component coloring
+  - Border box detection
+  - Box highlighting
+  - Component labeling
+
+SECTION 19: MODE MANAGEMENT (~17901-18122)
+  - setMode() function
+  - Mode button state updates
+  - Collision helper visibility
+
+SECTION 20: EVENT LISTENERS & UI HANDLERS (~18123-20636)
+  - Button click handlers
+  - Keyboard shortcuts
+  - Checkbox change handlers
+  - Theme management
+  - Color interface
+  - Layer menus
+
+SECTION 21: MODAL DIALOGS & WARNINGS (~20636-21239)
+  - Backbite warnings
+  - Performance warnings
+  - Quit dialogs
+
+SECTION 22: SUBGRAPH ANALYSIS PANEL (~19985-20348)
+  - Component dropdown updates
+  - Analysis modal
+  - Orient/Reverse operations
+
+SECTION 23: NOTES EDITOR (~19558-19794)
+  - Quill editor initialization
+  - Notes save/load for grids
+
+SECTION 24: FLARE EFFECTS (~19796-19984)
+  - Flare texture creation
+  - Flare animation
+
+SECTION 25: MOUSE INTERACTION (~22811-24445)
+  - Click handlers (onClick, onMouseDown, onMouseUp)
+  - Mouse move & hover handlers
+  - Edge/vertex/box hover logic
+  - Arrow direction determination
+
+SECTION 26: MEMORY MONITORING (~24546-24696)
+  - Memory breakdown calculation
+  - Memory display updates
+
+SECTION 27: ANIMATION & RENDERING LOOP (~24697-24862)
+  - Main animate() function
+  - Flare updates
+  - Camera controls
+
+SECTION 28: SAVE/LOAD SYSTEM (~24863-25750)
+  - State serialization
+  - File operations (save/load)
+  - Grid state restoration
+  - Visibility updates
+
+SECTION 29: THEME MANAGEMENT (~18541-18912)
+  - Theme switching (light/dark)
+  - Auto-theme by time of day
+  - Theme-aware UI updates
+
+SECTION 30: BUG HISTORY & DOCUMENTATION (~26244+)
+  - Recurring bug documentation
+  - Known issues & fixes
+
+================================================================================
+*/
+
     // === DISTINCTIVE CONSTANTS (Fingerprint markers) ===
     const VERTEX_SPHERE_RADIUS = 0.12; // Unique sphere radius for vertices
     const ENDPOINT_MARKER_RADIUS = 0.18; // Unique endpoint marker size
@@ -5224,37 +5403,10 @@ let fpsLastTime = performance.now();
 let fpsUpdateInterval = 500; // Update FPS display every 500ms
 let lastFrameTime = performance.now();
 
-// Auto-switch theme by time of day
+// Auto-switch theme by time of day (variables - functions relocated to THEME MANAGEMENT section)
 let autoSwitchThemeEnabled = localStorage.getItem('autoSwitchThemeEnabled') === 'true'; // Toggle for auto-switching theme
 let lastAutoSwitchCheck = 0; // Timestamp of last auto-switch check
 const autoSwitchCheckInterval = 60000; // Check every 60 seconds
-
-// Get current hour and determine theme
-function getThemeByTime() {
-  const now = new Date();
-  const hour = now.getHours();
-  // Dark mode: 12am (0) to 8am (8), Light mode: 8am to 12am (0)
-  return (hour >= 0 && hour < 8) ? 'dark' : 'paper-white';
-}
-
-// Auto-switch theme based on time
-function checkAndApplyAutoTheme() {
-  if (!autoSwitchThemeEnabled) return;
-
-  const currentTime = performance.now();
-  if (currentTime - lastAutoSwitchCheck < autoSwitchCheckInterval) return;
-
-  lastAutoSwitchCheck = currentTime;
-
-  const requiredTheme = getThemeByTime();
-  const themeSelect = document.getElementById('themeSelect');
-
-  if (themeSelect && themeSelect.value !== requiredTheme) {
-    themeSelect.value = requiredTheme;
-    updateTheme(requiredTheme);
-  }
-}
-
 
 
 //     ====================================================================================================================
@@ -9005,12 +9157,18 @@ function recordAction(actionType, actionData) {
 
 
 async function performUndo() {
+  console.log('[performUndo] *** CALLED ***', {
+    hasGrid: !!currentGrid,
+    stackLength: currentGrid ? currentGrid.undoStack.length : 0
+  });
+
   if (!currentGrid || currentGrid.undoStack.length === 0) {
     console.log("Nothing to undo");
     return;
   }
 
   const action = currentGrid.undoStack.pop();
+  console.log('[performUndo] Popped action:', action.type, action);
 
   // Execute the undo operation
   switch (action.type) {
@@ -9085,6 +9243,254 @@ async function performRedo() {
 
   currentGrid.undoStack.push(action);
 }
+
+
+//     =======================================
+// 		*** 11.1 State Capture Functions ***
+//     =======================================
+
+// State capture helper functions
+function captureVertexSphereState(vertexKey) {
+  // Check if there's a vertex sphere
+  if (currentGrid.vertexSpheres.has(vertexKey)) {
+    const sphereData = currentGrid.vertexSpheres.get(vertexKey);
+
+    // Get color (works for both instanced and individual mode)
+    const color = currentGrid.isInstanced
+      ? sphereData.color
+      : sphereData.sphere.material.color.getHex();
+
+    const state = {
+      color: color,
+      hasDecoration: !!sphereData.decoration,
+      isStandalone: false
+    };
+
+    if (state.hasDecoration && sphereData.decoration) {
+      if (sphereData.decoration.children && sphereData.decoration.children.length > 0) {
+        state.decorationColor = sphereData.decoration.children[0].material.color.getHex();
+      }
+    }
+
+    return state;
+  }
+
+  // Check if there's a standalone decoration (decoration without vertex sphere)
+  if (currentGrid.standaloneDecorations && currentGrid.standaloneDecorations.has(vertexKey)) {
+    const decorationData = currentGrid.standaloneDecorations.get(vertexKey);
+    const state = {
+      color: null, // No vertex sphere
+      hasDecoration: true,
+      isStandalone: true
+    };
+
+    if (decorationData.decorationGroup && decorationData.decorationGroup.children && decorationData.decorationGroup.children.length > 0) {
+      state.decorationColor = decorationData.decorationGroup.children[0].material.color.getHex();
+    }
+
+    return state;
+  }
+
+  // No vertex sphere and no standalone decoration
+  return null;
+}
+
+function captureEdgeState(edgeKey) {
+  const edge = currentGrid.edges.get(edgeKey);
+  if (!edge) return null;
+
+  return {
+    color: edge.color,
+    hasArrows: !!edge.arrows,
+    arrowDirection: edge.arrowDirection || 0,
+    hasBlockCube: !!edge.blockCube
+  };
+}
+
+function captureCompleteGridState() {
+  return {
+    dimensions: {
+      width: currentGrid.width,
+      height: currentGrid.height,
+      depth: currentGrid.depth
+    },
+    edges: captureAllEdgeStates(),
+    vertices: captureAllVertexStates(),
+    path: currentGrid.path ? [...currentGrid.path] : null
+  };
+}
+
+function captureAllEdgeStates() {
+  const edgeStates = {};
+  for (const [edgeKey, edge] of currentGrid.edges.entries()) {
+    const needsSaving = edge.color !== UNCOLORED_COLOR ||
+                       edge.arrows ||
+                       edge.blockCube;
+
+    if (needsSaving) {
+      edgeStates[edgeKey] = captureEdgeState(edgeKey);
+    }
+  }
+  return edgeStates;
+}
+
+function captureAllVertexStates() {
+  const vertexStates = {};
+
+  // Capture vertex spheres (with or without decorations)
+  if (currentGrid.vertexSpheres) {
+    for (const [vertexKey, sphereData] of currentGrid.vertexSpheres.entries()) {
+      vertexStates[vertexKey] = captureVertexSphereState(vertexKey);
+    }
+  }
+
+  // Also capture standalone decorations (decorations without vertex spheres)
+  if (currentGrid.standaloneDecorations) {
+    for (const vertexKey of currentGrid.standaloneDecorations.keys()) {
+      // Only capture if we haven't already captured it (to avoid duplicates)
+      if (!vertexStates[vertexKey]) {
+        vertexStates[vertexKey] = captureVertexSphereState(vertexKey);
+      }
+    }
+  }
+
+  return vertexStates;
+}
+
+
+//     =======================================
+// 		*** 11.2 State Restoration Functions ***
+//     =======================================
+
+// State restoration helper functions
+function restoreEdgeStatesFromSnapshot(snapshot) {
+  for (const [edgeKeyStr, edgeState] of Object.entries(snapshot.edges)) {
+    const edgeKey = Number(edgeKeyStr); // Convert string back to number
+    const [a, b] = unpackEdge(edgeKey, currentGrid);
+
+    if (currentGrid.edges.has(edgeKey)) {
+      colorEdge(currentGrid, a, b, edgeState.color, edgeState.color === UNCOLORED_COLOR ? thinEdgeRadius : thickEdgeRadius);
+
+      const edge = currentGrid.edges.get(edgeKey);
+
+      if (edgeState.hasBlockCube) {
+		if (currentGrid.isInstanced) {
+			addBlockCubeInstanced(currentGrid, edge, edgeKey);
+		} else {
+			addBlockCube(edge);
+		}
+	}
+
+      if (edgeState.hasArrows && edgeState.arrowDirection) {
+        addArrowsToEdge(edge, edgeState.arrowDirection);
+      }
+    }
+  }
+}
+
+function restoreVertexStatesFromSnapshot(snapshot) {
+  for (const [vertexKeyStr, vertexState] of Object.entries(snapshot.vertices)) {
+    const vertexKey = Number(vertexKeyStr); // Convert string back to number
+
+    // Only create vertex sphere if there was one (not just standalone decoration)
+    if (vertexState.color !== null && !vertexState.isStandalone) {
+      createVertexSphere(currentGrid, vertexKey, vertexState.color);
+    }
+
+    if (vertexState.hasDecoration && vertexState.decorationColor) {
+      addVertexDecoration(currentGrid, vertexKey, vertexState.decorationColor);
+    }
+  }
+}
+
+function restorePathFromSnapshot(snapshot) {
+  if (snapshot.path && snapshot.path.length > 0) {
+    currentGrid.path = [...snapshot.path];
+
+    // Rebuild activeSubgraph from path
+    currentGrid.activeSubgraph = new Subgraph(currentGrid);
+    for (let i = 0; i < snapshot.path.length - 1; i++) {
+      const a = unpackVertex(snapshot.path[i], currentGrid);
+      const b = unpackVertex(snapshot.path[i + 1], currentGrid);
+      currentGrid.activeSubgraph.edges.add(edgeKey(a, b, currentGrid));
+      currentGrid.activeSubgraph.vertices.add(snapshot.path[i]);
+      currentGrid.activeSubgraph.vertices.add(snapshot.path[i + 1]);
+    }
+
+    // Check if this was a cycle and handle endpoint markers
+    const totalVertices = currentGrid.width * currentGrid.height * currentGrid.depth;
+    const isCycle = snapshot.path.length === totalVertices;
+
+    if (!isCycle && snapshot.path.length >= 2) {
+      updateEndpointMarkers(currentGrid);
+    }
+  }
+}
+
+async function restoreGridFromSnapshot(snapshot) {
+  console.log('[restoreGridFromSnapshot] *** FUNCTION CALLED ***', snapshot);
+
+  // Update global dimensions
+  GRID_WIDTH = snapshot.dimensions.width;
+  GRID_HEIGHT = snapshot.dimensions.height;
+  GRID_DEPTH = snapshot.dimensions.depth;
+
+  // Update grid properties
+  currentGrid.width = snapshot.dimensions.width;
+  currentGrid.height = snapshot.dimensions.height;
+  currentGrid.depth = snapshot.dimensions.depth;
+
+  // Rebuild basic structure - MUST AWAIT for grid to be fully built
+  await buildGridContent(currentGrid);
+
+  // LAZY LOADING FIX: Force load geometry if needed for restoration
+  console.log('[restoreGridFromSnapshot] Checking what geometry needs loading...', {
+    snapshotVertices: snapshot.vertices ? Object.keys(snapshot.vertices).length : 0,
+    snapshotEdges: snapshot.edges ? Object.keys(snapshot.edges).length : 0,
+    lazyLoadVertexSpheres,
+    lazyLoadEdgeCollision,
+    isInstanced: currentGrid.isInstanced
+  });
+
+  // ALWAYS load edge collision helpers (cheap and needed for clicking edges)
+  if (lazyLoadEdgeCollision && currentGrid.isInstanced) {
+    console.log('[restoreGridFromSnapshot] Loading edge collision (always needed for clicking)');
+    loadEdgeCollision(currentGrid);
+  }
+
+  // Check if we have vertex states to restore - if yes, load vertex spheres
+  const hasVertexStates = snapshot.vertices && Object.keys(snapshot.vertices).length > 0;
+  if (hasVertexStates && lazyLoadVertexSpheres && currentGrid.isInstanced) {
+    console.log('[restoreGridFromSnapshot] Loading vertex spheres (found', Object.keys(snapshot.vertices).length, 'vertices to restore)');
+    loadVertexSpheres(currentGrid);
+  } else {
+    console.log('[restoreGridFromSnapshot] Skipping vertex spheres load', { hasVertexStates, lazyLoadVertexSpheres, isInstanced: currentGrid.isInstanced });
+  }
+
+  // Check if we have edge states with block cubes - if yes, load block cubes
+  const hasBlockCubes = snapshot.edges && Object.values(snapshot.edges).some(e => e.hasBlockCube);
+  if (hasBlockCubes && lazyLoadEdgeCollision && currentGrid.isInstanced) {
+    console.log('[restoreGridFromSnapshot] Loading block cubes (found block cubes to restore)');
+    loadBlockCubes(currentGrid);
+  } else {
+    console.log('[restoreGridFromSnapshot] Skipping block cubes load', { hasBlockCubes });
+  }
+
+  // Restore all states using existing restoration logic
+  restoreEdgeStatesFromSnapshot(snapshot);
+  restoreVertexStatesFromSnapshot(snapshot);
+  restorePathFromSnapshot(snapshot);
+
+  // Update dimension UI
+  document.getElementById("widthInput").value = snapshot.dimensions.width;
+  document.getElementById("heightInput").value = snapshot.dimensions.height;
+  document.getElementById("depthInput").value = snapshot.dimensions.depth;
+}
+
+
+//     =======================================
+// 		*** 11.3 Action Handlers ***
+//     =======================================
 
 // Helper function to check if a grid has any colored/added vertices
 function hasColoredVertices(grid) {
@@ -9421,6 +9827,11 @@ function rebuildVerticesWithNewDetail(grid, newSubdivisions) {
     grid.lodState.lastRebuildTime = performance.now();
   }
 }
+
+
+//     =======================================
+// 		*** 10.2 Geometry Rebuild Functions ***
+//     =======================================
 
 // Rebuild vertex geometry for a single chunk with new radius
 function rebuildChunkVerticesWithNewRadius(grid, chunk, chunkKey, newRadius) {
@@ -10542,6 +10953,9 @@ function calculateGridCenter() {
   };
 }
 
+
+//     ----- Vertex Operations -----
+
 // Vertex sphere undo/redo functions
 function undoVertexSphere(actionData) {
   const { vertexKey, beforeState } = actionData;
@@ -10747,7 +11161,7 @@ function redoClearAllVertices(actionData) {
 }
 
 
-
+//     ----- Edge Operations -----
 
 // Edge state undo/redo functions
 function undoEdgeState(actionData) {
@@ -10824,8 +11238,12 @@ function redoEdgeState(actionData) {
   }
 }
 
+
+//     ----- Layer Operations -----
+
 // Layer operation undo/redo functions
 async function undoLayerOperation(actionData) {
+  console.log('[undoLayerOperation] *** UNDO LAYER CALLED ***', actionData);
   const { beforeState } = actionData;
 
   // Save current camera state
@@ -10836,7 +11254,9 @@ async function undoLayerOperation(actionData) {
   clearCurrentGridContents();
 
   // Restore from complete state snapshot
+  console.log('[undoLayerOperation] About to call restoreGridFromSnapshot...');
   await restoreGridFromSnapshot(beforeState);
+  console.log('[undoLayerOperation] restoreGridFromSnapshot completed');
 
   // Restore camera
   camera.position.copy(currentCameraPos);
@@ -10863,32 +11283,8 @@ async function redoLayerOperation(actionData) {
   controls.update();
 }
 
-async function restoreGridFromSnapshot(snapshot) {
-  // Update global dimensions
-  GRID_WIDTH = snapshot.dimensions.width;
-  GRID_HEIGHT = snapshot.dimensions.height;
-  GRID_DEPTH = snapshot.dimensions.depth;
 
-  // Update grid properties
-  currentGrid.width = snapshot.dimensions.width;
-  currentGrid.height = snapshot.dimensions.height;
-  currentGrid.depth = snapshot.dimensions.depth;
-
-  // Rebuild basic structure - MUST AWAIT for grid to be fully built
-  await buildGridContent(currentGrid);
-
-  // Restore all states using existing restoration logic
-  restoreEdgeStatesFromSnapshot(snapshot);
-  restoreVertexStatesFromSnapshot(snapshot);
-  restorePathFromSnapshot(snapshot);
-
-  // Update dimension UI
-  document.getElementById("widthInput").value = snapshot.dimensions.width;
-  document.getElementById("heightInput").value = snapshot.dimensions.height;
-  document.getElementById("depthInput").value = snapshot.dimensions.depth;
-}
-
-
+//     ----- Path Operations -----
 
 // Backbite undo/redo handlers
 function undoBackbite(data) {
@@ -11312,182 +11708,6 @@ function redoSwitch(data) {
   }
   
   console.log("Switch redone");
-}
-
-
-
-// State capture helper functions
-function captureVertexSphereState(vertexKey) {
-  // Check if there's a vertex sphere
-  if (currentGrid.vertexSpheres.has(vertexKey)) {
-    const sphereData = currentGrid.vertexSpheres.get(vertexKey);
-
-    // Get color (works for both instanced and individual mode)
-    const color = currentGrid.isInstanced
-      ? sphereData.color
-      : sphereData.sphere.material.color.getHex();
-
-    const state = {
-      color: color,
-      hasDecoration: !!sphereData.decoration,
-      isStandalone: false
-    };
-
-    if (state.hasDecoration && sphereData.decoration) {
-      if (sphereData.decoration.children && sphereData.decoration.children.length > 0) {
-        state.decorationColor = sphereData.decoration.children[0].material.color.getHex();
-      }
-    }
-
-    return state;
-  }
-
-  // Check if there's a standalone decoration (decoration without vertex sphere)
-  if (currentGrid.standaloneDecorations && currentGrid.standaloneDecorations.has(vertexKey)) {
-    const decorationData = currentGrid.standaloneDecorations.get(vertexKey);
-    const state = {
-      color: null, // No vertex sphere
-      hasDecoration: true,
-      isStandalone: true
-    };
-
-    if (decorationData.decorationGroup && decorationData.decorationGroup.children && decorationData.decorationGroup.children.length > 0) {
-      state.decorationColor = decorationData.decorationGroup.children[0].material.color.getHex();
-    }
-
-    return state;
-  }
-
-  // No vertex sphere and no standalone decoration
-  return null;
-}
-
-function captureEdgeState(edgeKey) {
-  const edge = currentGrid.edges.get(edgeKey);
-  if (!edge) return null;
-  
-  return {
-    color: edge.color,
-    hasArrows: !!edge.arrows,
-    arrowDirection: edge.arrowDirection || 0,
-    hasBlockCube: !!edge.blockCube
-  };
-}
-
-function captureCompleteGridState() {
-  return {
-    dimensions: {
-      width: currentGrid.width,
-      height: currentGrid.height,
-      depth: currentGrid.depth
-    },
-    edges: captureAllEdgeStates(),
-    vertices: captureAllVertexStates(),
-    path: currentGrid.path ? [...currentGrid.path] : null
-  };
-}
-
-function captureAllEdgeStates() {
-  const edgeStates = {};
-  for (const [edgeKey, edge] of currentGrid.edges.entries()) {
-    const needsSaving = edge.color !== UNCOLORED_COLOR || 
-                       edge.arrows || 
-                       edge.blockCube;
-    
-    if (needsSaving) {
-      edgeStates[edgeKey] = captureEdgeState(edgeKey);
-    }
-  }
-  return edgeStates;
-}
-
-function captureAllVertexStates() {
-  const vertexStates = {};
-
-  // Capture vertex spheres (with or without decorations)
-  if (currentGrid.vertexSpheres) {
-    for (const [vertexKey, sphereData] of currentGrid.vertexSpheres.entries()) {
-      vertexStates[vertexKey] = captureVertexSphereState(vertexKey);
-    }
-  }
-
-  // Also capture standalone decorations (decorations without vertex spheres)
-  if (currentGrid.standaloneDecorations) {
-    for (const vertexKey of currentGrid.standaloneDecorations.keys()) {
-      // Only capture if we haven't already captured it (to avoid duplicates)
-      if (!vertexStates[vertexKey]) {
-        vertexStates[vertexKey] = captureVertexSphereState(vertexKey);
-      }
-    }
-  }
-
-  return vertexStates;
-}
-
-
-// State restoration helper functions
-function restoreEdgeStatesFromSnapshot(snapshot) {
-  for (const [edgeKeyStr, edgeState] of Object.entries(snapshot.edges)) {
-    const edgeKey = Number(edgeKeyStr); // Convert string back to number
-    const [a, b] = unpackEdge(edgeKey, currentGrid);
-
-    if (currentGrid.edges.has(edgeKey)) {
-      colorEdge(currentGrid, a, b, edgeState.color, edgeState.color === UNCOLORED_COLOR ? thinEdgeRadius : thickEdgeRadius);
-      
-      const edge = currentGrid.edges.get(edgeKey);
-      
-      if (edgeState.hasBlockCube) {
-		if (currentGrid.isInstanced) {
-			addBlockCubeInstanced(currentGrid, edge, edgeKey);
-		} else {
-			addBlockCube(edge);
-		}
-	}
-      
-      if (edgeState.hasArrows && edgeState.arrowDirection) {
-        addArrowsToEdge(edge, edgeState.arrowDirection);
-      }
-    }
-  }
-}
-
-function restoreVertexStatesFromSnapshot(snapshot) {
-  for (const [vertexKeyStr, vertexState] of Object.entries(snapshot.vertices)) {
-    const vertexKey = Number(vertexKeyStr); // Convert string back to number
-
-    // Only create vertex sphere if there was one (not just standalone decoration)
-    if (vertexState.color !== null && !vertexState.isStandalone) {
-      createVertexSphere(currentGrid, vertexKey, vertexState.color);
-    }
-
-    if (vertexState.hasDecoration && vertexState.decorationColor) {
-      addVertexDecoration(currentGrid, vertexKey, vertexState.decorationColor);
-    }
-  }
-}
-
-function restorePathFromSnapshot(snapshot) {
-  if (snapshot.path && snapshot.path.length > 0) {
-    currentGrid.path = [...snapshot.path];
-    
-    // Rebuild activeSubgraph from path
-    currentGrid.activeSubgraph = new Subgraph(currentGrid);
-    for (let i = 0; i < snapshot.path.length - 1; i++) {
-      const a = unpackVertex(snapshot.path[i], currentGrid);
-      const b = unpackVertex(snapshot.path[i + 1], currentGrid);
-      currentGrid.activeSubgraph.edges.add(edgeKey(a, b, currentGrid));
-      currentGrid.activeSubgraph.vertices.add(snapshot.path[i]);
-      currentGrid.activeSubgraph.vertices.add(snapshot.path[i + 1]);
-    }
-    
-    // Check if this was a cycle and handle endpoint markers
-    const totalVertices = currentGrid.width * currentGrid.height * currentGrid.depth;
-    const isCycle = snapshot.path.length === totalVertices;
-    
-    if (!isCycle && snapshot.path.length >= 2) {
-      updateEndpointMarkers(currentGrid);
-    }
-  }
 }
 
 
@@ -18607,6 +18827,36 @@ document.addEventListener('DOMContentLoaded', function() {
   // Pills are handled by their specific event handlers below
   // (switchPill, backbitePill, gradientPill handlers manage both visual and functional state)
 });
+
+//     ====================================================================================================================
+// 										   		   THEME MANAGEMENT
+//     ====================================================================================================================
+
+// Get current hour and determine theme based on time of day
+function getThemeByTime() {
+  const now = new Date();
+  const hour = now.getHours();
+  // Dark mode: 12am (0) to 8am (8), Light mode: 8am to 12am (0)
+  return (hour >= 0 && hour < 8) ? 'dark' : 'paper-white';
+}
+
+// Auto-switch theme based on time (called from animate loop)
+function checkAndApplyAutoTheme() {
+  if (!autoSwitchThemeEnabled) return;
+
+  const currentTime = performance.now();
+  if (currentTime - lastAutoSwitchCheck < autoSwitchCheckInterval) return;
+
+  lastAutoSwitchCheck = currentTime;
+
+  const requiredTheme = getThemeByTime();
+  const themeSelect = document.getElementById('themeSelect');
+
+  if (themeSelect && themeSelect.value !== requiredTheme) {
+    themeSelect.value = requiredTheme;
+    updateTheme(requiredTheme);
+  }
+}
 
 // Theme update function for sidebar and topbar
 function updateTheme(themeValue, overrideBackground = null) {
