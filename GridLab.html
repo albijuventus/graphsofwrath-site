@@ -25283,7 +25283,8 @@ function serializeGridState() {
       edgeClickEnabled: edgeClickEnabled,
       useInstancedRendering: useInstancedRendering, // Save rendering mode
       showAllVertices: showAllVertices, // Save show all vertices preference
-      autoSwitchThemeEnabled: autoSwitchThemeEnabled // Save auto-switch theme preference
+      autoSwitchThemeEnabled: autoSwitchThemeEnabled, // Save auto-switch theme preference
+      showPlaneHighlighterPanel: document.getElementById('showPlaneHighlighterPanelCheckbox')?.checked ?? false // Save plane panel visibility
     },
     sceneState: {
       coordinatesVisible: scene.userData.coordGroup?.visible || false
@@ -25439,6 +25440,15 @@ function serializeGrid(grid) {
     });
   }
 
+  // Serialize custom planes
+  if (grid.customPlanes && grid.customPlanes.length > 0) {
+    gridData.customPlanes = grid.customPlanes.map(planeData => ({
+      equation: planeData.equation,
+      color: planeData.color,
+      opacity: planeData.opacity
+    }));
+  }
+
   return gridData;
 }
 
@@ -25561,6 +25571,18 @@ async function loadGridState(saveData) {
     const autoSwitchThemeCheckbox = document.getElementById('autoSwitchThemeCheckbox');
     if (autoSwitchThemeCheckbox) {
       autoSwitchThemeCheckbox.checked = autoSwitchThemeEnabled;
+    }
+
+    // Restore plane panel visibility preference
+    const showPlanePanel = gs.showPlaneHighlighterPanel ?? false;
+    const planePanelCheckbox = document.getElementById('showPlaneHighlighterPanelCheckbox');
+    if (planePanelCheckbox) {
+      planePanelCheckbox.checked = showPlanePanel;
+      // Trigger the visibility change
+      const planePanel = document.querySelector('.plane-panel');
+      if (planePanel) {
+        planePanel.style.display = showPlanePanel ? 'block' : 'none';
+      }
     }
 
     // Update UI elements
@@ -25876,6 +25898,21 @@ async function loadGridData(gridId, gridData) {
         isCycle,
         pathLength: gridData.path.length
       });
+    }
+  }
+
+  // Restore custom planes
+  if (gridData.customPlanes && Array.isArray(gridData.customPlanes)) {
+    for (const planeData of gridData.customPlanes) {
+      const { a, b, c, d } = planeData.equation;
+      const color = planeData.color;
+      const opacity = planeData.opacity;
+
+      // Temporarily ensure currentGrid is set for addTransparentPlane
+      const tempCurrentGrid = currentGrid;
+      currentGrid = grid;
+      addTransparentPlane(a, b, c, d, color, opacity);
+      currentGrid = tempCurrentGrid;
     }
   }
 
@@ -26650,6 +26687,51 @@ here with:
     - GOOD: `if (vKey === null || vKey === undefined) return;`
     - BAD:  `if (vertex)`
     - GOOD: `if (vertex !== null && vertex !== undefined)`
+
+================================================================================
+
+
+================================================================================
+                         LOW PRIORITY ENHANCEMENT IDEAS
+================================================================================
+
+This section documents potential improvements that would be nice to have but
+are not critical for current functionality. These can be implemented when
+there's user demand or during feature enhancement phases.
+
+================================================================================
+
+[IDEA-001] Event-driven dynamic triangle budget maintenance
+  Date: Dec 2024
+
+  Concept:
+    - Automatically maintain triangle budget when geometry is dynamically added
+    - Currently, optimizeRenderingSettings() only runs when user clicks "Optimize"
+    - Users can exceed budget by loading vertex spheres, adding cubes, etc.
+
+  Proposed Implementation:
+    - Event-driven (NOT polling/per-frame checking)
+    - Trigger checkAndAdjustTriangleBudget() after these actions:
+      * loadVertexSpheres() - when showing all vertices
+      * addCube() / block placement
+      * addSwitchBox()
+      * Adding arrows/decorations
+      * Toggling thick edges (changes segment count)
+    - Check actual triangle count: renderer.info.render.triangles
+    - If exceeds budget threshold, automatically step up LOD/culling
+    - Optional "Auto-Maintain Budget" checkbox to enable/disable
+
+  Benefits:
+    - Prevents unexpected FPS drops from feature toggles
+    - Matches user expectations ("15M budget" stays at 15M)
+    - Better UX for teaching/demos/users unfamiliar with performance
+
+  Considerations:
+    - Add user notification when auto-adjusting ("Increased LOD to maintain budget")
+    - Keep manual optimization as primary tool
+    - Zero performance overhead (event-driven only)
+
+  Priority: Low - current manual optimizer works well, this is a polish feature
 
 ================================================================================
 */
