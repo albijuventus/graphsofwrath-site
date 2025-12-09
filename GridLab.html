@@ -4090,6 +4090,14 @@ input[type=number] {
           </label>
         </div>
 
+        <!-- Auto Sync View Checkbox -->
+        <div style="display: flex; align-items: center; padding: 6px 0; margin-top: 6px;">
+          <label style="display: flex; align-items: center; cursor: pointer; font-size: 13px; color: #555; user-select: none;">
+            <input type="checkbox" id="autoSyncViewCheckbox" checked style="width: 18px; height: 18px; cursor: pointer; margin-right: 8px;">
+            Auto Sync View (share camera across grids)
+          </label>
+        </div>
+
         <!-- Theme and Background Section -->
         <h2 style="font-size: 15px; color: #2c3e50; margin: 20px 0 10px 0; font-weight: 700;">Theme and Background</h2>
 
@@ -5407,6 +5415,7 @@ let lastFrameTime = performance.now();
 let autoSwitchThemeEnabled = localStorage.getItem('autoSwitchThemeEnabled') === 'true'; // Toggle for auto-switching theme
 let lastAutoSwitchCheck = 0; // Timestamp of last auto-switch check
 const autoSwitchCheckInterval = 60000; // Check every 60 seconds
+let autoSyncView = true; // Toggle for auto-syncing camera view across grids (enabled by default)
 
 
 //     ====================================================================================================================
@@ -6032,6 +6041,12 @@ close.onclick = e => {
    return;
  }
 
+ // If Auto Sync View is enabled and we have a current camera position, copy it to the new grid
+ if (autoSyncView && camera && controls) {
+   grid.cameraPosition = camera.position.clone();
+   grid.cameraTarget = controls.target.clone();
+ }
+
  // Call switchToGrid which adds grid to scene (this is the slow part)
  switchToGrid(id);
 
@@ -6142,13 +6157,17 @@ close.onclick = e => {
  // until path/cycle generation completes
 
  // Automatically reposition camera based on grid size
- const maxDim = Math.max(grid.width, grid.height, grid.depth);
- 
- // Check if this is a 2D grid (any dimension is 1)
- const is2D = grid.width === 1 || grid.height === 1 || grid.depth === 1;
- 
+ // ONLY if autoSyncView is disabled OR this is the first grid
+ const shouldSetDefaultCamera = !autoSyncView || allGrids.size === 1;
 
- if (is2D && use2DCameraMode) {
+ if (shouldSetDefaultCamera) {
+   const maxDim = Math.max(grid.width, grid.height, grid.depth);
+
+   // Check if this is a 2D grid (any dimension is 1)
+   const is2D = grid.width === 1 || grid.height === 1 || grid.depth === 1;
+
+
+   if (is2D && use2DCameraMode) {
    // Fixed overhead position for 2D grids (only if preference is enabled)
    const centerX = (grid.width - 1) / 2;
    const centerY = (grid.height - 1) / 2;
@@ -6205,6 +6224,7 @@ close.onclick = e => {
      controls.update();
    }
  }
+ } // End shouldSetDefaultCamera
 
  console.log(`Grid created with dimensions ${w}×${h}×${d}`);
 }
@@ -6279,9 +6299,11 @@ function updatePreferencesFromGrid(grid) {
 function switchToGrid(id) {
   // Clean up previous grid
   if (currentGrid) {
-    // Save camera
-    currentGrid.cameraPosition = camera.position.clone();
-    currentGrid.cameraTarget = controls.target.clone();
+    // Save camera (only if autoSyncView is disabled)
+    if (!autoSyncView) {
+      currentGrid.cameraPosition = camera.position.clone();
+      currentGrid.cameraTarget = controls.target.clone();
+    }
 
     // Remove previous group's mesh
     scene.remove(currentGrid.group);
@@ -6303,11 +6325,11 @@ function switchToGrid(id) {
 
   // Check if new grid is 2D
   const is2D = grid.width === 1 || grid.height === 1 || grid.depth === 1;
-  
+
   // Configure controls based on grid type and user preference
   if (typeof controls !== "undefined") {
     controls.enabled = true; // Always keep controls enabled
-    
+
     if (is2D && use2DCameraMode) {
       // 2D mode (if preference enabled): allow pan and zoom, disable rotation
       controls.enableRotate = false;
@@ -6323,12 +6345,13 @@ function switchToGrid(id) {
     }
   }
 
-  // Restore camera
-  if (grid.cameraPosition && grid.cameraTarget) {
+  // Restore camera (only if autoSyncView is disabled)
+  if (!autoSyncView && grid.cameraPosition && grid.cameraTarget) {
     camera.position.copy(grid.cameraPosition);
     controls.target.copy(grid.cameraTarget);
     controls.update();
   }
+  // If autoSyncView is enabled, camera stays where it is (shared across all grids)
 
   // Reattach endpoint markers
   if (grid.startMarker && !grid.group.children.includes(grid.startMarker)) {
@@ -6418,6 +6441,46 @@ function switchToGrid(id) {
 	if (scene.userData.coordGroup && scene.userData.coordGroup.visible) {
 	  toggleCoordinateAxes(); // Turn off
 	  toggleCoordinateAxes(); // Turn back on with new grid's dimensions
+	}
+
+	// Load collision helpers based on current active mode
+	// This ensures editing modes work immediately after switching grids
+	if (grid.isInstanced && lazyLoadVertexSpheres) {
+	  if (mode === 'addVertex' || mode === 'addDecoration') {
+	    // Check if vertex collision helpers need loading
+	    let needsLoading = false;
+	    if (grid.chunks && grid.chunks.size > 0) {
+	      const firstChunk = grid.chunks.values().next().value;
+	      if (!firstChunk.instancedVertexCollisionHelpers) {
+	        needsLoading = true;
+	      }
+	    } else if (!grid.instancedVertexCollisionHelpers) {
+	      needsLoading = true;
+	    }
+	    if (needsLoading) {
+	      console.log('[switchToGrid] Loading vertex collision helpers for active mode');
+	      loadVertexSpheres(grid);
+	    }
+	  }
+	}
+
+	if (grid.isInstanced && lazyLoadEdgeCollision) {
+	  if (mode === 'addEdge' || mode === 'addCube' || mode === 'backbite') {
+	    // Check if edge collision helpers need loading
+	    let needsLoading = false;
+	    if (grid.chunks && grid.chunks.size > 0) {
+	      const firstChunk = grid.chunks.values().next().value;
+	      if (!firstChunk.instancedEdgesCollision) {
+	        needsLoading = true;
+	      }
+	    } else if (!grid.instancedEdgesCollision) {
+	      needsLoading = true;
+	    }
+	    if (needsLoading) {
+	      console.log('[switchToGrid] Loading edge collision helpers for active mode');
+	      loadEdgeCollision(grid);
+	    }
+	  }
 	}
 
 	// Force immediate LOD evaluation to ensure correct initial state
@@ -8025,7 +8088,7 @@ function colorEdgeInstanced(grid, a, b, color, width) {
 
 
 
-function addBlockCubeInstanced(grid, edge, eKey) {
+function addBlockCubeInstanced(grid, edge, eKey, color = null) {
   // Find the chunk this edge belongs to
   const chunkKey = grid.edgeToChunk ? grid.edgeToChunk.get(eKey) : null;
   let mapping, instancedBlockCubes;
@@ -8054,14 +8117,16 @@ function addBlockCubeInstanced(grid, edge, eKey) {
 
   instancedBlockCubes.setMatrixAt(mapping.thin, cubeMatrix);
 
-  // Set cube color to secondary color
-  const cubeColor = new THREE.Color(selectedColor2);
+  // Use provided color or default to secondary color
+  const cubeColorHex = color !== null ? color : selectedColor2;
+  const cubeColor = new THREE.Color(cubeColorHex);
   instancedBlockCubes.setColorAt(mapping.thin, cubeColor);
 
   instancedBlockCubes.instanceMatrix.needsUpdate = true;
   instancedBlockCubes.instanceColor.needsUpdate = true;
 
   edge.blockCube = true; // Mark as having a cube
+  edge.blockCubeColor = cubeColorHex; // Store the color on the edge
 }
 
 function removeBlockCubeInstanced(grid, edge, eKey) {
@@ -9494,15 +9559,10 @@ async function restoreGridFromSnapshot(snapshot) {
 
 // Helper function to check if a grid has any colored/added vertices
 function hasColoredVertices(grid) {
-  if (!grid || !grid.isInstanced || !grid.chunks) return false;
+  if (!grid) return false;
 
-  for (const chunk of grid.chunks.values()) {
-    if (chunk.coloredVertices && chunk.coloredVertices.size > 0) {
-      return true;
-    }
-  }
-
-  return false;
+  // Check if any vertex spheres exist (colored or decorated)
+  return grid.vertexSpheres && grid.vertexSpheres.size > 0;
 }
 
 // Helper function to check if a grid has any vertex operations in its undo/redo history
@@ -15218,10 +15278,11 @@ function copyEdgeStates(sourceGrid, targetGrid) {
     if (sourceEdge.blockCube) {
       const targetEdge = targetGrid.edges.get(edgeKey);
       if (targetEdge) {
+        const cubeColor = sourceEdge.blockCubeColor || selectedColor2; // Preserve original color
         if (targetGrid.isInstanced) {
-          addBlockCubeInstanced(targetGrid, targetEdge, edgeKey);
+          addBlockCubeInstanced(targetGrid, targetEdge, edgeKey, cubeColor);
         } else {
-          addBlockCube(targetEdge);
+          addBlockCube(targetEdge, cubeColor);
         }
       }
     }
@@ -15809,11 +15870,12 @@ function handleCubeClick() {
   }
 }
 
-function addBlockCube(edge) {
+function addBlockCube(edge, color = null) {
   if (edge.blockCube) return; // Already has one
 
+  const cubeColorHex = color !== null ? color : selectedColor2;
   const geometry = new THREE.BoxGeometry(blockCubeSize, blockCubeSize, blockCubeSize);
-  const material = new THREE.MeshBasicMaterial({ color: selectedColor2 }); // Use second color
+  const material = new THREE.MeshBasicMaterial({ color: cubeColorHex });
   const cube = new THREE.Mesh(geometry, material);
 
   // Position at edge midpoint
@@ -15821,6 +15883,7 @@ function addBlockCube(edge) {
   cube.raycast = () => {}; // Ignore raycasting
 
   edge.blockCube = cube;
+  edge.blockCubeColor = cubeColorHex; // Store color on edge
   currentGrid.group.add(cube);
 }
 
@@ -15894,7 +15957,14 @@ function createVertexSphereInstanced(grid, vertexKey, color) {
     instanceIndex = grid.vertexToInstanceMap ? grid.vertexToInstanceMap.get(vertexKey) : undefined;
   }
 
-  if (instanceIndex === undefined) return;
+  if (instanceIndex === undefined) {
+    console.error('[createVertexSphereInstanced] instanceIndex undefined for vertexKey:', vertexKey);
+    console.error('[createVertexSphereInstanced] chunkKey:', chunkKey);
+    console.error('[createVertexSphereInstanced] Has vertexToChunk:', !!grid.vertexToChunk);
+    console.error('[createVertexSphereInstanced] Has vertexToInstanceMap:', !!grid.vertexToInstanceMap);
+    console.error('[createVertexSphereInstanced] Vertex exists in grid.vertices:', grid.vertices.has(vertexKey));
+    return;
+  }
 
   const [x, y, z] = unpackVertex(vertexKey, grid);
   const position = new THREE.Vector3(x, y, z);
@@ -16625,8 +16695,8 @@ function handleCoordinateHover(event) {
           break;
         }
       }
-      
-      if (vertexKey) {
+
+      if (vertexKey !== null && vertexKey !== undefined) {
         const [x, y, z] = unpackVertex(vertexKey, currentGrid);
         tooltipText = `Vertex: ${formatCoordinates(x, y, z)}`;
 
@@ -19730,6 +19800,9 @@ document.getElementById("savePreferencesBtn").addEventListener("click", () => {
   autoSwitchThemeEnabled = document.getElementById("autoSwitchThemeCheckbox").checked;
   localStorage.setItem('autoSwitchThemeEnabled', autoSwitchThemeEnabled);
 
+  // Save auto-sync view preference
+  autoSyncView = document.getElementById("autoSyncViewCheckbox").checked;
+
 // Update controls rotate speed and zoom speed
   if (typeof controls !== 'undefined') {
     controls.rotateSpeed = cameraSensitivity;
@@ -20260,6 +20333,45 @@ function updateFlare() {
 
 document.getElementById("coordinateHoverCheckbox").addEventListener("change", (e) => {
   coordinateHoverMode = e.target.checked;
+
+  // If coordinate hover is being enabled, auto-load collision helpers
+  if (coordinateHoverMode && currentGrid && currentGrid.isInstanced) {
+    // Load vertex collision helpers if needed (for vertex hover)
+    if (hoverVertices && lazyLoadVertexSpheres) {
+      let needsVertexLoading = false;
+      if (currentGrid.chunks && currentGrid.chunks.size > 0) {
+        const firstChunk = currentGrid.chunks.values().next().value;
+        if (!firstChunk.instancedVertexCollisionHelpers) {
+          needsVertexLoading = true;
+        }
+      } else if (!currentGrid.instancedVertexCollisionHelpers) {
+        needsVertexLoading = true;
+      }
+
+      if (needsVertexLoading) {
+        console.log('[coordinateHover] Auto-loading vertex collision helpers');
+        loadVertexSpheres(currentGrid);
+      }
+    }
+
+    // Load edge collision helpers if needed (for edge hover)
+    if (hoverEdges && lazyLoadEdgeCollision) {
+      let needsEdgeLoading = false;
+      if (currentGrid.chunks && currentGrid.chunks.size > 0) {
+        const firstChunk = currentGrid.chunks.values().next().value;
+        if (!firstChunk.instancedEdgesCollision) {
+          needsEdgeLoading = true;
+        }
+      } else if (!currentGrid.instancedEdgesCollision) {
+        needsEdgeLoading = true;
+      }
+
+      if (needsEdgeLoading) {
+        console.log('[coordinateHover] Auto-loading edge collision helpers');
+        loadEdgeCollision(currentGrid);
+      }
+    }
+  }
 
   // Update collision helper visibility based on new setting
   updateCollisionHelperVisibility();
@@ -23208,9 +23320,10 @@ function openReadmeInNewTab() {
 //     ====================================================================================================================
 
 // Helper function to check if click is within sidebar bounds
-function isClickInSidebarArea(clientX) {
+function isClickInUIArea(clientX, clientY) {
   const leftSidebar = document.querySelector('.sidebar');
   const rightSidebar = document.querySelector('.sidebar-right');
+  const gridListContainer = document.getElementById('gridListContainer');
 
   // Check left sidebar (only if not collapsed)
   if (leftSidebar && !leftSidebar.classList.contains('collapsed')) {
@@ -23228,12 +23341,21 @@ function isClickInSidebarArea(clientX) {
     }
   }
 
+  // Check grid tabs container at bottom
+  if (gridListContainer) {
+    const gridRect = gridListContainer.getBoundingClientRect();
+    if (clientX >= gridRect.left && clientX <= gridRect.right &&
+        clientY >= gridRect.top && clientY <= gridRect.bottom) {
+      return true;
+    }
+  }
+
   return false;
 }
 
 function onClick(event) {
-  // Don't process 3D clicks if clicking within sidebar area
-  if (isClickInSidebarArea(event.clientX)) {
+  // Don't process 3D clicks if clicking within UI areas (sidebars or grid tabs)
+  if (isClickInUIArea(event.clientX, event.clientY)) {
     return;
   }
 
@@ -23326,8 +23448,8 @@ function handleInstancedEdgeClick(hits, meshType) {
 
 
 function onMouseDown(event) {
-  // Don't process 3D clicks if clicking within sidebar area
-  if (isClickInSidebarArea(event.clientX)) {
+  // Don't process 3D clicks if clicking within UI areas (sidebars or grid tabs)
+  if (isClickInUIArea(event.clientX, event.clientY)) {
     return;
   }
 
@@ -23552,7 +23674,7 @@ function onMouseDown(event) {
           vertexKey = hit.object.userData.vertexKey;
         }
 
-        if (vertexKey) {
+        if (vertexKey !== null && vertexKey !== undefined) {
           mouseDownTarget = vertexKey;
           mouseDownType = 'vertex';
         }
@@ -23600,8 +23722,8 @@ function onMouseDown(event) {
 }
 
 function onMouseUp(event) {
-  // Don't process 3D clicks if clicking within sidebar area
-  if (isClickInSidebarArea(event.clientX)) {
+  // Don't process 3D clicks if clicking within UI areas (sidebars or grid tabs)
+  if (isClickInUIArea(event.clientX, event.clientY)) {
     mouseDownTarget = null;
     mouseDownType = null;
     return;
@@ -24357,13 +24479,19 @@ function handleDecorationClick(vertexKey) {
 
 function onMouseMove(event) {
   if (!currentGrid) return;
-  
+
+  // Don't process hover if mouse is over UI areas (sidebars or grid tabs)
+  if (isClickInUIArea(event.clientX, event.clientY)) {
+    clearAllHighlights();
+    return;
+  }
+
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
   raycaster.setFromCamera(mouse, camera);
-  
+
   clearAllHighlights();
-  
+
   if (coordinateHoverMode) {
     handleCoordinateHover(event);
   } else {
@@ -24711,7 +24839,7 @@ function handleVertexHover() {
       [x, y, z] = unpackVertex(vertexKey);
     }
 
-    if (vertexKey) {
+    if (vertexKey !== null && vertexKey !== undefined) {
       // Create highlight sphere
       const highlightGeometry = new THREE.SphereGeometry(vertexRadius, 16, 16);
       const highlightMaterial = new THREE.MeshBasicMaterial({
@@ -25284,7 +25412,8 @@ function serializeGridState() {
       useInstancedRendering: useInstancedRendering, // Save rendering mode
       showAllVertices: showAllVertices, // Save show all vertices preference
       autoSwitchThemeEnabled: autoSwitchThemeEnabled, // Save auto-switch theme preference
-      showPlaneHighlighterPanel: document.getElementById('showPlaneHighlighterPanelCheckbox')?.checked ?? false // Save plane panel visibility
+      showPlaneHighlighterPanel: document.getElementById('showPlaneHighlighterPanelCheckbox')?.checked ?? false, // Save plane panel visibility
+      autoSyncView: autoSyncView // Save auto-sync view preference
     },
     sceneState: {
       coordinatesVisible: scene.userData.coordGroup?.visible || false
@@ -25365,14 +25494,15 @@ function serializeGrid(grid) {
         color: edge.color,
         hasArrows: !!edge.arrows,
         arrowDirection: edge.arrowDirection || 0,
-        hasBlockCube: !!edge.blockCube
+        hasBlockCube: !!edge.blockCube,
+        blockCubeColor: edge.blockCubeColor // Save block cube color
       };
-      
+
       // Only save visibility if in individual mode (has mesh)
       if (edge.mesh) {
         edgeState.visible = edge.mesh.visible;
       }
-      
+
       gridData.edges[edgeKey] = edgeState;
     }
   }
@@ -25585,6 +25715,13 @@ async function loadGridState(saveData) {
       }
     }
 
+    // Restore auto-sync view preference
+    autoSyncView = gs.autoSyncView ?? true; // Default to true
+    const autoSyncViewCheckbox = document.getElementById('autoSyncViewCheckbox');
+    if (autoSyncViewCheckbox) {
+      autoSyncViewCheckbox.checked = autoSyncView;
+    }
+
     // Update UI elements
     updateGlobalUI();
   } else {
@@ -25721,20 +25858,22 @@ async function loadGridData(gridId, gridData) {
     
     // Restore block cubes
     if (edgeState.hasBlockCube) {
+      const cubeColor = edgeState.blockCubeColor || selectedColor2; // Use saved color or fallback
       if (grid.isInstanced) {
-        addBlockCubeInstanced(grid, edge, edgeKey);
+        addBlockCubeInstanced(grid, edge, edgeKey, cubeColor);
       } else {
         // Create block cube manually for individual mode
         const geometry = new THREE.BoxGeometry(blockCubeSize, blockCubeSize, blockCubeSize);
-        const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const material = new THREE.MeshBasicMaterial({ color: cubeColor });
         const cube = new THREE.Mesh(geometry, material);
-        
+
         if (edge.mesh) {
           cube.position.copy(edge.mesh.position);
         }
         cube.raycast = () => {};
-        
+
         edge.blockCube = cube;
+        edge.blockCubeColor = cubeColor; // Store color on edge
         grid.group.add(cube);
       }
     }
