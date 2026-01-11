@@ -187,9 +187,10 @@
     }
 
     class Star {
-      constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
+      constructor(x, y) {
+        // If x and y are provided, use them (for clicked stars), otherwise random
+        this.x = x !== undefined ? x : Math.random() * canvas.width;
+        this.y = y !== undefined ? y : Math.random() * canvas.height;
         this.size = Math.random() * 1.5 + 0.5;
         this.opacity = Math.random() * 0.5 + 0.5;
         this.opacityChange = (Math.random() - 0.5) * 0.01;
@@ -312,7 +313,12 @@
       const x = (e.clientX - rect.left) * scaleX;
       const y = (e.clientY - rect.top) * scaleY;
 
-      temporaryStars.push(new TemporaryStar(x, y));
+      // 1 in 7 chance to create a permanent star
+      if (Math.random() < 1/7) {
+        stars.push(new Star(x, y));
+      } else {
+        temporaryStars.push(new TemporaryStar(x, y));
+      }
     });
 
     window.addEventListener('resize', () => {
