@@ -14,15 +14,27 @@
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       line-height: 1.6;
-      color: #333;
-      background: linear-gradient(135deg, #f7f5e9 0%, #fefefe 100%);
+      color: #e5e5e5;
+      background: #0a0e27;
       min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    #starfield {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
     }
 
     .container {
       max-width: 1000px;
       margin: 0 auto;
       padding: 40px 20px;
+      position: relative;
+      z-index: 1;
     }
 
     header {
@@ -33,19 +45,20 @@
     h1 {
       font-size: 56px;
       font-weight: 700;
-      color: #111827;
+      color: #ffffff;
       margin-bottom: 16px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
     }
 
     .subtitle {
       font-size: 22px;
-      color: #6b7280;
+      color: #b8c5d6;
       margin-bottom: 20px;
     }
 
     .author-info {
       font-size: 18px;
-      color: #4b5563;
+      color: #9fb3c8;
       margin-top: 10px;
     }
 
@@ -57,33 +70,35 @@
     }
 
     .nav-card {
-      background: white;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
       border-radius: 16px;
       padding: 40px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
       transition: all 0.3s ease;
       text-decoration: none;
       color: inherit;
       display: block;
-      border: 2px solid transparent;
+      border: 2px solid rgba(255, 255, 255, 0.1);
     }
 
     .nav-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
       border-color: #3b82f6;
+      background: rgba(255, 255, 255, 0.08);
     }
 
     .nav-card h2 {
       font-size: 32px;
-      color: #111827;
+      color: #ffffff;
       margin-bottom: 16px;
       font-weight: 600;
     }
 
     .nav-card p {
       font-size: 16px;
-      color: #6b7280;
+      color: #b8c5d6;
       line-height: 1.7;
     }
 
@@ -109,22 +124,24 @@
       text-align: center;
       padding: 40px 0 20px 0;
       margin-top: 80px;
-      border-top: 1px solid #e5e7eb;
-      color: #6b7280;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      color: #9fb3c8;
       font-size: 14px;
     }
 
     footer a {
-      color: #3b82f6;
+      color: #5b9cff;
       text-decoration: none;
     }
 
     footer a:hover {
       text-decoration: underline;
+      color: #7bb0ff;
     }
   </style>
 </head>
 <body>
+  <canvas id="starfield"></canvas>
   <div class="container">
     <header>
       <h1>Graphs of Wrath</h1>
@@ -154,5 +171,83 @@
       </p>
     </footer>
   </div>
+
+  <script>
+    // Starfield Animation
+    const canvas = document.getElementById('starfield');
+    const ctx = canvas.getContext('2d');
+
+    let stars = [];
+    const numStars = 200;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    class Star {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2;
+        this.speedX = (Math.random() - 0.5) * 0.2;
+        this.speedY = (Math.random() - 0.5) * 0.2;
+        this.opacity = Math.random();
+        this.opacityChange = (Math.random() - 0.5) * 0.02;
+      }
+
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.opacity += this.opacityChange;
+
+        // Twinkle effect
+        if (this.opacity <= 0 || this.opacity >= 1) {
+          this.opacityChange = -this.opacityChange;
+        }
+
+        // Wrap around screen
+        if (this.x < 0) this.x = canvas.width;
+        if (this.x > canvas.width) this.x = 0;
+        if (this.y < 0) this.y = canvas.height;
+        if (this.y > canvas.height) this.y = 0;
+      }
+
+      draw() {
+        ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function init() {
+      resizeCanvas();
+      stars = [];
+      for (let i = 0; i < numStars; i++) {
+        stars.push(new Star());
+      }
+    }
+
+    function animate() {
+      ctx.fillStyle = 'rgba(10, 14, 39, 0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      stars.forEach(star => {
+        star.update();
+        star.draw();
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    init();
+    animate();
+  </script>
 </body>
 </html>
