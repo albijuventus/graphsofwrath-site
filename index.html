@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GridLab - Hamiltonian Path Visualization</title>
+  <title>Graphs of Wrath - Albi Kazazi</title>
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-    
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       line-height: 1.6;
@@ -18,171 +18,107 @@
       background: linear-gradient(135deg, #f7f5e9 0%, #fefefe 100%);
       min-height: 100vh;
     }
-    
+
     .container {
-      max-width: 900px;
+      max-width: 1000px;
       margin: 0 auto;
       padding: 40px 20px;
     }
-    
+
     header {
       text-align: center;
-      padding: 60px 0 40px 0;
+      padding: 80px 0 60px 0;
     }
-    
+
     h1 {
-      font-size: 48px;
+      font-size: 56px;
       font-weight: 700;
       color: #111827;
       margin-bottom: 16px;
     }
-    
+
     .subtitle {
-      font-size: 20px;
+      font-size: 22px;
       color: #6b7280;
-      margin-bottom: 40px;
+      margin-bottom: 20px;
     }
-    
-    .cta-button {
-      display: inline-block;
-      background: #3b82f6;
-      color: white;
-      padding: 18px 40px;
-      text-decoration: none;
-      border-radius: 12px;
-      font-size: 20px;
-      font-weight: 600;
-      margin: 20px 0;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+
+    .author-info {
+      font-size: 18px;
+      color: #4b5563;
+      margin-top: 10px;
     }
-    
-    .cta-button:hover {
-      background: #2563eb;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin: 60px 0;
     }
-    
-    .demo-image {
-      width: 100%;
-      max-width: 800px;
-      margin: 40px auto;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-    }
-    
-    .demo-image img {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-    
-    .section {
+
+    .nav-card {
       background: white;
       border-radius: 16px;
       padding: 40px;
-      margin: 30px 0;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      border: 2px solid transparent;
     }
-    
-    h2 {
+
+    .nav-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      border-color: #3b82f6;
+    }
+
+    .nav-card h2 {
       font-size: 32px;
-      color: #000000;
-      margin-bottom: 20px;
-      font-weight: 600;
-    }
-    
-    h3 {
-      font-size: 20px;
-      color: #374151;
-      margin: 24px 0 12px 0;
-      font-weight: 600;
-    }
-    
-    p {
-      font-size: 16px;
-      color: #4b5563;
+      color: #111827;
       margin-bottom: 16px;
+      font-weight: 600;
     }
-    
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-    
-    li {
+
+    .nav-card p {
       font-size: 16px;
-      color: #4b5563;
-      margin-bottom: 12px;
-      padding-left: 28px;
-      position: relative;
+      color: #6b7280;
+      line-height: 1.7;
     }
-    
-    li:before {
-      content: "✓";
-      position: absolute;
-      left: 0;
+
+    .nav-card .icon {
+      font-size: 48px;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .cta {
+      display: inline-block;
+      margin-top: 16px;
       color: #3b82f6;
-      font-weight: bold;
-      font-size: 18px;
+      font-weight: 600;
+      font-size: 16px;
     }
-    
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 24px;
-      margin-top: 30px;
-    }
-    
-    .feature-card {
-      background: #f9fafb;
-      padding: 24px;
-      border-radius: 12px;
-      border: 1px solid #e5e7eb;
-    }
-    
-    .feature-card h3 {
-      color: #3b82f6;
-      margin-top: 0;
-    }
-    
-    .license-notice {
-      background: #eff6ff;
-      border-left: 4px solid #3b82f6;
-      padding: 20px;
-      border-radius: 8px;
-      margin: 30px 0;
-    }
-    
-    .license-notice h3 {
-      color: #1e40af;
-      margin-top: 0;
-    }
-    
-    .license-notice p {
-      color: #1e40af;
-      margin-bottom: 8px;
-    }
-    
-    .license-notice a {
-      color: #2563eb;
+
+    .nav-card:hover .cta {
       text-decoration: underline;
     }
-    
+
     footer {
       text-align: center;
       padding: 40px 0 20px 0;
-      margin-top: 60px;
+      margin-top: 80px;
       border-top: 1px solid #e5e7eb;
       color: #6b7280;
+      font-size: 14px;
     }
-    
+
     footer a {
       color: #3b82f6;
       text-decoration: none;
     }
-    
+
     footer a:hover {
       text-decoration: underline;
     }
@@ -191,99 +127,33 @@
 <body>
   <div class="container">
     <header>
-      <h1>GridLab</h1>
-      <p class="subtitle">Interactive 3D visualization for Hamiltonian paths and cycles on grid graphs</p>
-      <a href="GridLab.html" class="cta-button">Launch GridLab →</a>
+      <h1>Graphs of Wrath</h1>
+      <p class="subtitle">Graph Theory Research & Interactive Visualization Tools</p>
+      <p class="author-info">Albi Kazazi | York University</p>
     </header>
 
-    <div class="demo-image">
-      <img src="gridlab-preview.png" alt="GridLab 3D Visualization Preview" />
-    </div>
+    <div class="nav-grid">
+      <a href="gridlab-info.html" class="nav-card">
+        <span class="icon">🔬</span>
+        <h2>GridLab</h2>
+        <p>Interactive 3D visualization tool for exploring Hamiltonian paths and cycles on rectangular grid graphs. Built for research with full editing and reconfiguration capabilities.</p>
+        <span class="cta">Explore GridLab →</span>
+      </a>
 
-    <div class="section">
-      <h2>About GridLab</h2>
-      <p>
-        GridLab is an interactive research tool for exploring Hamiltonian cycles and paths on rectangular 
-        grid graphs. Built with Three.js, it provides 3D visualization and editing capabilities 
-        for graph theory research.
-      </p>
-      <p>
-        Developed for research into Hamiltonian path and cycle reconfiguration on rectangular grid graphs.
-      </p>
-    </div>
-
-    <div class="section">
-      <h2>Features</h2>
-      <div class="feature-grid">
-        <div class="feature-card">
-          <h3>🎨 Generate & Visualize</h3>
-          <p>Generate Hamiltonian paths and cycles with gradient coloring and directional arrows.</p>
-        </div>
-        <div class="feature-card">
-          <h3>🔄 Reconfigure</h3>
-          <p>Reconfigure paths and cycles using switch and backbite moves with real-time visualization.</p>
-        </div>
-        <div class="feature-card">
-          <h3>🎯 Interactive 3D</h3>
-          <p>Full 3D navigation with rotation, zoom, and pan controls. Create subgraphs by adding edges and vertices. </p>
-        </div>
-        <div class="feature-card">
-          <h3>💾 Save & Load</h3>
-          <p>Save and load your grids including edge/vertex states and settings.</p>
-        </div>
-        <div class="feature-card">
-          <h3>📊 Multiple Grids</h3>
-          <p>Work with multiple grids simultaneously, each with independent state.</p>
-        </div>
-        <div class="feature-card">
-          <h3>🎨 Themes</h3>
-          <p>Choose from multiple themes and backgrounds.</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <h2>What You Can Do</h2>
-      <ul>
-        <li>Generate Hamiltonian paths and cycles on 2D/3D rectangular grids</li>
-        <li>Verify if a configuration is Hamiltonian</li>
-        <li>Reconfigure using switch and backbite moves</li>
-        <li>Color and decorate edges and vertices to mark a subgraph of the grid</li>
-        <li>Add directional arrows to orient edges</li>
-        <li>Add notes to each grid for documentation</li>
-        <li>Export and import your work as JSON files</li>
-      </ul>
-    </div>
-
-    <div class="section">
-      <h2>Getting Started</h2>
-      <p><strong>Just click the "Launch GridLab" button above!</strong></p>
-      <h3>Quick Tips:</h3>
-      <ul>
-        <li>Start with a small grid (4×4×4) to learn the interface</li>
-        <li>Click "Generate" → "Gen Cycle" to create your first Hamiltonian cycle</li>
-        <li>Use the Help menu (?) for keyboard shortcuts</li>
-        <li> Ctrl+S to save your grids</li>
-      </ul>
-    </div>
-
-    <div class="license-notice">
-      <h3>📄 License</h3>
-      <p>
-        GridLab is licensed under the 
-        <a href="https://polyformproject.org/licenses/noncommercial/1.0.0" target="_blank">
-          PolyForm Noncommercial License 1.0.0
-        </a>
-      </p>
-      <p>
-        ✅ <strong>Free</strong> for research, education, and personal use<br>
-        ❌ <strong>Commercial use requires a separate license</strong>
-      </p>
-      <p>
-        For commercial licensing inquiries, contact: 
-        <a href="/cdn-cgi/l/email-protection#345558565d5e4142515a404147744d555c5b5b1a575b59"><span class="__cf_email__" data-cfemail="0f6e636d66657a796a617b7a7c4f766e676060216c6062">[email&#160;protected]</span></a>
-      </p>
+      <a href="research.html" class="nav-card">
+        <span class="icon">📚</span>
+        <h2>Research</h2>
+        <p>Academic publications on Hamiltonian path and cycle reconfiguration in grid graphs, including dissertation and research papers.</p>
+        <span class="cta">View Publications →</span>
+      </a>
     </div>
 
     <footer>
       <p>
+        &copy; 2025 Albi Kazazi |
+        <a href="https://github.com/albijuventus" target="_blank">GitHub</a>
+      </p>
+    </footer>
+  </div>
+</body>
+</html>

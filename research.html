@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Research - Graphs of Wrath</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #f7f5e9 0%, #fefefe 100%);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    header {
+      text-align: center;
+      padding: 60px 0 40px 0;
+      border-bottom: 2px solid #e5e7eb;
+      margin-bottom: 50px;
+    }
+
+    h1 {
+      font-size: 48px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 16px;
+    }
+
+    .subtitle {
+      font-size: 20px;
+      color: #6b7280;
+      margin-bottom: 30px;
+    }
+
+    .back-link {
+      display: inline-block;
+      color: #3b82f6;
+      text-decoration: none;
+      font-size: 16px;
+      margin-top: 20px;
+      transition: all 0.2s;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .publication {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      margin: 30px 0;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      border-left: 4px solid #3b82f6;
+    }
+
+    .publication h2 {
+      font-size: 28px;
+      color: #111827;
+      margin-bottom: 16px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .publication .meta {
+      color: #6b7280;
+      font-size: 16px;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+
+    .publication .description {
+      color: #4b5563;
+      font-size: 16px;
+      margin-bottom: 24px;
+      line-height: 1.7;
+    }
+
+    .publication .type-badge {
+      display: inline-block;
+      background: #eff6ff;
+      color: #1e40af;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .download-button {
+      display: inline-block;
+      background: #3b82f6;
+      color: white;
+      padding: 12px 28px;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    }
+
+    .download-button:hover {
+      background: #2563eb;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+
+    .section-intro {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      margin: 30px 0;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .section-intro p {
+      color: #4b5563;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    footer {
+      text-align: center;
+      padding: 40px 0 20px 0;
+      margin-top: 60px;
+      border-top: 1px solid #e5e7eb;
+      color: #6b7280;
+    }
+
+    footer a {
+      color: #3b82f6;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Research</h1>
+      <p class="subtitle">Publications on Hamiltonian Path and Cycle Reconfiguration</p>
+      <a href="index.html" class="back-link">← Back to Home</a>
+    </header>
+
+    <div class="section-intro">
+      <p>
+        My research focuses on the reconfiguration of Hamiltonian paths and cycles in rectangular grid graphs,
+        exploring the structural properties and algorithmic aspects of transforming one Hamiltonian configuration
+        into another through elementary moves.
+      </p>
+    </div>
+
+    <div class="publication">
+      <span class="type-badge">📖 Dissertation</span>
+      <h2>Reconfiguration of Hamiltonian Paths on Grid Graphs</h2>
+      <div class="meta">
+        Albi Kazazi | Department of Mathematics and Statistics, York University
+      </div>
+      <div class="description">
+        This dissertation investigates the reconfiguration problem for Hamiltonian paths on rectangular grid graphs,
+        examining the conditions under which one Hamiltonian path can be transformed into another through a sequence
+        of local moves. The work explores theoretical bounds, algorithmic approaches, and structural properties of
+        the reconfiguration graph.
+      </div>
+      <a href="dissertation.tex" class="download-button" download>Download LaTeX Source</a>
+    </div>
+
+    <div class="publication">
+      <span class="type-badge">📄 Research Paper</span>
+      <h2>Reconfiguration of Hamiltonian Cycles in Rectangular Grid Graphs</h2>
+      <div class="meta">
+        Albi Kazazi | Department of Mathematics and Statistics, York University
+      </div>
+      <div class="description">
+        This paper studies the reconfiguration of Hamiltonian cycles in rectangular grid graphs,
+        analyzing the connectivity of the reconfiguration graph and providing algorithms for transforming
+        one Hamiltonian cycle into another. The work establishes fundamental results about the structure
+        of the solution space.
+      </div>
+      <a href="paper.tex" class="download-button" download>Download LaTeX Source</a>
+    </div>
+
+    <footer>
+      <p>
+        &copy; 2025 Albi Kazazi |
+        <a href="https://github.com/albijuventus" target="_blank">GitHub</a>
+      </p>
+    </footer>
+  </div>
+</body>
+</html>
