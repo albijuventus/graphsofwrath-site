@@ -178,6 +178,7 @@
     const ctx = canvas.getContext('2d');
 
     let stars = [];
+    let temporaryStars = [];
     const numStars = 100;
 
     function resizeCanvas() {
@@ -211,6 +212,54 @@
       }
     }
 
+    class TemporaryStar {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.size = Math.random() * 2 + 1;
+        this.opacity = 0;
+        this.maxOpacity = 1;
+        this.fadeInSpeed = 0.05;
+        this.fadeOutSpeed = 0.02;
+        this.lifespan = 120; // frames (about 2 seconds at 60fps)
+        this.age = 0;
+        this.phase = 'fadeIn'; // fadeIn, shine, fadeOut
+      }
+
+      update() {
+        this.age++;
+
+        if (this.phase === 'fadeIn') {
+          this.opacity += this.fadeInSpeed;
+          if (this.opacity >= this.maxOpacity) {
+            this.opacity = this.maxOpacity;
+            this.phase = 'shine';
+          }
+        } else if (this.phase === 'shine') {
+          if (this.age > this.lifespan * 0.7) {
+            this.phase = 'fadeOut';
+          }
+        } else if (this.phase === 'fadeOut') {
+          this.opacity -= this.fadeOutSpeed;
+        }
+
+        return this.opacity > 0;
+      }
+
+      draw() {
+        ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Add a subtle glow
+        ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity * 0.3})`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size * 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
     function init() {
       resizeCanvas();
       stars = [];
@@ -223,13 +272,31 @@
       ctx.fillStyle = '#0a0e27';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+      // Draw permanent stars
       stars.forEach(star => {
         star.update();
         star.draw();
       });
 
+      // Draw and update temporary stars
+      temporaryStars = temporaryStars.filter(star => {
+        const alive = star.update();
+        if (alive) {
+          star.draw();
+        }
+        return alive;
+      });
+
       requestAnimationFrame(animate);
     }
+
+    // Add click event listener
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      temporaryStars.push(new TemporaryStar(x, y));
+    });
 
     window.addEventListener('resize', () => {
       resizeCanvas();
