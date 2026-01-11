@@ -223,10 +223,11 @@
         this.fadeOutSpeed = 0.02;
         this.lifespan = 120; // frames (about 2 seconds at 60fps)
         this.age = 0;
-        this.phase = 'fadeIn'; // fadeIn, shine, fadeOut
+        this.phase = 'fadeIn'; // fadeIn, shine, waiting, fadeOut
+        this.canFadeOut = false;
       }
 
-      update() {
+      update(canStartFading) {
         this.age++;
 
         if (this.phase === 'fadeIn') {
@@ -237,6 +238,11 @@
           }
         } else if (this.phase === 'shine') {
           if (this.age > this.lifespan * 0.7) {
+            this.phase = 'waiting';
+          }
+        } else if (this.phase === 'waiting') {
+          // Wait until we're allowed to fade out
+          if (canStartFading) {
             this.phase = 'fadeOut';
           }
         } else if (this.phase === 'fadeOut') {
@@ -278,9 +284,11 @@
         star.draw();
       });
 
-      // Draw and update temporary stars
-      temporaryStars = temporaryStars.filter(star => {
-        const alive = star.update();
+      // Draw and update temporary stars with sequential fading
+      temporaryStars = temporaryStars.filter((star, index) => {
+        // First star can always fade, others must wait for previous star to fade completely
+        const canStartFading = index === 0 || temporaryStars[index - 1].phase === 'fadeOut';
+        const alive = star.update(canStartFading);
         if (alive) {
           star.draw();
         }
