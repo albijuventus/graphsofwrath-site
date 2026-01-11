@@ -290,12 +290,14 @@
       requestAnimationFrame(animate);
     }
 
-    // Add click event listener
-    canvas.addEventListener('click', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      temporaryStars.push(new TemporaryStar(x, y));
+    // Add click event listener to the whole document
+    document.addEventListener('click', (e) => {
+      // Don't create stars if clicking on links or interactive elements
+      if (e.target.tagName === 'A' || e.target.closest('a')) {
+        return;
+      }
+
+      temporaryStars.push(new TemporaryStar(e.clientX, e.clientY));
     });
 
     window.addEventListener('resize', () => {
