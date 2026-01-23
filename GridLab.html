@@ -3121,15 +3121,17 @@
     <input type="checkbox" id="toggleGridCheckbox" checked style="width: 18px; height: 18px; cursor: pointer; margin-right: 6px;">
     <label for="toggleGridCheckbox" style="cursor: pointer; font-size: 13px; color: var(--sidebar-text); user-select: none; flex: 1;">Toggle Grid</label>
     <button class="grid-mgmt-btn" id="syncViewBtn" title="Press S" style="flex: 0 0 auto; min-width: 85px; padding: 7px 10px; font-size: 13px; border-radius: 10px; display: none;">Sync View</button>
+    <!-- Flare Button (shown/hidden by preference) - beside Toggle Grid checkbox -->
+    <button class="grid-mgmt-btn" id="flareBtn" title="Highlight endpoints" style="flex: 0 0 auto; min-width: 85px; padding: 7px 10px; font-size: 13px; border-radius: 10px; display: none;">Flare</button>
   </div>
 
   <div style="display: flex; align-items: center; gap: 8px; padding: 8px; margin: 8px 0;">
     <input type="checkbox" id="coordCheckbox" style="width: 18px; height: 18px; cursor: pointer; margin-right: 6px;">
     <label for="coordCheckbox" style="cursor: pointer; font-size: 13px; color: var(--sidebar-text); user-select: none; flex: 1;">Toggle Axis</label>
-    <!-- Flare Button (shown/hidden by preference) - beside Toggle Axis checkbox -->
-    <button class="grid-mgmt-btn" id="flareBtn" title="Highlight endpoints" style="flex: 0 0 auto; min-width: 85px; padding: 7px 10px; font-size: 13px; border-radius: 10px; display: none;">Flare</button>
+    <!-- Highlight Box Button (shown/hidden by preference) - beside Toggle Axis checkbox -->
+    <button class="grid-mgmt-btn" id="highlightBoxBtn" title="Click to place/remove box highlights" style="flex: 0 0 auto; min-width: 85px; padding: 7px 10px; font-size: 13px; border-radius: 10px; display: none;">Highlight Box</button>
   </div>
-  
+
   <!-- Mouse Sensitivity (shown by default, can be hidden via preference) -->
   <div class="camera-sensitivity-panel" id="cameraSensitivityPanel" style="display: block; margin-top: 12px; padding: 12px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; position: relative;">
     <button id="cameraSensitivityCloser" title="Close mouse sensitivity panel">×</button>
@@ -4341,6 +4343,24 @@ input[type=number] {
             </label>
           </div>
 
+          <!-- Highlight Box Section -->
+          <div style="display: flex; align-items: center; gap: 12px; margin: 14px 0 10px 0;">
+            <h3 style="font-size: 15px; color: #2c3e50; margin: 0; font-weight: 600;">Highlight Box</h3>
+            <label style="display: flex; align-items: center; cursor: pointer; font-size: 12px; color: #555; user-select: none;">
+              <input type="checkbox" id="showHighlightBoxButtonCheckbox" style="width: 16px; height: 16px; cursor: pointer; margin-right: 6px;">
+              Show button on main screen
+            </label>
+          </div>
+
+          <!-- Highlight Box Opacity Slider -->
+          <div style="margin-bottom: 14px;">
+            <label style="font-size: 12px; color: #666; display: block; margin-bottom: 4px;">
+              Opacity: <span id="highlightBoxOpacityValue" style="font-weight: 600;">15%</span>
+            </label>
+            <input type="range" id="highlightBoxOpacitySlider" min="0" max="100" step="5" value="15"
+              style="width: 100%; cursor: pointer;">
+          </div>
+
         </div>
         <!-- END Advanced Other Display Settings Container -->
 
@@ -5129,6 +5149,8 @@ SECTION 30: BUG HISTORY & DOCUMENTATION (~26244+)
 	let currentPath = [];
 	let highlightedBoxes = [];
 	let switchMode = false; // Whether switch highlighting is active
+	let highlightBoxMode = false; // Whether highlight box placement mode is active
+	let highlightBoxOpacity = 0.15; // Opacity for highlight box mode (0-1)
 	let boxHighlightingEnabled = true; // NEW: Toggle for highlighting switchable boxes (instanced only)
 	
 	let componentColoringEnabled = true; // NEW: Toggle for component coloring after switches
@@ -8194,6 +8216,36 @@ class Subgraph {
       }
     }
 
+    // GPU sync: tell Three.js the buffer data changed
+    if (arrowRenderMode === 'normal') {
+      // Normal mode: sync arrowState attribute
+      if (this.grid.chunks && this.grid.chunks.size > 0) {
+        // Chunked grid: sync each chunk
+        for (const chunk of this.grid.chunks.values()) {
+          if (chunk.instancedEdgesThick) {
+            const arrowStateAttr = chunk.instancedEdgesThick.geometry.getAttribute('arrowState');
+            if (arrowStateAttr) {
+              arrowStateAttr.needsUpdate = true;
+            }
+          }
+        }
+      } else if (this.grid.instancedEdgesThick) {
+        // Non-chunked instanced grid
+        const arrowStateAttr = this.grid.instancedEdgesThick.geometry.getAttribute('arrowState');
+        if (arrowStateAttr) {
+          arrowStateAttr.needsUpdate = true;
+        }
+      }
+    } else {
+      // Transcendent mode: sync instanceMatrix for arrow meshes
+      if (this.grid.instancedArrowsForward) {
+        this.grid.instancedArrowsForward.instanceMatrix.needsUpdate = true;
+      }
+      if (this.grid.instancedArrowsBackward) {
+        this.grid.instancedArrowsBackward.instanceMatrix.needsUpdate = true;
+      }
+    }
+
     // Update component orders after arrow reversal (first vertex has changed)
     const componentsToUpdate = componentIndex !== null ?
       [this._findConnectedComponents()[componentIndex]] :
@@ -9995,7 +10047,7 @@ async function performUndo() {
       await undoMBNHBackbite(action.data);
       break;
     case 'COMPONENT_ORDER':
-      await undoComponentOrder(action.data);
+      undoComponentOrder(action.data);
       break;
     case 'COMPONENT_MERGE':
       await undoComponentMerge(action.data);
@@ -10006,9 +10058,15 @@ async function performUndo() {
     case 'FRAGMENT_SWITCH':
       undoFragmentSwitch(action.data);
       break;
+    case 'HIGHLIGHT_BOX':
+      undoHighlightBox(action.data);
+      break;
     default:
       console.warn('Unknown action type:', action.type);
   }
+
+  // Update endpoint markers based on Hamiltonian status after undo
+  checkAndUpdateHamiltonianMarkers();
 
   currentGrid.redoStack.push(action);
 }
@@ -10048,7 +10106,7 @@ async function performRedo() {
       await redoMBNHBackbite(action.data);
       break;
     case 'COMPONENT_ORDER':
-      await redoComponentOrder(action.data);
+      redoComponentOrder(action.data);
       break;
     case 'COMPONENT_MERGE':
       await redoComponentMerge(action.data);
@@ -10059,9 +10117,15 @@ async function performRedo() {
     case 'FRAGMENT_SWITCH':
       redoFragmentSwitch(action.data);
       break;
+    case 'HIGHLIGHT_BOX':
+      redoHighlightBox(action.data);
+      break;
 	default:
       console.warn('Unknown action type:', action.type);
   }
+
+  // Update endpoint markers based on Hamiltonian status after redo
+  checkAndUpdateHamiltonianMarkers();
 
   currentGrid.undoStack.push(action);
 }
@@ -10160,7 +10224,86 @@ function captureCompleteGridState() {
     console.timeEnd('⏱️ captureActiveSubgraph');
   }
 
+  // Capture persistent box highlights (user-placed highlights via HighlightBox mode)
+  if (currentGrid.persistentBoxHighlights && currentGrid.persistentBoxHighlights.size > 0) {
+    state.persistentBoxHighlights = [];
+    for (const [boxKey, mesh] of currentGrid.persistentBoxHighlights.entries()) {
+      state.persistentBoxHighlights.push({
+        boxKey: boxKey,
+        color: mesh.material.color.getHex(),
+        opacity: mesh.material.opacity
+      });
+    }
+  }
+
   return state;
+}
+
+/**
+ * Capture only component order state (lightweight alternative to captureCompleteGridState)
+ * Used for COMPONENT_ORDER undo/redo to avoid disturbing other visual elements like planes
+ */
+function captureComponentOrderState() {
+  const state = {
+    vertexOrders: [],  // Array of {vKey, componentOrder, componentOrderManual, componentOrderTimestamp}
+    componentOrderMap: Array.from(componentOrderMap.entries())  // [[order, vKey], ...]
+  };
+
+  if (currentGrid && currentGrid.vertices) {
+    for (const [vKey, vertex] of currentGrid.vertices.entries()) {
+      if (vertex.componentOrder !== undefined) {
+        state.vertexOrders.push({
+          vKey: vKey,
+          componentOrder: vertex.componentOrder,
+          componentOrderManual: vertex.componentOrderManual || false,
+          componentOrderTimestamp: vertex.componentOrderTimestamp
+        });
+      }
+    }
+  }
+
+  return state;
+}
+
+/**
+ * Restore only component order state (surgical restore that doesn't affect other visual elements)
+ */
+function restoreComponentOrderState(state) {
+  if (!currentGrid || !currentGrid.vertices || !state) return;
+
+  // Step 1: Clear all existing component order properties from all vertices
+  for (const [vKey, vertex] of currentGrid.vertices.entries()) {
+    if (vertex.componentOrder !== undefined) {
+      delete vertex.componentOrder;
+      delete vertex.componentOrderManual;
+      delete vertex.componentOrderTimestamp;
+    }
+  }
+
+  // Step 2: Clear the global componentOrderMap
+  componentOrderMap.clear();
+
+  // Step 3: Restore component order properties to vertices
+  for (const orderData of state.vertexOrders) {
+    const vertex = currentGrid.vertices.get(orderData.vKey);
+    if (vertex) {
+      vertex.componentOrder = orderData.componentOrder;
+      vertex.componentOrderManual = orderData.componentOrderManual;
+      vertex.componentOrderTimestamp = orderData.componentOrderTimestamp;
+    }
+  }
+
+  // Step 4: Restore componentOrderMap
+  for (const [order, vKey] of state.componentOrderMap) {
+    componentOrderMap.set(order, vKey);
+  }
+
+  // Step 5: Update visual labels
+  if (showComponentOrdering) {
+    updateComponentOrderingLabels();
+  }
+
+  console.log(`[restoreComponentOrderState] Restored ${state.vertexOrders.length} component orders`);
 }
 
 function captureAllEdgeStates() {
@@ -10375,6 +10518,85 @@ function restoreActiveSubgraphFromSnapshot(snapshot) {
   }
 }
 
+function restoreBoxHighlightsFromSnapshot(snapshot) {
+  // First, clear any existing persistent box highlights
+  if (currentGrid.persistentBoxHighlights) {
+    for (const [boxKey, mesh] of currentGrid.persistentBoxHighlights.entries()) {
+      currentGrid.group.remove(mesh);
+      mesh.geometry.dispose();
+      mesh.material.dispose();
+    }
+    currentGrid.persistentBoxHighlights.clear();
+  }
+
+  // Restore persistent box highlights if they exist in the snapshot
+  if (snapshot.persistentBoxHighlights && snapshot.persistentBoxHighlights.length > 0) {
+    if (!currentGrid.persistentBoxHighlights) {
+      currentGrid.persistentBoxHighlights = new Map();
+    }
+
+    let restoredCount = 0;
+    for (const highlightData of snapshot.persistentBoxHighlights) {
+      // Parse boxKey: "x,y,z,plane"
+      const parts = highlightData.boxKey.split(',');
+      const x = parseInt(parts[0]);
+      const y = parseInt(parts[1]);
+      const z = parseInt(parts[2]);
+      const plane = parts[3];
+
+      // Find the corresponding box in the grid
+      let boxMap;
+      if (plane === 'XY') boxMap = currentGrid.boxesXY;
+      else if (plane === 'XZ') boxMap = currentGrid.boxesXZ;
+      else if (plane === 'YZ') boxMap = currentGrid.boxesYZ;
+
+      let targetBox = null;
+      if (boxMap) {
+        for (const [key, box] of boxMap.entries()) {
+          if (box.coords[0] === x && box.coords[1] === y && box.coords[2] === z) {
+            targetBox = box;
+            break;
+          }
+        }
+      }
+
+      if (targetBox) {
+        // Recreate the highlight mesh
+        let size, center;
+        if (plane === 'XY') {
+          size = new THREE.Vector3(1, 1, 0.02);
+          center = new THREE.Vector3(x + 0.5, y + 0.5, z);
+        } else if (plane === 'XZ') {
+          size = new THREE.Vector3(1, 0.02, 1);
+          center = new THREE.Vector3(x + 0.5, y, z + 0.5);
+        } else if (plane === 'YZ') {
+          size = new THREE.Vector3(0.02, 1, 1);
+          center = new THREE.Vector3(x, y + 0.5, z + 0.5);
+        }
+
+        const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+        const material = new THREE.MeshBasicMaterial({
+          color: highlightData.color,
+          opacity: highlightData.opacity,
+          transparent: true,
+          depthTest: false
+        });
+
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.copy(center);
+        mesh.userData.boxKey = highlightData.boxKey;
+        mesh.userData.box = targetBox;
+
+        currentGrid.group.add(mesh);
+        currentGrid.persistentBoxHighlights.set(highlightData.boxKey, mesh);
+        restoredCount++;
+      }
+    }
+
+    console.log(`[restoreBoxHighlightsFromSnapshot] Restored ${restoredCount} persistent box highlights`);
+  }
+}
+
 async function restoreGridFromSnapshot(snapshot) {
   console.log('[restoreGridFromSnapshot] *** FUNCTION CALLED ***', snapshot);
 
@@ -10429,6 +10651,7 @@ async function restoreGridFromSnapshot(snapshot) {
   restoreVertexStatesFromSnapshot(snapshot);
   restorePathFromSnapshot(snapshot);
   restoreActiveSubgraphFromSnapshot(snapshot);
+  restoreBoxHighlightsFromSnapshot(snapshot);
 
   // Update dimension UI
   document.getElementById("widthInput").value = snapshot.dimensions.width;
@@ -12587,6 +12810,113 @@ function redoEdgeState(actionData) {
 }
 
 
+//     ----- Highlight Box Operations -----
+
+function undoHighlightBox(actionData) {
+  const { boxKey, coords, plane, color, opacity, wasAdded } = actionData;
+
+  // Initialize the persistent highlights map if needed
+  if (!currentGrid.persistentBoxHighlights) {
+    currentGrid.persistentBoxHighlights = new Map();
+  }
+
+  if (wasAdded) {
+    // The original action ADDED a highlight, so undo means REMOVE it
+    if (currentGrid.persistentBoxHighlights.has(boxKey)) {
+      const mesh = currentGrid.persistentBoxHighlights.get(boxKey);
+      currentGrid.group.remove(mesh);
+      mesh.geometry.dispose();
+      mesh.material.dispose();
+      currentGrid.persistentBoxHighlights.delete(boxKey);
+      console.log(`[undoHighlightBox] Removed highlight at ${boxKey}`);
+    }
+  } else {
+    // The original action REMOVED a highlight, so undo means RE-ADD it
+    const [x, y, z] = coords;
+    let size, center;
+
+    if (plane === "XY") {
+      size = new THREE.Vector3(1, 1, 0.02);
+      center = new THREE.Vector3(x + 0.5, y + 0.5, z);
+    } else if (plane === "XZ") {
+      size = new THREE.Vector3(1, 0.02, 1);
+      center = new THREE.Vector3(x + 0.5, y, z + 0.5);
+    } else if (plane === "YZ") {
+      size = new THREE.Vector3(0.02, 1, 1);
+      center = new THREE.Vector3(x, y + 0.5, z + 0.5);
+    }
+
+    const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+    const material = new THREE.MeshBasicMaterial({
+      color: color,
+      opacity: opacity,
+      transparent: true,
+      depthTest: false
+    });
+
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.copy(center);
+    mesh.userData.boxKey = boxKey;
+
+    currentGrid.group.add(mesh);
+    currentGrid.persistentBoxHighlights.set(boxKey, mesh);
+    console.log(`[undoHighlightBox] Re-added highlight at ${boxKey}`);
+  }
+}
+
+function redoHighlightBox(actionData) {
+  const { boxKey, coords, plane, color, opacity, wasAdded } = actionData;
+
+  // Initialize the persistent highlights map if needed
+  if (!currentGrid.persistentBoxHighlights) {
+    currentGrid.persistentBoxHighlights = new Map();
+  }
+
+  if (wasAdded) {
+    // The original action ADDED a highlight, so redo means ADD it again
+    const [x, y, z] = coords;
+    let size, center;
+
+    if (plane === "XY") {
+      size = new THREE.Vector3(1, 1, 0.02);
+      center = new THREE.Vector3(x + 0.5, y + 0.5, z);
+    } else if (plane === "XZ") {
+      size = new THREE.Vector3(1, 0.02, 1);
+      center = new THREE.Vector3(x + 0.5, y, z + 0.5);
+    } else if (plane === "YZ") {
+      size = new THREE.Vector3(0.02, 1, 1);
+      center = new THREE.Vector3(x, y + 0.5, z + 0.5);
+    }
+
+    const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+    const material = new THREE.MeshBasicMaterial({
+      color: color,
+      opacity: opacity,
+      transparent: true,
+      depthTest: false
+    });
+
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.copy(center);
+    mesh.userData.boxKey = boxKey;
+
+    currentGrid.group.add(mesh);
+    currentGrid.persistentBoxHighlights.set(boxKey, mesh);
+    console.log(`[redoHighlightBox] Re-added highlight at ${boxKey}`);
+  } else {
+    // The original action REMOVED a highlight, so redo means REMOVE it again
+    if (currentGrid.persistentBoxHighlights.has(boxKey)) {
+      const mesh = currentGrid.persistentBoxHighlights.get(boxKey);
+      currentGrid.group.remove(mesh);
+      mesh.geometry.dispose();
+      mesh.material.dispose();
+      currentGrid.persistentBoxHighlights.delete(boxKey);
+      console.log(`[redoHighlightBox] Removed highlight at ${boxKey}`);
+    }
+  }
+}
+
+
 //     ----- Layer Operations -----
 
 // Layer operation undo/redo functions
@@ -12866,74 +13196,20 @@ async function redoMBNHBackbite(actionData) {
   console.log(`[redoMBNHBackbite] Completed in ${elapsed.toFixed(1)}ms (optimized=${dimensionsMatch})`);
 }
 
-async function undoComponentOrder(actionData) {
-  console.log('[undoComponentOrder] Undoing component order change');
+function undoComponentOrder(actionData) {
+  console.log('[undoComponentOrder] Undoing component order change (surgical)');
   const { beforeState } = actionData;
 
-  // Save current camera state
-  const currentCameraPos = camera.position.clone();
-  const currentCameraTarget = controls.target.clone();
-
-  // Remove all component order labels from scene before clearing
-  if (currentGrid && currentGrid.vertices) {
-    for (const [vKey, vertex] of currentGrid.vertices.entries()) {
-      if (vertex.orderLabel) {
-        scene.remove(vertex.orderLabel);
-        vertex.orderLabel = null;
-      }
-    }
-  }
-
-  // Clear current grid contents
-  clearCurrentGridContents();
-
-  // Restore from complete state snapshot
-  await restoreGridFromSnapshot(beforeState);
-
-  // Restore camera
-  camera.position.copy(currentCameraPos);
-  controls.target.copy(currentCameraTarget);
-  controls.update();
-
-  // Refresh component ordering labels
-  if (showComponentOrdering && currentGrid) {
-    updateComponentOrderingLabels();
-  }
+  // Surgical restore: only update component order properties, don't touch anything else
+  restoreComponentOrderState(beforeState);
 }
 
-async function redoComponentOrder(actionData) {
-  console.log('[redoComponentOrder] Redoing component order change');
+function redoComponentOrder(actionData) {
+  console.log('[redoComponentOrder] Redoing component order change (surgical)');
   const { afterState } = actionData;
 
-  // Save current camera state
-  const currentCameraPos = camera.position.clone();
-  const currentCameraTarget = controls.target.clone();
-
-  // Remove all component order labels from scene before clearing
-  if (currentGrid && currentGrid.vertices) {
-    for (const [vKey, vertex] of currentGrid.vertices.entries()) {
-      if (vertex.orderLabel) {
-        scene.remove(vertex.orderLabel);
-        vertex.orderLabel = null;
-      }
-    }
-  }
-
-  // Clear current grid contents
-  clearCurrentGridContents();
-
-  // Restore from complete state snapshot
-  await restoreGridFromSnapshot(afterState);
-
-  // Restore camera
-  camera.position.copy(currentCameraPos);
-  controls.target.copy(currentCameraTarget);
-  controls.update();
-
-  // Refresh component ordering labels
-  if (showComponentOrdering && currentGrid) {
-    updateComponentOrderingLabels();
-  }
+  // Surgical restore: only update component order properties, don't touch anything else
+  restoreComponentOrderState(afterState);
 }
 
 // Component merge undo/redo handlers
@@ -13079,6 +13355,13 @@ function flipArrowDirectionForEdge(grid, eKey) {
           arrowStateAttr.setX(mapping.thick, newDirection);
         }
       }
+    } else if (edge.arrows && typeof edge.arrows === 'object' && edge.arrows.isMesh) {
+      // Small non-instanced 3D grid: arrows are mesh with baked texture
+      // Need to remove and re-add with new direction
+      const [from, to] = unpackEdge(eKey, grid);
+      removeArrowsFromEdge(edge, eKey);
+      addArrowsToEdge(edge, newDirection, from, to, eKey);
+      return; // addArrowsToEdge already sets edge.arrowDirection
     }
   } else {
     // Transcendent mode: move instance between forward/backward meshes
@@ -14465,6 +14748,18 @@ function serializeCurrentSubgraph() {
     }
   }
 
+  // Save persistent box highlights (user-placed highlights via HighlightBox mode)
+  if (currentGrid.persistentBoxHighlights && currentGrid.persistentBoxHighlights.size > 0) {
+    subgraphData.persistentBoxHighlights = [];
+    for (const [boxKey, mesh] of currentGrid.persistentBoxHighlights.entries()) {
+      subgraphData.persistentBoxHighlights.push({
+        boxKey: boxKey,
+        color: mesh.material.color.getHex(),
+        opacity: mesh.material.opacity
+      });
+    }
+  }
+
   return subgraphData;
 }
 
@@ -14925,7 +15220,103 @@ function restoreTranslatedSubgraph(savedSubgraph, coordTranslation, oldDims, new
       updateEndpointMarkers(currentGrid);
     }
   }
-  
+
+  // Restore persistent box highlights with translation
+  if (savedSubgraph.persistentBoxHighlights && savedSubgraph.persistentBoxHighlights.length > 0) {
+    currentGrid.persistentBoxHighlights = new Map();
+    let restoredHighlights = 0;
+    let skippedHighlights = 0;
+
+    for (const highlightData of savedSubgraph.persistentBoxHighlights) {
+      // Parse boxKey: "x,y,z,plane"
+      const parts = highlightData.boxKey.split(',');
+      const oldX = parseInt(parts[0]);
+      const oldY = parseInt(parts[1]);
+      const oldZ = parseInt(parts[2]);
+      const plane = parts[3];
+
+      // Apply coordinate translation
+      const newX = oldX + coordTranslation.x;
+      const newY = oldY + coordTranslation.y;
+      const newZ = oldZ + coordTranslation.z;
+
+      // Check if translated coordinates are within new grid bounds
+      // Box at (x,y,z) spans from (x,y,z) to (x+1,y+1,z+1) depending on plane
+      let inBounds = false;
+      if (plane === 'XY') {
+        inBounds = newX >= 0 && newX < newDims.width - 1 &&
+                   newY >= 0 && newY < newDims.height - 1 &&
+                   newZ >= 0 && newZ < newDims.depth;
+      } else if (plane === 'XZ') {
+        inBounds = newX >= 0 && newX < newDims.width - 1 &&
+                   newY >= 0 && newY < newDims.height &&
+                   newZ >= 0 && newZ < newDims.depth - 1;
+      } else if (plane === 'YZ') {
+        inBounds = newX >= 0 && newX < newDims.width &&
+                   newY >= 0 && newY < newDims.height - 1 &&
+                   newZ >= 0 && newZ < newDims.depth - 1;
+      }
+
+      if (!inBounds) {
+        skippedHighlights++;
+        continue;
+      }
+
+      // Find the corresponding box in the new grid
+      const newBoxKey = `${newX},${newY},${newZ},${plane}`;
+      let boxMap;
+      if (plane === 'XY') boxMap = currentGrid.boxesXY;
+      else if (plane === 'XZ') boxMap = currentGrid.boxesXZ;
+      else if (plane === 'YZ') boxMap = currentGrid.boxesYZ;
+
+      let targetBox = null;
+      if (boxMap) {
+        for (const [key, box] of boxMap.entries()) {
+          if (box.coords[0] === newX && box.coords[1] === newY && box.coords[2] === newZ) {
+            targetBox = box;
+            break;
+          }
+        }
+      }
+
+      if (targetBox) {
+        // Recreate the highlight mesh
+        let size, center;
+        if (plane === 'XY') {
+          size = new THREE.Vector3(1, 1, 0.02);
+          center = new THREE.Vector3(newX + 0.5, newY + 0.5, newZ);
+        } else if (plane === 'XZ') {
+          size = new THREE.Vector3(1, 0.02, 1);
+          center = new THREE.Vector3(newX + 0.5, newY, newZ + 0.5);
+        } else if (plane === 'YZ') {
+          size = new THREE.Vector3(0.02, 1, 1);
+          center = new THREE.Vector3(newX, newY + 0.5, newZ + 0.5);
+        }
+
+        const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+        const material = new THREE.MeshBasicMaterial({
+          color: highlightData.color,
+          opacity: highlightData.opacity,
+          transparent: true,
+          depthTest: false
+        });
+
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.copy(center);
+        mesh.userData.boxKey = newBoxKey;
+        mesh.userData.box = targetBox;
+
+        currentGrid.group.add(mesh);
+        currentGrid.persistentBoxHighlights.set(newBoxKey, mesh);
+        restoredHighlights++;
+      } else {
+        skippedHighlights++;
+      }
+    }
+
+    console.log(`[restoreTranslatedSubgraph] Restored ${restoredHighlights} persistent box highlights, skipped ${skippedHighlights}`);
+  }
+
   // Apply gradient if mode is active
   if (gradientMode && currentGrid.path && currentGrid.path.length > 1) {
     applyGradientToPath();
@@ -16163,6 +16554,52 @@ function clearEndpointMarkers(grid) {
   }
 }
 
+/**
+ * Check if the current subgraph is Hamiltonian and update endpoint markers accordingly.
+ * - If Hamiltonian and no markers exist → add markers
+ * - If not Hamiltonian and markers exist → remove markers
+ *
+ * PERFORMANCE NOTE: This runs isHamiltonianPath() which is O(V+E).
+ * To avoid performance issues on large grids, this check is only performed
+ * for grids with fewer than 50,000 vertices.
+ */
+function checkAndUpdateHamiltonianMarkers() {
+  if (!currentGrid) return;
+
+  // Skip for large grids (> 50,000 vertices) to avoid performance impact
+  // Users can manually check Hamiltonicity via the button for large grids
+  const MAX_VERTICES_FOR_AUTO_CHECK = 50000;
+  if (currentGrid.vertices.size > MAX_VERTICES_FOR_AUTO_CHECK) {
+    return;
+  }
+
+  const hasMarkers = currentGrid.startMarker !== null || currentGrid.endMarker !== null;
+  const isHamiltonian = isHamiltonianPath();
+
+  console.log(`[checkAndUpdateHamiltonianMarkers] hasMarkers=${hasMarkers}, isHamiltonian=${isHamiltonian}`);
+
+  if (isHamiltonian && !hasMarkers) {
+    // Path became Hamiltonian - markers should have been added by isHamiltonianPath()
+    // but let's ensure they exist
+    if (!currentGrid.startMarker && !currentGrid.endMarker) {
+      activeEndpoint = 'start';
+      updateEndpointMarkers(currentGrid);
+      console.log('[checkAndUpdateHamiltonianMarkers] Added endpoint markers');
+    }
+    // Also ensure all edges have arrows if arrowMode is on
+    if (arrowMode && currentGrid.path && currentGrid.path.length > 1) {
+      addDirectionalArrowsToPath(currentGrid.path);
+      console.log('[checkAndUpdateHamiltonianMarkers] Added arrows to Hamiltonian path');
+    }
+  } else if (!isHamiltonian && hasMarkers) {
+    // Path was broken - remove markers
+    clearEndpointMarkers(currentGrid);
+    currentGrid.path = null;
+    currentPath = [];
+    console.log('[checkAndUpdateHamiltonianMarkers] Path broken - removed endpoint markers');
+  }
+}
+
 
 
 //     =======================================
@@ -16608,6 +17045,23 @@ function addArrowNormal2D(grid, edge, eKey, direction, from, to) {
     endPos = new THREE.Vector3(v2[0], v2[1], v2[2] ?? 0);
   }
 
+  // Calculate actualDirection relative to canonical edge order (same as 3D version)
+  // This ensures edge.arrowDirection is consistent with isArrowPointingToVertex
+  let actualDirection = direction;
+  if (from && to) {
+    const [v1, v2] = unpackEdge(eKey, grid);
+    const fromMatchesV1 = from[0] === v1[0] && from[1] === v1[1] && (from[2] ?? 0) === (v1[2] ?? 0);
+    const toMatchesV2 = to[0] === v2[0] && to[1] === v2[1] && (to[2] ?? 0) === (v2[2] ?? 0);
+
+    if (fromMatchesV1 && toMatchesV2) {
+      // Traversing in canonical direction - use direction as-is
+      actualDirection = direction;
+    } else {
+      // Traversing opposite to canonical direction - flip
+      actualDirection = -direction;
+    }
+  }
+
   // Calculate midpoint and edge direction
   const midpoint = new THREE.Vector3().addVectors(startPos, endPos).multiplyScalar(0.5);
   const edgeDir = new THREE.Vector3().subVectors(endPos, startPos).normalize();
@@ -16697,7 +17151,7 @@ function addArrowNormal2D(grid, edge, eKey, direction, from, to) {
   // Add to scene and track on edge
   grid.group.add(arrowMesh);
   edge.arrow2DMesh = arrowMesh;
-  edge.arrowDirection = direction;
+  edge.arrowDirection = actualDirection;  // Use actualDirection (relative to canonical order)
   edge.arrows = 'normal';
 }
 
@@ -17094,6 +17548,10 @@ function addDirectionalArrowsToPath(path, closed = false) {
     const edge = currentGrid.edges.get(eKey);
     if (edge) {
       addArrowsToEdge(edge, baseDirection, a, b);
+      // Also update activeSubgraph.edgeDirections for consistency with isHamiltonianPath()
+      if (currentGrid.activeSubgraph && currentGrid.activeSubgraph.edgeDirections) {
+        currentGrid.activeSubgraph.edgeDirections.set(eKey, edge.arrowDirection);
+      }
     }
   }
 
@@ -17449,7 +17907,9 @@ function findComponentFirstVertex(comp) {
     if (neighbors.length !== 1) continue; // Must be degree 1
 
     const edge = currentGrid.edges.get(neighbors[0].edgeKey);
-    if (!edge || !edge.arrows || edge.arrowDirection === 0) continue;
+    // Check for arrows (either 3D style via edge.arrows or 2D style via edge.arrow2DMesh)
+    if (!edge || (!edge.arrows && !edge.arrow2DMesh)) continue;
+    if (edge.arrowDirection === 0) continue;
 
     // Check if arrow points AWAY from this vertex (tail/outgoing)
     const arrowPointsToVertex = isArrowPointingToVertex(neighbors[0].edgeKey, vKey, edge.arrowDirection);
@@ -18190,24 +18650,40 @@ function performManualBackbite(clickedEdgeKey) {
     const bCompResult = getComponentFromVertex(bKey, cachedComponents);
 
     if (!aCompResult || !bCompResult) {
-      // DEBUG: Log diagnostic info for layer operation issues
-      console.error('❌ [MBNH DEBUG] Could not identify components for edge endpoints');
-      console.log('  Clicked edge key:', clickedEdgeKey);
-      console.log('  Grid dimensions:', currentGrid.width, 'x', currentGrid.height, 'x', currentGrid.depth);
-      console.log('  Endpoint A coords:', [ax, ay, az], '→ key:', aKey, '→ found:', !!aCompResult);
-      console.log('  Endpoint B coords:', [bx, by, bz], '→ key:', bKey, '→ found:', !!bCompResult);
-      console.log('  Subgraph vertices count:', currentGrid.activeSubgraph?.vertices?.size || 0);
-      console.log('  Subgraph edges count:', currentGrid.activeSubgraph?.edges?.size || 0);
-      console.log('  Components count:', cachedComponents?.length || 0);
-      if (currentGrid.activeSubgraph?.vertices) {
-        console.log('  Sample subgraph vertices (first 5):', Array.from(currentGrid.activeSubgraph.vertices).slice(0, 5));
-        console.log('  Is aKey in subgraph.vertices?', currentGrid.activeSubgraph.vertices.has(aKey));
-        console.log('  Is bKey in subgraph.vertices?', currentGrid.activeSubgraph.vertices.has(bKey));
+      // Check if both endpoints have at least one subgraph edge before showing alert
+      // (if an endpoint has no edges, it's obvious backbite can't work - no need to alert)
+      let aHasEdge = false;
+      let bHasEdge = false;
+      for (const eKey of currentGrid.activeSubgraph.edges) {
+        const [[e1x, e1y, e1z], [e2x, e2y, e2z]] = unpackEdge(eKey, currentGrid);
+        const e1Key = vertexKey(e1x, e1y, e1z, currentGrid);
+        const e2Key = vertexKey(e2x, e2y, e2z, currentGrid);
+        if (e1Key === aKey || e2Key === aKey) aHasEdge = true;
+        if (e1Key === bKey || e2Key === bKey) bHasEdge = true;
+        if (aHasEdge && bHasEdge) break; // Early exit if both found
       }
-      if (cachedComponents && cachedComponents.length > 0) {
-        console.log('  Components vertex counts:', cachedComponents.map((c, i) => `C${i+1}: ${c.vertices.size}`).join(', '));
+
+      // Only show alert if both endpoints have subgraph edges (user might expect it to work)
+      if (aHasEdge && bHasEdge) {
+        // DEBUG: Log diagnostic info for layer operation issues
+        console.error('❌ [MBNH DEBUG] Could not identify components for edge endpoints');
+        console.log('  Clicked edge key:', clickedEdgeKey);
+        console.log('  Grid dimensions:', currentGrid.width, 'x', currentGrid.height, 'x', currentGrid.depth);
+        console.log('  Endpoint A coords:', [ax, ay, az], '→ key:', aKey, '→ found:', !!aCompResult);
+        console.log('  Endpoint B coords:', [bx, by, bz], '→ key:', bKey, '→ found:', !!bCompResult);
+        console.log('  Subgraph vertices count:', currentGrid.activeSubgraph?.vertices?.size || 0);
+        console.log('  Subgraph edges count:', currentGrid.activeSubgraph?.edges?.size || 0);
+        console.log('  Components count:', cachedComponents?.length || 0);
+        if (currentGrid.activeSubgraph?.vertices) {
+          console.log('  Sample subgraph vertices (first 5):', Array.from(currentGrid.activeSubgraph.vertices).slice(0, 5));
+          console.log('  Is aKey in subgraph.vertices?', currentGrid.activeSubgraph.vertices.has(aKey));
+          console.log('  Is bKey in subgraph.vertices?', currentGrid.activeSubgraph.vertices.has(bKey));
+        }
+        if (cachedComponents && cachedComponents.length > 0) {
+          console.log('  Components vertex counts:', cachedComponents.map((c, i) => `C${i+1}: ${c.vertices.size}`).join(', '));
+        }
+        alert('Cannot perform backbite: Could not identify components for edge endpoints.');
       }
-      alert('Cannot perform backbite: Could not identify components for edge endpoints.');
       console.timeEnd('⏱️ MBNH Total');
       return false;
     }
@@ -19511,11 +19987,41 @@ function isHamiltonianPath() {
     console.log(`Expected 2 endpoints, found: ${endpoints.length}`);
     return false;
   }
-  
+
+  // Determine the true start vertex by checking arrow directions
+  // The start vertex should have an outgoing arrow, not an incoming one
+  let startVertex = endpoints[0];
+  if (currentGrid.activeSubgraph && currentGrid.activeSubgraph.edgeDirections) {
+    for (const endpoint of endpoints) {
+      // Find the edge connected to this endpoint
+      const neighbors = adj.get(endpoint) || [];
+      if (neighbors.length === 1) {
+        const neighborKey = neighbors[0];
+        // Get the edge key (canonical form: smaller vertex first)
+        const eKey = endpoint < neighborKey
+          ? edgeKey(unpackVertex(endpoint, currentGrid), unpackVertex(neighborKey, currentGrid), currentGrid)
+          : edgeKey(unpackVertex(neighborKey, currentGrid), unpackVertex(endpoint, currentGrid), currentGrid);
+
+        const direction = currentGrid.activeSubgraph.edgeDirections.get(eKey) || 0;
+        if (direction !== 0) {
+          // direction 1 means smaller→larger, direction -1 means larger→smaller
+          const [v1, v2] = endpoint < neighborKey ? [endpoint, neighborKey] : [neighborKey, endpoint];
+          const arrowPointsFrom = direction === 1 ? v1 : v2;
+
+          if (arrowPointsFrom === endpoint) {
+            // This endpoint has an outgoing arrow - it's the start
+            startVertex = endpoint;
+            break;
+          }
+        }
+      }
+    }
+  }
+
   // Check connectivity by walking the path
   const visited = new Set();
   const path = [];
-  let current = endpoints[0];
+  let current = startVertex;
   let prev = null;
 
   while (current !== null && current !== undefined) {
@@ -19531,8 +20037,23 @@ function isHamiltonianPath() {
     console.log(`Path incomplete: covers ${path.length}/${totalVertices} vertices`);
     return false;
   }
-  
+
   currentPath = path; // Save it globally
+  currentGrid.path = path; // Also save to grid for backbite operations
+
+  // Automatically add or update endpoint markers when Hamiltonian path is recognized
+  // Always update markers to ensure they match the current path direction
+  if (!currentGrid.startMarker && !currentGrid.endMarker) {
+    activeEndpoint = 'start'; // Default to start being active
+    updateEndpointMarkers(currentGrid);
+    console.log('[isHamiltonianPath] Auto-added endpoint markers');
+  } else {
+    // Markers exist but path may have been rebuilt with different direction
+    // Update markers to reflect current path[0] and path[end]
+    updateEndpointMarkers(currentGrid);
+    console.log('[isHamiltonianPath] Updated endpoint markers to match rebuilt path');
+  }
+
   return true;
 }
 
@@ -19783,6 +20304,92 @@ async function duplicateCurrentGrid() {
   // (switchToGrid called updateComponentOrderingLabels earlier, but activeSubgraph was null at that point)
   if (showComponentOrdering) {
     updateComponentOrderingLabels();
+  }
+
+  // Copy endpoint markers if source grid had a Hamiltonian path with markers
+  if (sourceGrid.startMarker && sourceGrid.endMarker && duplicateGrid.path && duplicateGrid.path.length >= 2) {
+    // activeEndpoint is global, so it's already correct from source context
+    updateEndpointMarkers(duplicateGrid);
+    console.log('[duplicateCurrentGrid] Copied endpoint markers');
+  }
+
+  // Copy persistent (manual) box highlights if source grid had them
+  if (sourceGrid.persistentBoxHighlights && sourceGrid.persistentBoxHighlights.size > 0) {
+    duplicateGrid.persistentBoxHighlights = new Map();
+
+    for (const [boxKey, sourceMesh] of sourceGrid.persistentBoxHighlights.entries()) {
+      // Parse boxKey: "x,y,z,plane"
+      const parts = boxKey.split(',');
+      const x = parseInt(parts[0]);
+      const y = parseInt(parts[1]);
+      const z = parseInt(parts[2]);
+      const plane = parts[3];
+
+      // Find the corresponding box in duplicate grid
+      let boxMap;
+      if (plane === 'XY') boxMap = duplicateGrid.boxesXY;
+      else if (plane === 'XZ') boxMap = duplicateGrid.boxesXZ;
+      else if (plane === 'YZ') boxMap = duplicateGrid.boxesYZ;
+
+      let targetBox = null;
+      if (boxMap) {
+        for (const [key, box] of boxMap.entries()) {
+          if (box.coords[0] === x && box.coords[1] === y && box.coords[2] === z) {
+            targetBox = box;
+            break;
+          }
+        }
+      }
+
+      if (targetBox) {
+        // Recreate the highlight mesh with same properties
+        let size, center;
+        if (plane === "XY") {
+          size = new THREE.Vector3(1, 1, 0.02);
+          center = new THREE.Vector3(x + 0.5, y + 0.5, z);
+        } else if (plane === "XZ") {
+          size = new THREE.Vector3(1, 0.02, 1);
+          center = new THREE.Vector3(x + 0.5, y, z + 0.5);
+        } else if (plane === "YZ") {
+          size = new THREE.Vector3(0.02, 1, 1);
+          center = new THREE.Vector3(x, y + 0.5, z + 0.5);
+        }
+
+        const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+        const material = new THREE.MeshBasicMaterial({
+          color: sourceMesh.material.color.getHex(),
+          opacity: sourceMesh.material.opacity,
+          transparent: true,
+          depthTest: false
+        });
+
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.copy(center);
+        mesh.userData.boxKey = boxKey;
+        mesh.userData.box = targetBox;
+
+        duplicateGrid.group.add(mesh);
+        duplicateGrid.persistentBoxHighlights.set(boxKey, mesh);
+      }
+    }
+    console.log(`[duplicateCurrentGrid] Copied ${duplicateGrid.persistentBoxHighlights.size} persistent box highlights`);
+  }
+
+  // Recalculate automatic switchable box highlights based on duplicate's subgraph state
+  // (Don't copy highlightedBoxes directly - they should be computed fresh)
+  if (boxHighlightingEnabled && duplicateGrid.isInstanced && duplicateGrid.activeSubgraph) {
+    const adj = buildAdjacencyFromEdgeSet(duplicateGrid, duplicateGrid.activeSubgraph.getEdgeKeys());
+    const vertexComponent = labelComponents(adj);
+    const numComponents = new Set(vertexComponent.values()).size;
+
+    if (numComponents >= 2) {
+      const borderBoxes = getGeneralBorderBoxes(duplicateGrid, vertexComponent, duplicateGrid.activeSubgraph);
+      if (borderBoxes.length > 0) {
+        highlightBoxes(borderBoxes, boxHighlightColor);
+        duplicateGrid.highlightedBoxes = borderBoxes;
+        console.log(`[duplicateCurrentGrid] Computed ${borderBoxes.length} automatic border box highlights`);
+      }
+    }
   }
 
   // Copy custom planes from source grid to duplicate
@@ -20713,9 +21320,10 @@ function handleEdgeClick(intersects) {
       
       const afterState = captureEdgeState(eKey);
       recordAction('EDGE_STATE', { edgeKey: eKey, beforeState, afterState });
+      checkAndUpdateHamiltonianMarkers();
       return;
     }
-    
+
     // Simple toggle: uncolored <-> colored (no cube logic)
     const isColored = edge.color !== UNCOLORED_COLOR;
     if (isColored) {
@@ -20733,9 +21341,10 @@ function handleEdgeClick(intersects) {
     
     const afterState = captureEdgeState(eKey);
     recordAction('EDGE_STATE', { edgeKey: eKey, beforeState, afterState });
+    checkAndUpdateHamiltonianMarkers();
     return;
   }
-  
+
   // Direct mesh clicks (same logic as above)
   for (const [key, edge] of currentGrid.edges.entries()) {
     if (edge.mesh === clicked) {
@@ -20769,9 +21378,10 @@ function handleEdgeClick(intersects) {
         
         const afterState = captureEdgeState(key);
         recordAction('EDGE_STATE', { edgeKey: key, beforeState, afterState });
+        checkAndUpdateHamiltonianMarkers();
         return;
       }
-      
+
       // Simple toggle: uncolored <-> colored (no cube logic)
       const isColored = edge.color !== UNCOLORED_COLOR;
       if (isColored) {
@@ -20789,6 +21399,7 @@ function handleEdgeClick(intersects) {
       
       const afterState = captureEdgeState(key);
       recordAction('EDGE_STATE', { edgeKey: key, beforeState, afterState });
+      checkAndUpdateHamiltonianMarkers();
       break;
     }
   }
@@ -23716,6 +24327,8 @@ function performParallelSwitch(box, inSubgraph, notInSubgraph, edge1, edge2) {
       const arrowDir = (aKey === vSKey) ? 1 : -1;  // Point from v_s to v_t
       subgraph.edgeDirections.set(eKey, arrowDir);
       addArrowsToEdge(edge, arrowDir, edgeInComponentI.a, edgeInComponentI.b, eKey);
+      // Update last arrowed edge tracking so future edge additions respect the new path orientation
+      updateLastArrowedEdgeTracking(eKey);
       console.log(`[Fragment Switch DEBUG] Added new edge ${eKey} (v_s,v_t) with direction ${arrowDir}`);
     }
   }
@@ -23737,6 +24350,8 @@ function performParallelSwitch(box, inSubgraph, notInSubgraph, edge1, edge2) {
       const arrowDir = (aKey === vSplus1Key) ? 1 : -1;  // Point from v_{s+1} to v_{t+1}
       subgraph.edgeDirections.set(eKey, arrowDir);
       addArrowsToEdge(edge, arrowDir, edgeInComponentJ.a, edgeInComponentJ.b, eKey);
+      // Update last arrowed edge tracking so future edge additions respect the new path orientation
+      updateLastArrowedEdgeTracking(eKey);
       console.log(`[Fragment Switch DEBUG] Added new edge ${eKey} (v_s+1,v_t+1) with direction ${arrowDir}`);
     }
   }
@@ -24977,6 +25592,8 @@ if (arrowMode && currentGrid.path && currentGrid.path.length > 1) {
           const dir = idxA < idxB ? 1 : -1;
           addArrowsToEdge(edge, dir, e.a, e.b, e.eKey);
           subgraph.edgeDirections.set(e.eKey, edge.arrowDirection);
+          // Update last arrowed edge tracking so future edge additions respect the new path orientation
+          updateLastArrowedEdgeTracking(e.eKey);
         }
       }
     }
@@ -24999,6 +25616,11 @@ if (arrowMode && currentGrid.path && currentGrid.path.length > 1) {
 
     // Add arrows back based on the new path
     addDirectionalArrowsToPath(currentGrid.path);
+
+    // Update last arrowed edge tracking for newly added edges so future edge additions respect the new path orientation
+    for (const e of notInSubgraph) {
+      updateLastArrowedEdgeTracking(e.eKey);
+    }
   }
 }
 
@@ -25071,6 +25693,46 @@ function performDoubleSwitch() {
 function setMode(newMode) {
   const oldMode = mode;
   mode = newMode;
+
+  // Clean up switch mode visuals when leaving switch mode
+  if (oldMode === "switch" && newMode !== "switch") {
+    switchMode = false;
+    clearBoxHighlights();
+    clearHoveredBoxHighlight(); // Clear any lingering hover highlight
+
+    // Hide any lingering tooltips
+    hideCoordinateTooltip();
+    hideComponentTooltip();
+
+    // Show original box meshes again when leaving switch mode (or unload if lazy loading)
+    if (currentGrid) {
+      if (lazyLoadSwitchableBoxes) {
+        // Check if we should unload switchable boxes
+        const hasPersistentHighlights = currentGrid.persistentBoxHighlights && currentGrid.persistentBoxHighlights.size > 0;
+        if (!hasPersistentHighlights) {
+          unloadSwitchableBoxes(currentGrid);
+        }
+      } else {
+        // Just hide them
+        if (currentGrid.instancedBoxesXY) currentGrid.instancedBoxesXY.visible = false;
+        if (currentGrid.instancedBoxesXZ) currentGrid.instancedBoxesXZ.visible = false;
+        if (currentGrid.instancedBoxesYZ) currentGrid.instancedBoxesYZ.visible = false;
+      }
+    }
+
+    // Update switch pill UI
+    const switchPill = document.getElementById("switchPill");
+    if (switchPill) switchPill.classList.remove("active");
+
+    console.log('[setMode] Cleaned up switch mode visuals');
+  }
+
+  // Clean up backbite mode when leaving
+  if (oldMode === "backbite" && newMode !== "backbite") {
+    // Update backbite pill UI
+    const backbitePill = document.getElementById("backbitePill");
+    if (backbitePill) backbitePill.classList.remove("active");
+  }
 
   // Handle vertex sphere loading/unloading for vertex editing modes
   if (lazyLoadVertexSpheres && currentGrid && currentGrid.isInstanced) {
@@ -25231,12 +25893,15 @@ function disableSwitchBackbiteModes() {
     if (switchPill) switchPill.classList.remove("active");
   } else if (mode === "backbite") {
     mode = "default";
-    
+
     // Update backbite pill UI
     const backbitePill = document.getElementById("backbitePill");
     if (backbitePill) backbitePill.classList.remove("active");
   }
-  
+
+  // Also disable highlight box mode
+  disableHighlightBoxMode();
+
   updateGlobalUI();
 }
 
@@ -25247,6 +25912,34 @@ function disableEditingModes() {
     mode = "default";
     updateModeButtonStates();
   }
+}
+
+function disableHighlightBoxMode() {
+  if (!highlightBoxMode) return;
+
+  highlightBoxMode = false;
+  const btn = document.getElementById("highlightBoxBtn");
+  if (btn) {
+    btn.classList.remove("active");
+    btn.style.background = '';
+    btn.style.color = '';
+  }
+  clearHoveredBoxHighlight();
+
+  // Hide boxes when deactivating (unless in switch mode)
+  if (currentGrid && mode !== "switch") {
+    if (currentGrid.instancedBoxesXY) currentGrid.instancedBoxesXY.visible = false;
+    if (currentGrid.instancedBoxesXZ) currentGrid.instancedBoxesXZ.visible = false;
+    if (currentGrid.instancedBoxesYZ) currentGrid.instancedBoxesYZ.visible = false;
+  }
+
+  // Unload switchable boxes if lazy loading is enabled, not in switch mode, and no persistent highlights exist
+  const hasPersistentHighlights = currentGrid && currentGrid.persistentBoxHighlights && currentGrid.persistentBoxHighlights.size > 0;
+  if (lazyLoadSwitchableBoxes && currentGrid && mode !== "switch" && !hasPersistentHighlights) {
+    unloadSwitchableBoxes(currentGrid);
+  }
+
+  console.log("[HighlightBoxMode] Deactivated (by mode switch)");
 }
 
 
@@ -26010,9 +26703,10 @@ document.getElementById("decorationBtn").addEventListener("click", () => {
 
 
 document.getElementById("switchPill").addEventListener("click", () => {
-  // Disable any active editing modes
+  // Disable any active editing modes and highlight box mode
   disableEditingModes();
-  
+  disableHighlightBoxMode();
+
   // Auto-disable gradient and backbite if active
   if (gradientMode) {
     gradientMode = false;
@@ -26097,9 +26791,10 @@ document.getElementById("switchPill").addEventListener("click", () => {
 
 
 document.getElementById("backbitePill").addEventListener("click", () => {
-  // Disable any active editing modes
+  // Disable any active editing modes and highlight box mode
   disableEditingModes();
-  
+  disableHighlightBoxMode();
+
   // Auto-disable switch mode if active
   const newMode = mode === "backbite" ? "default" : "backbite";
   setMode(newMode);
@@ -26853,6 +27548,33 @@ if (showFlareButtonCheckbox && showFlareButtonCheckboxClone) {
   });
 }
 
+// Highlight Box button checkbox - show/hide the button on main screen
+const showHighlightBoxButtonCheckbox = document.getElementById("showHighlightBoxButtonCheckbox");
+if (showHighlightBoxButtonCheckbox) {
+  showHighlightBoxButtonCheckbox.addEventListener("change", () => {
+    const highlightBoxBtn = document.getElementById("highlightBoxBtn");
+    if (highlightBoxBtn) {
+      highlightBoxBtn.style.display = showHighlightBoxButtonCheckbox.checked ? "block" : "none";
+      // If hiding the button, also deactivate the mode
+      if (!showHighlightBoxButtonCheckbox.checked && highlightBoxMode) {
+        highlightBoxMode = false;
+        highlightBoxBtn.classList.remove("active");
+        highlightBoxBtn.style.background = "";
+        highlightBoxBtn.style.color = "";
+        clearHoveredBoxHighlight();
+      }
+    }
+  });
+}
+
+// Highlight box opacity slider handler
+document.getElementById('highlightBoxOpacitySlider').addEventListener('input', (e) => {
+  const percent = parseInt(e.target.value);
+  highlightBoxOpacity = percent / 100;
+  document.getElementById('highlightBoxOpacityValue').textContent = `${percent}%`;
+  console.log(`Highlight box opacity changed to: ${highlightBoxOpacity}`);
+});
+
 // Sync the two mouse sensitivity checkboxes (one in "Show on Main Screen" and one in Camera section)
 const showMouseSensitivityCheckboxMain = document.getElementById("showMouseSensitivityCheckbox");
 const showCameraSensitivityCheckboxCamera = document.getElementById("showCameraSensitivityCheckbox");
@@ -27182,6 +27904,41 @@ document.getElementById("flareBtn").addEventListener("click", () => {
     btn.style.color = '';
     btn.style.transition = '';
   }, 100);
+});
+
+// Highlight Box button - toggle highlight box placement mode
+document.getElementById("highlightBoxBtn").addEventListener("click", () => {
+  const btn = document.getElementById("highlightBoxBtn");
+  const isDarkTheme = document.documentElement.classList.contains('dark-theme');
+
+  if (!highlightBoxMode) {
+    // Activating - disable other modes first
+    disableSwitchBackbiteModes();
+    disableEditingModes();
+
+    highlightBoxMode = true;
+
+    // Load switchable boxes if lazy loading is enabled and they're not loaded
+    if (lazyLoadSwitchableBoxes && currentGrid && !currentGrid.instancedBoxesXY && !currentGrid.instancedBoxesXZ && !currentGrid.instancedBoxesYZ) {
+      loadSwitchableBoxes(currentGrid);
+    }
+
+    // Make boxes visible for raycasting (but keep them transparent for aesthetics)
+    if (currentGrid) {
+      if (currentGrid.instancedBoxesXY) currentGrid.instancedBoxesXY.visible = true;
+      if (currentGrid.instancedBoxesXZ) currentGrid.instancedBoxesXZ.visible = true;
+      if (currentGrid.instancedBoxesYZ) currentGrid.instancedBoxesYZ.visible = true;
+    }
+
+    // Activate the mode - style the button as active
+    btn.classList.add("active");
+    btn.style.background = isDarkTheme ? '#4CAF50' : '#3498db';
+    btn.style.color = 'white';
+    console.log("[HighlightBoxMode] Activated - hover over boxes and click to place/remove highlights");
+  } else {
+    // Deactivating - use the shared function
+    disableHighlightBoxMode();
+  }
 });
 
 // Create radial gradient texture for flare sprite
@@ -29696,6 +30453,32 @@ document.getElementById('useDefaultOtherDisplaySettingsCheckbox').addEventListen
       flareRadius = 0.7;
     }
 
+    // Reset highlight box button to disabled (default)
+    const showHighlightBoxButtonCheckbox = document.getElementById('showHighlightBoxButtonCheckbox');
+    if (showHighlightBoxButtonCheckbox) {
+      showHighlightBoxButtonCheckbox.checked = false;
+    }
+    const highlightBoxBtn = document.getElementById('highlightBoxBtn');
+    if (highlightBoxBtn) {
+      highlightBoxBtn.style.display = 'none';
+      // Also deactivate the mode if it was active
+      if (highlightBoxMode) {
+        highlightBoxMode = false;
+        highlightBoxBtn.classList.remove('active');
+        highlightBoxBtn.style.background = '';
+        highlightBoxBtn.style.color = '';
+        clearHoveredBoxHighlight();
+      }
+    }
+
+    // Reset highlight box opacity to default (15%)
+    const highlightBoxOpacitySlider = document.getElementById('highlightBoxOpacitySlider');
+    if (highlightBoxOpacitySlider) {
+      highlightBoxOpacitySlider.value = '15';
+      document.getElementById('highlightBoxOpacityValue').textContent = '15%';
+      highlightBoxOpacity = 0.15;
+    }
+
     console.log('Other display settings reset to defaults');
   }
 });
@@ -30470,9 +31253,15 @@ function onClick(event) {
 
   if (!currentGrid) return;
 
+  // Handle highlight box mode - toggle box highlight on click
+  if (highlightBoxMode) {
+    handleHighlightBoxClick();
+    return;
+  }
+
   // Edge and vertex clicks are now handled exclusively by mouseDown/mouseUp flow
   // onClick only handles modes that don't use the mouseDown/mouseUp system
-  
+
   switch(mode) {
     case "backbite":
       handleBackbiteClick();
@@ -30662,6 +31451,9 @@ function handleInstancedEdgeClick(hits, meshType) {
     currentGrid.instancedHoverState.edgeKey = null;
     currentGrid.instancedHoverState.originalColor = null;
   }
+
+  // Check if Hamiltonian path status changed and update markers accordingly
+  checkAndUpdateHamiltonianMarkers();
 }
 
 
@@ -31184,8 +31976,8 @@ function addComponentOrder(firstVertexKey) {
     return;
   }
 
-  // Capture state before change
-  const beforeState = captureCompleteGridState();
+  // Capture state before change (lightweight - only component order data)
+  const beforeState = captureComponentOrderState();
 
   // Assign component order to the first vertex
   const firstVertex = currentGrid.vertices.get(firstVertexKey);
@@ -31199,8 +31991,8 @@ function addComponentOrder(firstVertexKey) {
     // Refresh display
     updateVertexLabelsAndColors();
 
-    // Capture state after change and record action
-    const afterState = captureCompleteGridState();
+    // Capture state after change and record action (lightweight)
+    const afterState = captureComponentOrderState();
     recordAction('COMPONENT_ORDER', { beforeState, afterState });
   }
 }
@@ -31236,8 +32028,8 @@ function changeComponentOrder(firstVertexKey) {
     return;
   }
 
-  // Capture state before change
-  const beforeState = captureCompleteGridState();
+  // Capture state before change (lightweight - only component order data)
+  const beforeState = captureComponentOrderState();
 
   // Remove old mapping
   componentOrderMap.delete(currentOrder);
@@ -31252,8 +32044,8 @@ function changeComponentOrder(firstVertexKey) {
   // Refresh display
   updateVertexLabelsAndColors();
 
-  // Capture state after change and record action
-  const afterState = captureCompleteGridState();
+  // Capture state after change and record action (lightweight)
+  const afterState = captureComponentOrderState();
   recordAction('COMPONENT_ORDER', { beforeState, afterState });
 }
 
@@ -31266,8 +32058,8 @@ function clearComponentOrder(firstVertexKey) {
 
   const order = firstVertex.componentOrder;
   if (order !== undefined && order !== null) {
-    // Capture state before change
-    const beforeState = captureCompleteGridState();
+    // Capture state before change (lightweight - only component order data)
+    const beforeState = captureComponentOrderState();
 
     componentOrderMap.delete(order);
     delete firstVertex.componentOrder;
@@ -31278,8 +32070,8 @@ function clearComponentOrder(firstVertexKey) {
     // Refresh display
     updateVertexLabelsAndColors();
 
-    // Capture state after change and record action
-    const afterState = captureCompleteGridState();
+    // Capture state after change and record action (lightweight)
+    const afterState = captureComponentOrderState();
     recordAction('COMPONENT_ORDER', { beforeState, afterState });
   }
 }
@@ -32629,6 +33421,7 @@ function performAction(target, type) {
                 const movedComponentOrders = affectedComponentOrders.length > 0 ? affectedComponentOrders : null;
                 recordAction('EDGE_STATE', { edgeKey: target, beforeState, afterState, movedComponentOrders });
               }
+              checkAndUpdateHamiltonianMarkers();
               return;
             } else if (edge.arrowDirection === 1) {
               edge.arrowDirection = -1;
@@ -32657,9 +33450,10 @@ function performAction(target, type) {
               recordAction('EDGE_STATE', { edgeKey: target, beforeState, afterState });
             }
             console.log(`[EdgeClick] After: edge.arrowDirection=${edge.arrowDirection}, edge.arrows=${edge.arrows}`);
+            checkAndUpdateHamiltonianMarkers();
             return;
           }
-          
+
           // Toggle color (no arrow mode)
           console.log('[Instanced No-Arrow Path] Reached toggle color section');
           const newColor = edge.color === selectedColor ? UNCOLORED_COLOR : selectedColor;
@@ -32773,6 +33567,9 @@ function performAction(target, type) {
 
           const afterState = captureEdgeState(target);
           recordAction('EDGE_STATE', { edgeKey: target, beforeState, afterState, clearedComponentOrders });
+
+          // Check if Hamiltonian path status changed and update markers accordingly
+          checkAndUpdateHamiltonianMarkers();
         } else {
           // Individual mode - reconstruct intersects array
           const edge = currentGrid.edges.get(target);
@@ -33182,6 +33979,9 @@ function onMouseMove(event) {
 
   if (coordinateHoverMode) {
     handleCoordinateHover(event);
+  } else if (highlightBoxMode) {
+    // Handle highlight box mode hover - show box highlight on hover
+    handleHighlightBoxHover();
   } else {
     // Handle hover based on current mode
     switch(mode) {
@@ -33447,6 +34247,24 @@ function handleInstancedEdgeHover() {
         const quaternion = new THREE.Quaternion();
         const scale = new THREE.Vector3();
         matrix.decompose(position, quaternion, scale);
+
+        // If edge is hidden (grid toggled off), compute position from edge coordinates
+        if (scale.x === 0 && scale.y === 0 && scale.z === 0) {
+          const [a, b] = unpackEdge(edgeKey, currentGrid);
+          const aVec = new THREE.Vector3(...a);
+          const bVec = new THREE.Vector3(...b);
+          const midpoint = new THREE.Vector3().addVectors(aVec, bVec).multiplyScalar(0.5);
+          const direction = new THREE.Vector3().subVectors(bVec, aVec);
+          const length = direction.length();
+
+          position.copy(midpoint);
+          scale.set(1, length, 1);
+
+          // Compute quaternion to align cylinder with edge direction
+          const up = new THREE.Vector3(0, 1, 0);
+          direction.normalize();
+          quaternion.setFromUnitVectors(up, direction);
+        }
 
         // Apply to highlight overlay
         currentGrid.highlightOverlay.position.copy(position);
@@ -33755,7 +34573,182 @@ function handleBoxHover() {
   document.body.style.cursor = 'pointer';
 }
 
+// --- Highlight Box Mode: Hover handler ---
+function handleHighlightBoxHover() {
+  if (!currentGrid) return;
 
+  // Get all box meshes for raycasting
+  const meshes = [];
+  if (currentGrid.instancedBoxesXY) meshes.push(currentGrid.instancedBoxesXY);
+  if (currentGrid.instancedBoxesXZ) meshes.push(currentGrid.instancedBoxesXZ);
+  if (currentGrid.instancedBoxesYZ) meshes.push(currentGrid.instancedBoxesYZ);
+
+  if (meshes.length === 0) {
+    clearHoveredBoxHighlight();
+    currentGrid.hoveredHighlightBox = null;  // Clear to prevent stale clicks
+    document.body.style.cursor = 'default';
+    return;
+  }
+
+  const hits = raycaster.intersectObjects(meshes, false);
+
+  if (!hits.length) {
+    clearHoveredBoxHighlight();
+    currentGrid.hoveredHighlightBox = null;  // Clear to prevent stale clicks
+    document.body.style.cursor = 'default';
+    return;
+  }
+
+  const hit = hits[0];
+  let box = null;
+
+  if (hit.instanceId != null) {
+    if (hit.object === currentGrid.instancedBoxesXY) {
+      box = currentGrid.instancesXY[hit.instanceId];
+    } else if (hit.object === currentGrid.instancedBoxesXZ) {
+      box = currentGrid.instancesXZ[hit.instanceId];
+    } else if (hit.object === currentGrid.instancedBoxesYZ) {
+      box = currentGrid.instancesYZ[hit.instanceId];
+    }
+  }
+
+  if (!box) {
+    clearHoveredBoxHighlight();
+    currentGrid.hoveredHighlightBox = null;  // Clear to prevent stale clicks
+    document.body.style.cursor = 'default';
+    return;
+  }
+
+  // Store box for click handling
+  currentGrid.hoveredHighlightBox = box;
+
+  // Highlight the hovered box using the main color from color panel
+  const colorInput = document.getElementById('colorInput');
+  const colorHex = colorInput ? colorInput.value : '#0000ff';
+  const color = parseInt(colorHex.replace('#', ''), 16);
+
+  highlightHoveredBoxWithColor(box, color);
+  document.body.style.cursor = 'pointer';
+}
+
+// Highlight hovered box with a specific color (for highlight box mode)
+function highlightHoveredBoxWithColor(box, color) {
+  clearHoveredBoxHighlight();
+
+  const [x, y, z] = box.coords;
+  let size, center;
+
+  if (box.plane === "XY") {
+    size = new THREE.Vector3(1, 1, 0.01);
+    center = new THREE.Vector3(x + 0.5, y + 0.5, z);
+  } else if (box.plane === "XZ") {
+    size = new THREE.Vector3(1, 0.01, 1);
+    center = new THREE.Vector3(x + 0.5, y, z + 0.5);
+  } else if (box.plane === "YZ") {
+    size = new THREE.Vector3(0.01, 1, 1);
+    center = new THREE.Vector3(x, y + 0.5, z + 0.5);
+  }
+
+  const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+  const material = new THREE.MeshBasicMaterial({
+    color: color,
+    opacity: highlightBoxOpacity,
+    transparent: true,
+    depthTest: false
+  });
+
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.position.copy(center);
+  mesh.userData.box = box;
+
+  currentGrid.group.add(mesh);
+  lastHighlighted = mesh;
+}
+
+// --- Highlight Box Mode: Click handler ---
+function handleHighlightBoxClick() {
+  if (!currentGrid || !currentGrid.hoveredHighlightBox) return;
+
+  const box = currentGrid.hoveredHighlightBox;
+  const boxKey = `${box.coords[0]},${box.coords[1]},${box.coords[2]},${box.plane}`;
+
+  // Initialize the persistent highlights map if needed
+  if (!currentGrid.persistentBoxHighlights) {
+    currentGrid.persistentBoxHighlights = new Map();
+  }
+
+  // Toggle: if box already has a highlight, remove it; otherwise, add one
+  if (currentGrid.persistentBoxHighlights.has(boxKey)) {
+    // Remove the highlight
+    const mesh = currentGrid.persistentBoxHighlights.get(boxKey);
+
+    // Capture state for undo before removing
+    const actionData = {
+      boxKey: boxKey,
+      coords: [...box.coords],
+      plane: box.plane,
+      color: mesh.material.color.getHex(),
+      opacity: mesh.material.opacity,
+      wasAdded: false  // This action REMOVED a highlight
+    };
+
+    currentGrid.group.remove(mesh);
+    mesh.geometry.dispose();
+    mesh.material.dispose();
+    currentGrid.persistentBoxHighlights.delete(boxKey);
+
+    // Record undo action
+    recordAction('HIGHLIGHT_BOX', actionData);
+    console.log(`[HighlightBoxMode] Removed highlight at ${boxKey}`);
+  } else {
+    // Add a persistent highlight
+    const [x, y, z] = box.coords;
+    let size, center;
+
+    if (box.plane === "XY") {
+      size = new THREE.Vector3(1, 1, 0.02);
+      center = new THREE.Vector3(x + 0.5, y + 0.5, z);
+    } else if (box.plane === "XZ") {
+      size = new THREE.Vector3(1, 0.02, 1);
+      center = new THREE.Vector3(x + 0.5, y, z + 0.5);
+    } else if (box.plane === "YZ") {
+      size = new THREE.Vector3(0.02, 1, 1);
+      center = new THREE.Vector3(x, y + 0.5, z + 0.5);
+    }
+
+    // Get the main color from color panel
+    const colorInput = document.getElementById('colorInput');
+    const colorHex = colorInput ? colorInput.value : '#0000ff';
+    const color = parseInt(colorHex.replace('#', ''), 16);
+
+    const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+    const material = new THREE.MeshBasicMaterial({
+      color: color,
+      opacity: highlightBoxOpacity,
+      transparent: true,
+      depthTest: false
+    });
+
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.copy(center);
+    mesh.userData.boxKey = boxKey;
+    mesh.userData.box = box;
+
+    currentGrid.group.add(mesh);
+    currentGrid.persistentBoxHighlights.set(boxKey, mesh);
+
+    // Record undo action
+    recordAction('HIGHLIGHT_BOX', {
+      boxKey: boxKey,
+      coords: [...box.coords],
+      plane: box.plane,
+      color: color,
+      opacity: highlightBoxOpacity,
+      wasAdded: true  // This action ADDED a highlight
+    });
+    console.log(`[HighlightBoxMode] Added highlight at ${boxKey}`);
+  }
+}
 
 
 
